@@ -2,25 +2,62 @@
 
 .App {
     text-align: center;
-    background: white;
+    background: lightgray;
     color: black;
     overflow: hidden;
     font-family: 'Rubik', sans-serif;
+    display: flex;
+    justify-content: center;
 }
 
+.resume{
+    width: 65%;
+    margin-top: 5%;
+    margin-bottom: 5%;
+    min-height: 150vh;
+    background-color: white;
+    text-align: start;
+    padding-left: 3%;
+    padding-top: 3%;
+}
 
 .header{
     font-size: 24px;
-    padding: 3%;
+    padding-bottom: 3%;
+    padding-top: 10px;
 }
 
-.subheader{
+.section{
     font-size: 20px;
-    padding: 3%;
-    text-align: start;
 }
 
-.subtext{
-    text-align: start;
-    padding-left: 3%;
+#subtext{
+    font-size: 16px;
+    padding-top: 10px;
+}
+
+
+.profile_image{
+    height: 15%;
+    border-radius: 50%;
+    border: solid black 1px;
+}
+
+.collapsible_header{
+    outline: 1px solid black;
+    padding: 10px;
+    margin-right: 3%;
+}
+
+.Collapsible{
+    outline: solid 1px black;
+    padding: 10px;
+    margin-right: 3%;
+    margin-top: 20px;
+}
+
+.custom_trigger{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }

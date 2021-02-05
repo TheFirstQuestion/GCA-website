@@ -1,5 +1,8 @@
 import React, {useState} from 'react';
 import './App.css';
+import woman from './female_user.png';
+import Collapsible from 'react-collapsible';
+import Trigger from './Trigger';
 
 class Resume extends React.Component {
     constructor(props) {
@@ -10,26 +13,25 @@ class Resume extends React.Component {
 
     render() {
         return (
-            <div>
+            <div className="resume">
+                <img className="profile_image" src={woman} alt="" />
                 <div className="header">Woman Name</div>
-                <div>
-                    <div className="subheader">Education</div>
-                    <div className="subtext">University</div>
-                    <div className="subtext">Major</div>
-                    <div className="subtext">Distinction</div>
-                </div>
 
-                <div>
-                    <div className="subheader">Work Experience</div>
-                    <div className="subtext">Most recent job</div>
-                    <div className="subtext">Past job 1</div>
-                    <div className="subtext">Past job 2</div>
-                </div>
+                <Collapsible trigger={<Trigger trigger_name={"Education"}/>}>
+                    <div id="subtext">University</div>
+                    <div id="subtext">Major</div>
+                    <div id="subtext">Distinction</div>
+                </Collapsible>
 
-                <div>
-                    <div className="subheader">Notes from Initial Phone Screen</div>
-                    <div className="subtext">"........"</div>
-                </div>
+                <Collapsible trigger={<Trigger trigger_name={"Work Experience"}/>}>
+                    <div id="subtext">Most recent job</div>
+                    <div id="subtext">Past job 1</div>
+                    <div id="subtext">Past job 2</div>
+                </Collapsible>
+
+                <Collapsible trigger={<Trigger trigger_name={"Notes from Initial Phone Screen"}/>}>
+                    <div id="subtext">"........"</div>
+                </Collapsible>
             </div>
         );
     }
