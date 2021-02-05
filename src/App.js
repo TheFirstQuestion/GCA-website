@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import Resume from './Resume';
 import './App.css';
 
 class App extends React.Component {
@@ -11,6 +12,7 @@ class App extends React.Component {
     render() {
         return (
             <div className="App">
+                <Resume/>
             </div>
         );
     }

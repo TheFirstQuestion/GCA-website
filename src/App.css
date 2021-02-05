@@ -7,3 +7,20 @@
     overflow: hidden;
     font-family: 'Rubik', sans-serif;
 }
+
+
+.header{
+    font-size: 24px;
+    padding: 3%;
+}
+
+.subheader{
+    font-size: 20px;
+    padding: 3%;
+    text-align: start;
+}
+
+.subtext{
+    text-align: start;
+    padding-left: 3%;
+}
