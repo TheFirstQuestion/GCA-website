@@ -6,3 +6,8 @@
 * Type `npm install`
 * Type `npm start`
 * In your browser, visit http://localhost:3000
+
+
+## Running Project 
+* In terminal/cmd, navigate to the project folder and type: `npm start`
+* In your browser, visit http://localhost:3000
