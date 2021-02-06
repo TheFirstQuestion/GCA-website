@@ -3,6 +3,7 @@ import './App.css';
 import woman from './female_user.png';
 import Collapsible from 'react-collapsible';
 import Trigger from './Trigger';
+import Divider from '@material-ui/core/Divider';
 
 class Resume extends React.Component {
     constructor(props) {
@@ -18,15 +19,43 @@ class Resume extends React.Component {
                 <div className="header">Woman Name</div>
 
                 <Collapsible trigger={<Trigger trigger_name={"Education"}/>}>
-                    <div id="subtext">University</div>
+                <div id="subtext">Stanford University
+                        <div id="subinfo">Master's degree, Computer Science</div>
+                        <div id="subinfogray">2021</div>
+                    </div>
+
+                    <Divider />
+
                     <div id="subtext">Major</div>
+
+                    <Divider />
+
                     <div id="subtext">Distinction</div>
                 </Collapsible>
 
                 <Collapsible trigger={<Trigger trigger_name={"Work Experience"}/>}>
-                    <div id="subtext">Most recent job</div>
-                    <div id="subtext">Past job 1</div>
-                    <div id="subtext">Past job 2</div>
+                    <div id="subtext">Software Engineer
+                        <div id="subinfo">Unity Technologies * Internship</div>
+                        <div id="subinfogray">June 2020 - Present * 9 mos</div>
+                        <div id="subinfo">AI, Unity Simulation</div>
+                    </div>
+
+                    <Divider />
+                    
+                    <div id="subtext">Research Intern
+                        <div id="subinfo">Stanford HCI Group</div>
+                        <div id="subinfogray">Mar 2019 - Present * 2 years</div>
+                        <div id="subinfogray">Stanford, California</div>
+                        <div id="subinfo">Working on project: An Augmented Reality Interface for Autonomous Robots, in which we investigate the use of spatial information visualization techniques through an AR interface for programming, understanding, and debugging human-robot interactions. With the use of AR, our tool aims to make the internal states of the robot and its relation to people, objects, and the environment visible to programmers.</div>
+                    </div>
+
+                    <Divider />
+
+                    <div id="subtext">Sofware Engineer
+                        <div id="subinfo">Facebook</div>
+                        <div id="subinfogray">June 2020 - Present</div>
+                        <div id="subinfo">Filler filler filler filler</div>
+                    </div>
                 </Collapsible>
 
                 <Collapsible trigger={<Trigger trigger_name={"Notes from Initial Phone Screen"}/>}>
