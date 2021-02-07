@@ -9,7 +9,26 @@ class Resume extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            educationOpenedCount: 0,
+            workexpOpenedCount: 0,
+            notesOpenedCount: 0,
         };
+        this.collapsibleOpened = this.collapsibleOpened.bind(this);
+    }
+
+    collapsibleOpened(e){
+        if(e == 0){
+            this.state.educationOpenedCount++;
+            console.log("education opened count: " + this.state.educationOpenedCount)
+        }
+        else if(e == 1){
+            this.state.workexpOpenedCount++;
+            console.log("work experience opened count: " + this.state.workexpOpenedCount)
+        }
+        else{
+            this.state.notesOpenedCount++;
+            console.log("notes opened count: " + this.state.notesOpenedCount)
+        }
     }
 
     render() {
@@ -18,7 +37,7 @@ class Resume extends React.Component {
                 <img className="profile_image" src={woman} alt="" />
                 <div className="header">Woman Name</div>
 
-                <Collapsible trigger={<Trigger trigger_name={"Education"}/>}>
+                <Collapsible onTriggerOpening={() => this.collapsibleOpened(0)} trigger={<Trigger trigger_name={"Education"}/>}>
                 <div id="subtext">Stanford University
                         <div id="subinfo">Master's degree, Computer Science</div>
                         <div id="subinfogray">2021</div>
@@ -33,7 +52,7 @@ class Resume extends React.Component {
                     <div id="subtext">Distinction</div>
                 </Collapsible>
 
-                <Collapsible trigger={<Trigger trigger_name={"Work Experience"}/>}>
+                <Collapsible onTriggerOpening={() => this.collapsibleOpened(1)} trigger={<Trigger trigger_name={"Work Experience"}/>}>
                     <div id="subtext">Software Engineer
                         <div id="subinfo">Unity Technologies * Internship</div>
                         <div id="subinfogray">June 2020 - Present * 9 mos</div>
@@ -58,7 +77,7 @@ class Resume extends React.Component {
                     </div>
                 </Collapsible>
 
-                <Collapsible trigger={<Trigger trigger_name={"Notes from Initial Phone Screen"}/>}>
+                <Collapsible onTriggerOpening={() => this.collapsibleOpened(2)} trigger={<Trigger trigger_name={"Notes from Initial Phone Screen"}/>}>
                     <div id="subtext">"........"</div>
                 </Collapsible>
             </div>
