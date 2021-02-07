@@ -12,6 +12,10 @@ class Resume extends React.Component {
             educationOpenedCount: 0,
             workexpOpenedCount: 0,
             notesOpenedCount: 0,
+
+            x: 0,
+            y: 0,
+            csvData: [],
         };
         this.collapsibleOpened = this.collapsibleOpened.bind(this);
     }
