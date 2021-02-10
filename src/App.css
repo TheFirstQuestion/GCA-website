@@ -19,6 +19,7 @@
     text-align: start;
     padding-left: 3%;
     padding-top: 3%;
+    padding-bottom: 3%;
 }
 
 .header{
@@ -74,4 +75,17 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+
+.modal{
+    height: 10vh;
+    width: 60vh;
+    display: block;
+    padding: 30px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 100px;
+    text-align: center;
+    outline: 1px solid black;
+    background: white;
 }

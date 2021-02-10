@@ -4,6 +4,9 @@ import woman from './female_user.png';
 import Collapsible from 'react-collapsible';
 import Trigger from './Trigger';
 import Divider from '@material-ui/core/Divider';
+import Modal from 'react-modal';
+import plus from './plus_icon.png';
+import minus from './minus_icon.png';
 
 class Resume extends React.Component {
     constructor(props) {
@@ -16,33 +19,61 @@ class Resume extends React.Component {
             x: 0,
             y: 0,
             csvData: [],
+
+            modalOpened: true,
+            participant_number: '',
+
+            educationSectionOpened: false,
+            workSectionOpened: false,
         };
         this.collapsibleOpened = this.collapsibleOpened.bind(this);
+        this.toggleModal = this.toggleModal.bind(this);
+        this.handleChange = this.handleChange.bind(this);
     }
 
     collapsibleOpened(e){
         if(e == 0){
             this.state.educationOpenedCount++;
             console.log("education opened count: " + this.state.educationOpenedCount)
+            this.setState({workSectionOpened: false});
         }
         else if(e == 1){
             this.state.workexpOpenedCount++;
             console.log("work experience opened count: " + this.state.workexpOpenedCount)
+            this.setState({educationSectionOpened: false})
         }
-        else{
-            this.state.notesOpenedCount++;
-            console.log("notes opened count: " + this.state.notesOpenedCount)
-        }
+    }
+
+    toggleModal(){
+        this.setState({modalOpened: false});
+    }
+
+    handleChange(event) {
+        this.setState({participant_number: event.target.value})
     }
 
     render() {
         return (
             <div className="resume">
+                <Modal className="modal"
+                    isOpen={this.state.modalOpened}>
+                    <div> Enter Participant Number: </div>
+                    <input onChange={this.handleChange.bind(this)} value={this.state.participant_number} />
+                    <button onClick={() => this.toggleModal()}> Submit </button>
+                </Modal>
+
                 <img className="profile_image" src={woman} alt="" />
                 <div className="header">Woman Name</div>
 
-                <Collapsible onTriggerOpening={() => this.collapsibleOpened(0)} trigger={<Trigger trigger_name={"Education"}/>}>
-                <div id="subtext">Stanford University
+                <div>Notes from Initial Phone Screen:  
+                <span id="subtext"> ........</span>
+                </div>
+
+                <Collapsible onTriggerOpening={() => this.collapsibleOpened(0)} 
+                    accordionPosition={"0"}
+                    trigger={<Trigger trigger_name={"Education"} trigger_icon={plus}/>}
+                    triggerWhenOpen={<Trigger trigger_name={"Education"} trigger_icon={minus}/>}>
+                    <div id="subtext">Stanford University
                         <div id="subinfo">Master's degree, Computer Science</div>
                         <div id="subinfogray">2021</div>
                     </div>
@@ -56,7 +87,10 @@ class Resume extends React.Component {
                     <div id="subtext">Distinction</div>
                 </Collapsible>
 
-                <Collapsible onTriggerOpening={() => this.collapsibleOpened(1)} trigger={<Trigger trigger_name={"Work Experience"}/>}>
+                <Collapsible onTriggerOpening={() => this.collapsibleOpened(1)} 
+                    accordionPosition={"1"}
+                    trigger={<Trigger trigger_name={"Work Experience"} trigger_icon={plus}/>}
+                    triggerWhenOpen={<Trigger trigger_name={"Work Experience"} trigger_icon={minus}/>}>
                     <div id="subtext">Software Engineer
                         <div id="subinfo">Unity Technologies * Internship</div>
                         <div id="subinfogray">June 2020 - Present * 9 mos</div>
@@ -79,10 +113,6 @@ class Resume extends React.Component {
                         <div id="subinfogray">June 2020 - Present</div>
                         <div id="subinfo">Filler filler filler filler</div>
                     </div>
-                </Collapsible>
-
-                <Collapsible onTriggerOpening={() => this.collapsibleOpened(2)} trigger={<Trigger trigger_name={"Notes from Initial Phone Screen"}/>}>
-                    <div id="subtext">"........"</div>
                 </Collapsible>
             </div>
         );

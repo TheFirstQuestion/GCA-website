@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import plus from './plus_icon.png';
+import minus from './minus_icon.png';
 
 class Trigger extends React.Component {
     constructor(props) {
@@ -12,7 +13,7 @@ class Trigger extends React.Component {
         return (
             <div className="custom_trigger">
                 <div className="section">{this.props.trigger_name}</div>
-                <img className="profile_image" src={plus} alt="" />
+                <img className="profile_image" src={this.props.trigger_icon} alt="" />
             </div>
         );
     }

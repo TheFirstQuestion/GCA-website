@@ -3,6 +3,7 @@ import Resume from './Resume';
 import './App.css';
 import { CSVLink, CSVDownload } from 'react-csv';
 
+
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -14,8 +15,10 @@ class App extends React.Component {
     }
 
     _onMouseMove(e) {
+        var options = { hour12: false };
+
         this.setState({x: e.screenX, y: e.screenY});
-        let time = new Date().toLocaleString();
+        let time = new Date().toLocaleString('en-US', options);
         console.log(time);
         let x = e.clientX;// - e.target.offsetLeft
         let y = e.clientY;// - e.target.offsetTop
