@@ -8,13 +8,17 @@
     "@testing-library/jest-dom": "^5.11.5",
     "@testing-library/react": "^11.1.1",
     "@testing-library/user-event": "^12.2.0",
+    "bootstrap": "^4.6.0",
+    "firebase": "^8.2.7",
     "react": "^17.0.1",
+    "react-bootstrap": "^1.4.3",
     "react-collapsible": "^2.8.3",
     "react-csv": "^2.0.3",
     "react-dom": "^17.0.1",
     "react-modal": "^3.12.1",
     "react-pdf": "^5.1.0",
     "react-scripts": "4.0.0",
+    "recompose": "^0.30.0",
     "web-vitals": "^0.2.4"
   },
   "scripts": {

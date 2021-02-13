@@ -19,10 +19,10 @@ class App extends React.Component {
 
         this.setState({x: e.screenX, y: e.screenY});
         let time = new Date().toLocaleString('en-US', options);
-        console.log(time);
+        //console.log(time);
         let x = e.clientX;// - e.target.offsetLeft
         let y = e.clientY;// - e.target.offsetTop
-        console.log("x: " + x + " y: " + y)
+        //console.log("x: " + x + " y: " + y)
         let newObj = [time, x, y]
         this.setState({csvData: [...this.state.csvData, newObj]})
     }

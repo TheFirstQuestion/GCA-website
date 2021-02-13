@@ -64,9 +64,22 @@
     margin-right: 3%;
 }
 
+.btn:focus {
+    outline: none;
+    box-shadow: none;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
 .Collapsible{
     outline: solid 1px black;
     padding: 10px;
+    margin-right: 3%;
+    margin-top: 20px;
+}
+
+.accordion{
+    outline: solid 1px black;
     margin-right: 3%;
     margin-top: 20px;
 }
@@ -77,8 +90,7 @@
     justify-content: space-between;
 }
 
-.modal{
-    height: 10vh;
+.modal_dtp{
     width: 60vh;
     display: block;
     padding: 30px;
