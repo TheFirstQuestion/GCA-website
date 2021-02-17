@@ -58,11 +58,22 @@ class Resume extends React.Component {
             remote: true,
 
             //upvote + downvote + question mark
+            education_up: false,
+            education_q: false,
+            education_down: false,
 
+            work1_up: false,
+            work1_q: false,
+            work1_down: false,
+
+            work2_up: false,
+            work2_q: false,
+            work2_down: false,
         };
         this.collapsibleOpened = this.collapsibleOpened.bind(this);
         this.toggleModal = this.toggleModal.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.voteClick = this.voteClick.bind(this);
         this.positionList = [];
     }
 
@@ -174,15 +185,15 @@ class Resume extends React.Component {
     renderPositionList = () => {
         if(this.positionList.length > 0){
             let viewPositionList = []
-            this.positionList.forEach((item) => {
+            this.positionList.forEach((item, index) => {
 
                 viewPositionList.push(
                     <div>
                         <div className="votingblock">
                             <div id="vertical">
-                                <img src={upvote}/>
-                                <img src={question}/>
-                                <img src={downvote}/>
+                                <img name={index == 0 ? "work1_up" : "work2_up"} src={index == 0 ? this.state.work1_up ? upvote_selected : upvote : this.state.work2_up ? upvote_selected : upvote} onClick={this.voteClick}/>
+                                <img name={index == 0 ? "work1_q" : "work2_q"} src={index == 0 ? this.state.work1_q ? question_selected : question : this.state.work2_q ? question_selected : question} onClick={this.voteClick}/>
+                                <img name={index == 0 ? "work1_down" : "work2_down"} src={index == 0 ? this.state.work1_down ? downvote_selected : downvote : this.state.work2_down ? downvote_selected : downvote} onClick={this.voteClick}/>
                             </div>
                             <div id="subtext"> {item.data().title}
                                 <div id="horizontal">
@@ -229,7 +240,11 @@ class Resume extends React.Component {
         this.setState({participant_number: event.target.value})
     }
 
-    voteClick(section){
+    voteClick(event){
+        console.log(event.target.name)
+        this.setState({[event.target.name] : !this.state.[event.target.name]}, () => {
+            console.log(this.state.[event.target.name])
+        })
         console.log("CLICKED")
     }
 
@@ -268,9 +283,9 @@ class Resume extends React.Component {
                         <Card.Body>
                             <div className="votingblock">
                                 <div id="vertical">
-                                    <img src={upvote}/>
-                                    <img src={question}/>
-                                    <img src={downvote}/>
+                                    <img name="education_up" src={this.state.education_up ? upvote_selected : upvote} onClick={this.voteClick}/>
+                                    <img name="education_q" src={this.state.education_q ? question_selected : question} onClick={this.voteClick}/>
+                                    <img name="education_down" src={this.state.education_down ? downvote_selected : downvote} onClick={this.voteClick}/>
                                 </div>
                                 <div id="subtext">{this.state.university}
                                     <div id="subinfo">{this.state.degree}, {this.state.major}</div>
