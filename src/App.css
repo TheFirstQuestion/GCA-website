@@ -39,6 +39,12 @@
     font-weight: bold;
 }
 
+#horizontal{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
 #subinfo{
     font-size: 14px;
     padding-top: 5px;
@@ -100,4 +106,28 @@
     text-align: center;
     outline: 1px solid black;
     background: white;
+}
+
+
+.vote {
+    display: inline-block;
+    cursor: pointer;
+    color: #687074
+} 
+  
+  
+.vote.on {
+    color: #f48024
+}
+
+#vertical{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    margin-right: 2%;
+}
+
+.votingblock{
+    display: flex;
+    flex-direction: row;
 }

@@ -1,6 +1,13 @@
 import React, {useState} from 'react';
 import './App.css';
 import woman from './female_user.png';
+import man from './male_user.png';
+import upvote from './upvote.png';
+import upvote_selected from './upvote_selected.png';
+import downvote from './downvote.png';
+import downvote_selected from './downvote_selected.png';
+import question from './question.png';
+import question_selected from './question_selected.png';
 import Collapsible from 'react-collapsible';
 import Trigger from './Trigger';
 import Divider from '@material-ui/core/Divider';
@@ -13,11 +20,15 @@ import Accordion from 'react-bootstrap/Accordion';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { makeStyles } from '@material-ui/core';
 
 class Resume extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            //TODO: automate this
+            studyVersion: 1,
+
             educationOpenedCount: 0,
             workexpOpenedCount: 0,
             notesOpenedCount: 0,
@@ -38,6 +49,16 @@ class Resume extends React.Component {
             duration: '',
             major: '',
             university: '',
+
+            gender_icon: man,
+            parenthood: true,
+            education: 0,
+            work1: 0, 
+            work2: 0,
+            remote: true,
+
+            //upvote + downvote + question mark
+
         };
         this.collapsibleOpened = this.collapsibleOpened.bind(this);
         this.toggleModal = this.toggleModal.bind(this);
@@ -46,56 +67,135 @@ class Resume extends React.Component {
     }
 
     componentDidMount(){
-        console.log("hello")
         const db = firebase.firestore();
 
-        //add values 
-        /*const blah = db.collection("test").add({
-            test: "test",
-        });*/
-
-        db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
-            this.setState({initialNotes: doc.data().nonparent})
-        })
-        db.collection("resume").doc("resume variations").collection("variation a").doc("education").get().then((doc) => {
-            this.setState({degree: doc.data().degree})
-            this.setState({distinction: doc.data().distinction})
-            this.setState({duration: doc.data().duration})
-            this.setState({major: doc.data().major})
-            this.setState({university: doc.data().university})
-        })
-        this.getPositionList();
-    }
-
-    getPositionList = async() => {
-        const db = firebase.firestore();
-        const result = await db.collection("resume").doc("resume variations").collection("variation a").doc("work experience").collection("positions").get();//.then(snapshot => {
-
-        if(result.docs.length > 0){
-            this.positionList = [...result.docs]
+        //select gender
+        let gender = Math.random();
+        if(gender < 0.5){
+            this.setState({gender_icon: man})
         }
-            /*snapshot.docs.forEach(doc => {
-                console.log(doc.data().company)
-                console.log(doc.data().description)
-            })*/
-        //});
+        else{
+            this.setState({gender_icon: woman})
+        }
+
+        //select parenthood
+        let parenthood = Math.random();
+        if(parenthood < 0.5){
+            this.setState({parenthood: true}, () => {
+                db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                    this.setState({initialNotes: doc.data().parent})
+                })
+            })
+        }
+        else{
+            this.setState({parenthood: false}, () => {
+                db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                    this.setState({initialNotes: doc.data().nonparent})
+                })
+            })
+        }
+
+        //select education
+        let education = Math.random();
+        if(education < 0.5){
+            this.setState({education: 0}, () => {
+                db.collection("resume").doc("education a").get().then((doc) => {
+                    this.setState({degree: doc.data().degree})
+                    this.setState({distinction: doc.data().distinction})
+                    this.setState({duration: doc.data().duration})
+                    this.setState({major: doc.data().major})
+                    this.setState({university: doc.data().university})
+                })
+            })
+        }
+        else{
+            this.setState({education: 1}, () => {
+                db.collection("resume").doc("education b").get().then((doc) => {
+                    this.setState({degree: doc.data().degree})
+                    this.setState({distinction: doc.data().distinction})
+                    this.setState({duration: doc.data().duration})
+                    this.setState({major: doc.data().major})
+                    this.setState({university: doc.data().university})
+                })
+            })
+        }
+
+        //select work experience 1
+        let work1 = Math.random();
+        if(work1 < 0.5){
+            this.setState({work1: 0}, () => {
+                db.collection("resume").doc("work box 1a").get().then((doc) => {
+                    this.positionList.push(doc)
+                    console.log(this.positionList)
+                })
+            })
+        }
+        else{
+            this.setState({work1: 1}, () => {
+                db.collection("resume").doc("work box 1b").get().then((doc) => {
+                    this.positionList.push(doc)
+                    console.log(this.positionList)
+                })
+            })
+        }
+
+        //select work experience 2
+        let work2 = Math.random();
+        if(work2 < 0.5){
+            this.setState({work2: 0}, () => {
+                db.collection("resume").doc("work box 2a").get().then((doc) => {
+                    this.positionList.push(doc)
+                    console.log(this.positionList)
+                })
+            })
+        }
+        else{
+            this.setState({work2: 1}, () => {
+                db.collection("resume").doc("work box 2b").get().then((doc) => {
+                    this.positionList.push(doc)
+                    console.log(this.positionList)
+                })
+            })
+        }
+
+        //JUST FOR STUDY 2:
+        //select remote or not remote
+        if(this.state.studyVersion == 2){
+            let remote = Math.random();
+            if(remote < 0.5){
+                this.setState({remote: true})
+            }
+            else{
+                this.setState({remote: false})
+            }
+        }
     }
 
     renderPositionList = () => {
         if(this.positionList.length > 0){
             let viewPositionList = []
-            this.positionList.forEach((item, index) => {
-                let company = item.data().company;
-                let description = item.data().description;
-                let title = item.data().title;
-                let duration = item.data().duration;
+            this.positionList.forEach((item) => {
 
                 viewPositionList.push(
                     <div>
-                        <div id="subtext"> {item.data().title}
-                            <div id="subinfo">{item.data().company}</div>
-                            <div id="subinfogray">{item.data().duration}</div>
-                            <div id="subinfo">{item.data().description}</div>
+                        <div className="votingblock">
+                            <div id="vertical">
+                                <img src={upvote}/>
+                                <img src={question}/>
+                                <img src={downvote}/>
+                            </div>
+                            <div id="subtext"> {item.data().title}
+                                <div id="horizontal">
+                                    <div id="subinfo">{item.data().company}</div>
+
+                                    {/*remote && study version 2*/}
+                                    {this.state.studyVersion == 2 && this.state.remote && <div id="subinfo"><i>Remote</i></div>}
+                                    {this.state.studyVersion == 2 && !this.state.remote && 
+                                        <div id="subinfo"><i>{item.data().location}</i></div>}
+                                </div>
+                                <div id="subinfogray">{item.data().duration}</div>
+                                <div id="subinfo">{item.data().description}</div>
+                            </div>
                         </div>
                         <Divider />
                     </div>
@@ -129,6 +229,10 @@ class Resume extends React.Component {
         this.setState({participant_number: event.target.value})
     }
 
+    voteClick(section){
+        console.log("CLICKED")
+    }
+
     render() {
         return (
             <div className="resume">
@@ -139,61 +243,12 @@ class Resume extends React.Component {
                     <button onClick={() => this.toggleModal()}> Submit </button>
                 </ModalReact>
 
-                <img className="profile_image" src={woman} alt="" />
+                <img className="profile_image" src={this.state.gender_icon} alt="" />
                 <div className="header">Name</div>
 
                 <div>Notes from Initial Phone Screen:  
-                <span id="subtext"> {this.state.initialNotes}</span>
+                <span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>
                 </div>
-
-                {/*<Collapsible onTriggerOpening={() => this.collapsibleOpened(0)} 
-                    accordionPosition={"0"}
-                    trigger={<Trigger trigger_name={"Education"} trigger_icon={plus}/>}
-                    triggerWhenOpen={<Trigger trigger_name={"Education"} trigger_icon={minus}/>}>
-                    <div id="subtext">{this.state.university}
-                        <div id="subinfo">{this.state.degree}, {this.state.major}</div>
-                        <div id="subinfogray">{this.state.duration}</div>
-                    </div>
-
-                    {/*<Divider />
-
-                    <div id="subtext">Major</div>
-
-                    <Divider />
-
-                    <div id="subtext">Distinction</div>
-                </Collapsible>
-
-                <Collapsible onTriggerOpening={() => this.collapsibleOpened(1)} 
-                    accordionPosition={"1"}
-                    trigger={<Trigger trigger_name={"Work Experience"} trigger_icon={plus}/>}
-                    triggerWhenOpen={<Trigger trigger_name={"Work Experience"} trigger_icon={minus}/>}>
-                    
-                    {this.renderPositionList()}
-
-                    <div id="subtext">Software Engineer
-                        <div id="subinfo">Unity Technologies * Internship</div>
-                        <div id="subinfogray">June 2020 - Present * 9 mos</div>
-                        <div id="subinfo">AI, Unity Simulation</div>
-                    </div>
-
-                    <Divider />
-                    
-                    <div id="subtext">Research Intern
-                        <div id="subinfo">Stanford HCI Group</div>
-                        <div id="subinfogray">Mar 2019 - Present * 2 years</div>
-                        <div id="subinfogray">Stanford, California</div>
-                        <div id="subinfo">Working on project: An Augmented Reality Interface for Autonomous Robots, in which we investigate the use of spatial information visualization techniques through an AR interface for programming, understanding, and debugging human-robot interactions. With the use of AR, our tool aims to make the internal states of the robot and its relation to people, objects, and the environment visible to programmers.</div>
-                    </div>
-
-                    <Divider />
-
-                    <div id="subtext">Sofware Engineer
-                        <div id="subinfo">Facebook</div>
-                        <div id="subinfogray">June 2020 - Present</div>
-                        <div id="subinfo">Filler filler filler filler</div>
-                    </div>
-                </Collapsible>*/}
 
                 <Accordion>
                     <Card>
@@ -211,10 +266,17 @@ class Resume extends React.Component {
                         </Card.Header>
                         <Accordion.Collapse eventKey="0">
                         <Card.Body>
-                        <div id="subtext">{this.state.university}
-                            <div id="subinfo">{this.state.degree}, {this.state.major}</div>
-                            <div id="subinfogray">{this.state.duration}</div>
-                        </div>
+                            <div className="votingblock">
+                                <div id="vertical">
+                                    <img src={upvote}/>
+                                    <img src={question}/>
+                                    <img src={downvote}/>
+                                </div>
+                                <div id="subtext">{this.state.university}
+                                    <div id="subinfo">{this.state.degree}, {this.state.major}</div>
+                                    <div id="subinfogray">{this.state.duration}</div>
+                                </div>
+                            </div>
                         </Card.Body>
                         </Accordion.Collapse>
                     </Card>
