@@ -27,15 +27,18 @@ class Resume extends React.Component {
         super(props);
         this.state = {
             //TODO: automate this
-            studyVersion: 1,
+            //study version
+            studyVersion: 2,
 
+            //which resume are they seeing (first or second)? update this in componentDidUpdate
+            resumeVersion: 1,
+
+            //all tracking outputs
             educationOpenedCount: 0,
             workexpOpenedCount: 0,
             notesOpenedCount: 0,
 
-            x: 0,
-            y: 0,
-            csvData: [],
+            activityData: [],
 
             modalOpened: true,
             participant_number: '',
@@ -69,6 +72,10 @@ class Resume extends React.Component {
             work2_up: false,
             work2_q: false,
             work2_down: false,
+
+            work3_up: false,
+            work3_q: false,
+            work3_down: false,
         };
         this.collapsibleOpened = this.collapsibleOpened.bind(this);
         this.toggleModal = this.toggleModal.bind(this);
@@ -78,6 +85,8 @@ class Resume extends React.Component {
     }
 
     componentDidMount(){
+        //TODO: get resume version
+
         const db = firebase.firestore();
 
         //select gender
@@ -169,6 +178,25 @@ class Resume extends React.Component {
             })
         }
 
+        //select work experience 3
+        let work3 = Math.random();
+        if(work3 < 0.5){
+            this.setState({work3: 0}, () => {
+                db.collection("resume").doc("work box 3a").get().then((doc) => {
+                    this.positionList.push(doc)
+                    console.log(this.positionList)
+                })
+            })
+        }
+        else{
+            this.setState({work3: 1}, () => {
+                db.collection("resume").doc("work box 3b").get().then((doc) => {
+                    this.positionList.push(doc)
+                    console.log(this.positionList)
+                })
+            })
+        }
+
         //JUST FOR STUDY 2:
         //select remote or not remote
         if(this.state.studyVersion == 2){
@@ -191,18 +219,19 @@ class Resume extends React.Component {
                     <div>
                         <div className="votingblock">
                             <div id="vertical">
-                                <img name={index == 0 ? "work1_up" : "work2_up"} src={index == 0 ? this.state.work1_up ? upvote_selected : upvote : this.state.work2_up ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                <img name={index == 0 ? "work1_q" : "work2_q"} src={index == 0 ? this.state.work1_q ? question_selected : question : this.state.work2_q ? question_selected : question} onClick={this.voteClick}/>
-                                <img name={index == 0 ? "work1_down" : "work2_down"} src={index == 0 ? this.state.work1_down ? downvote_selected : downvote : this.state.work2_down ? downvote_selected : downvote} onClick={this.voteClick}/>
+                                <img name={"work" + (index+1) + "_up"} src={this.state["work" + (index + 1) + "_up"] ? upvote_selected : upvote} onClick={this.voteClick}/>
+                                <img name={"work" + (index+1) + "_q"} src={this.state["work" + (index + 1) + "_q"] ? question_selected : question} onClick={this.voteClick}/>
+                                <img name={"work" + (index+1) + "_down"} src={this.state["work" + (index + 1) + "_down"] ? downvote_selected : downvote} onClick={this.voteClick}/>
                             </div>
                             <div id="subtext"> {item.data().title}
                                 <div id="horizontal">
                                     <div id="subinfo">{item.data().company}</div>
 
                                     {/*remote && study version 2*/}
-                                    {this.state.studyVersion == 2 && this.state.remote && <div id="subinfo"><i>Remote</i></div>}
-                                    {this.state.studyVersion == 2 && !this.state.remote && 
-                                        <div id="subinfo"><i>{item.data().location}</i></div>}
+                                    {this.state.studyVersion == 2 && this.state.remote && index == 0 && <div id="subinfo"><i>Remote</i></div>}
+                                    {this.state.studyVersion == 2 && !this.state.remote && index == 0 && <div id="subinfo"><i>City</i></div>}
+                                    {this.state.studyVersion == 2 && index != 0 &&
+                                        <div id="subinfo"><i>City</i></div>}
                                 </div>
                                 <div id="subinfogray">{item.data().duration}</div>
                                 <div id="subinfo">{item.data().description}</div>
@@ -220,16 +249,21 @@ class Resume extends React.Component {
     }
 
     collapsibleOpened(e){
+        var options = { hour12: false };
+        let time = new Date().toLocaleString('en-US', options);
+        let newObj = []
         if(e == 0){
+            console.log(time + " education");
             this.state.educationOpenedCount++;
-            console.log("education opened count: " + this.state.educationOpenedCount)
-            this.setState({workSectionOpened: false});
+            newObj = [time, "opened education section"]
         }
-        else if(e == 1){
+        else if(e == 1){ 
+            console.log(time + " work");
             this.state.workexpOpenedCount++;
-            console.log("work experience opened count: " + this.state.workexpOpenedCount)
-            this.setState({educationSectionOpened: false})
+            newObj = [time, "opened work section"]
         }
+        console.log(newObj)
+        this.setState({activityData: [...this.state.activityData, newObj]})
     }
 
     toggleModal(){
@@ -241,11 +275,22 @@ class Resume extends React.Component {
     }
 
     voteClick(event){
-        console.log(event.target.name)
-        this.setState({[event.target.name] : !this.state.[event.target.name]}, () => {
-            console.log(this.state.[event.target.name])
+        var options = { hour12: false };
+        let time = new Date().toLocaleString('en-US', options);
+        let newObj = []
+
+        this.setState({[event.target.name] : !this.state[event.target.name]}, () => {
+            if(this.state[event.target.name]){
+                newObj = [time, "clicked " + event.target.name + " button"]
+                console.log(newObj)
+                this.setState({activityData: [...this.state.activityData, newObj]})
+            }
+            else{
+                newObj = [time, "unclicked " + event.target.name + " button"]
+                console.log(newObj)
+                this.setState({activityData: [...this.state.activityData, newObj]})
+            }
         })
-        console.log("CLICKED")
     }
 
     render() {
@@ -259,7 +304,7 @@ class Resume extends React.Component {
                 </ModalReact>
 
                 <img className="profile_image" src={this.state.gender_icon} alt="" />
-                <div className="header">Name</div>
+                <div className="header">Candidate {this.state.resumeVersion == 1 ? "A" : "B"}</div>
 
                 <div>Notes from Initial Phone Screen:  
                 <span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>
@@ -273,6 +318,7 @@ class Resume extends React.Component {
                             variant="link" 
                             eventKey="0"
                             onClick={() => this.setState({educationSectionOpened: !this.state.educationSectionOpened}, () => {
+                                this.collapsibleOpened(0);
                                 if(this.state.educationSectionOpened){
                                     this.setState({workSectionOpened: false});
                             }})}>
@@ -302,6 +348,7 @@ class Resume extends React.Component {
                             variant="link" 
                             eventKey="1"
                             onClick={() => this.setState({workSectionOpened: !this.state.workSectionOpened}, () => {
+                                this.collapsibleOpened(1);
                                 if(this.state.workSectionOpened){
                                     this.setState({educationSectionOpened: false});
                             }})}>

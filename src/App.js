@@ -10,7 +10,7 @@ class App extends React.Component {
         this.state = {
             x: 0,
             y: 0,
-            csvData: [],
+            mouseData: [],
         };
     }
 
@@ -24,7 +24,7 @@ class App extends React.Component {
         let y = e.clientY;// - e.target.offsetTop
         //console.log("x: " + x + " y: " + y)
         let newObj = [time, x, y]
-        this.setState({csvData: [...this.state.csvData, newObj]})
+        this.setState({mouseData: [...this.state.mouseData, newObj]})
     }
 
     render() {
