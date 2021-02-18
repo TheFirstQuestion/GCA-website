@@ -311,6 +311,11 @@ class Resume extends React.Component {
     }
 
     submitUserID(){
+        if(this.state.participant_number == null || this.state.participant_number == ''){
+            this.setState({errorMessage: true})
+            return;
+        }
+
         //read database to see if this ID exists
         const db = firebase.firestore();
         const idRef = db.collection("userIDs").doc(this.state.participant_number)
