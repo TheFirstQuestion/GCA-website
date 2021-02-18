@@ -26,12 +26,12 @@ class Resume extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            //TODO: automate this
-            //study version
+            //study and resume version (pulled from props)
             studyVersion: 1,
-
-            //which resume are they seeing (first or second)? update this in componentDidUpdate
             resumeVersion: 1,
+
+            generatedID: '',
+            errorMessage: false,
 
             //all tracking outputs
             educationOpenedCount: 0,
@@ -40,7 +40,11 @@ class Resume extends React.Component {
 
             activityData: [],
 
-            modalOpened: true,
+            x: 0,
+            y: 0,
+            mouseData: [],
+
+            modalOpened: false,
             participant_number: '',
 
             educationSectionOpened: false,
@@ -78,7 +82,7 @@ class Resume extends React.Component {
             work3_down: false,
         };
         this.collapsibleOpened = this.collapsibleOpened.bind(this);
-        this.toggleModal = this.toggleModal.bind(this);
+        this.submitUserID = this.submitUserID.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.voteClick = this.voteClick.bind(this);
         this.positionList = [];
@@ -89,7 +93,17 @@ class Resume extends React.Component {
         this.setState({studyVersion: this.props.studyVersion}, () => {
             console.log("study version: " + this.state.studyVersion)
         })
-        //TODO: get resume version
+        
+        console.log(this.props.resumeVersion)
+        this.setState({resumeVersion: this.props.resumeVersion}, () => {
+            if(this.state.resumeVersion == 1){
+                this.generateUniqueID();
+            }
+            else{
+                this.setState({modalOpened: true})
+            }
+            console.log("resume version: " + this.state.resumeVersion)
+        })
 
         const db = firebase.firestore();
 
@@ -150,7 +164,6 @@ class Resume extends React.Component {
             this.setState({work1: 0}, () => {
                 db.collection("resume").doc("work box 1a").get().then((doc) => {
                     this.positionList.push(doc)
-                    console.log(this.positionList)
                 })
             })
         }
@@ -158,7 +171,6 @@ class Resume extends React.Component {
             this.setState({work1: 1}, () => {
                 db.collection("resume").doc("work box 1b").get().then((doc) => {
                     this.positionList.push(doc)
-                    console.log(this.positionList)
                 })
             })
         }
@@ -169,7 +181,6 @@ class Resume extends React.Component {
             this.setState({work2: 0}, () => {
                 db.collection("resume").doc("work box 2a").get().then((doc) => {
                     this.positionList.push(doc)
-                    console.log(this.positionList)
                 })
             })
         }
@@ -177,7 +188,6 @@ class Resume extends React.Component {
             this.setState({work2: 1}, () => {
                 db.collection("resume").doc("work box 2b").get().then((doc) => {
                     this.positionList.push(doc)
-                    console.log(this.positionList)
                 })
             })
         }
@@ -188,7 +198,6 @@ class Resume extends React.Component {
             this.setState({work3: 0}, () => {
                 db.collection("resume").doc("work box 3a").get().then((doc) => {
                     this.positionList.push(doc)
-                    console.log(this.positionList)
                 })
             })
         }
@@ -196,7 +205,6 @@ class Resume extends React.Component {
             this.setState({work3: 1}, () => {
                 db.collection("resume").doc("work box 3b").get().then((doc) => {
                     this.positionList.push(doc)
-                    console.log(this.positionList)
                 })
             })
         }
@@ -212,6 +220,38 @@ class Resume extends React.Component {
                 this.setState({remote: false})
             }
         }
+    }
+
+    generateUniqueID = () => {
+        //TODO: not sure if it is worth it but maybe prevent concurrent reads 
+
+        //generate ID
+        let userID = '_' + Math.random().toString(36).substr(2, 9);
+        console.log("user ID: " + userID)
+
+        //check database to make sure it hasnt already been generated
+        const db = firebase.firestore();
+        const idRef = db.collection("userIDs").doc(userID)
+        idRef.get()
+            .then((docSnapshot) => {
+                if (docSnapshot.exists) {
+                    idRef.onSnapshot((doc) => {
+                        console.log("ALREADY EXISTS")
+                        this.generateUniqueID();
+                    });
+                } 
+                else {
+                    console.log("DOES NOT EXIST")
+                    
+                    //add userID to database 
+                    const addDoc = db.collection("userIDs").doc(userID).set({
+                        //initialized: true,
+                    });
+                    
+                    //display ID to user
+                    this.setState({generatedID: userID})
+                }
+            });
     }
 
     renderPositionList = () => {
@@ -270,8 +310,26 @@ class Resume extends React.Component {
         this.setState({activityData: [...this.state.activityData, newObj]})
     }
 
-    toggleModal(){
-        this.setState({modalOpened: false});
+    submitUserID(){
+        //read database to see if this ID exists
+        const db = firebase.firestore();
+        const idRef = db.collection("userIDs").doc(this.state.participant_number)
+        idRef.get()
+            .then((docSnapshot) => {
+                if (docSnapshot.exists) {
+                    idRef.onSnapshot((doc) => {
+                        console.log("VALID: THIS DOES EXIST")
+                        this.setState({modalOpened: false})
+                        this.setState({errorMessage: false})
+                    });
+                } 
+                else {
+                    console.log("INVALID: DOES NOT EXIST")
+            
+                    //prompt them to re-enter
+                    this.setState({errorMessage: true})
+                }
+            });
     }
 
     handleChange(event) {
@@ -297,75 +355,94 @@ class Resume extends React.Component {
         })
     }
 
+    _onMouseMove(e) {
+        var options = { hour12: false };
+
+        this.setState({x: e.screenX, y: e.screenY});
+        let time = new Date().toLocaleString('en-US', options);
+        //console.log(time);
+        let x = e.clientX;// - e.target.offsetLeft
+        let y = e.clientY;// - e.target.offsetTop
+        //console.log("x: " + x + " y: " + y)
+        let newObj = [time, x, y]
+        this.setState({mouseData: [...this.state.mouseData, newObj]})
+    }
+
     render() {
         return (
-            <div className="resume">
-                <ModalReact className="modal_dtp"
-                    isOpen={this.state.modalOpened}>
-                    <div> Enter Participant Number: </div>
-                    <input onChange={this.handleChange.bind(this)} value={this.state.participant_number} />
-                    <button onClick={() => this.toggleModal()}> Submit </button>
-                </ModalReact>
+            <div className="overall">
+                <div className="App" onMouseMove={this._onMouseMove.bind(this)}>
+                    <div className="resume">
+                        <ModalReact className="modal_dtp"
+                            isOpen={this.state.modalOpened}>
+                            <div> Enter User ID: </div>
+                            <input onChange={this.handleChange.bind(this)} value={this.state.participant_number} />
+                            <button onClick={() => this.submitUserID()}> Submit </button>
+                            {this.state.errorMessage && <div id="red">Invalid ID. Please re-enter.</div>}
+                        </ModalReact>
 
-                <img className="profile_image" src={this.state.gender_icon} alt="" />
-                <div className="header">Candidate {this.state.resumeVersion == 1 ? "A" : "B"}</div>
+                        <img className="profile_image" src={this.state.gender_icon} alt="" />
+                        <div className="header">Candidate {this.state.resumeVersion == 1 ? "A" : "B"}</div>
 
-                <div>Notes from Initial Phone Screen:  
-                <span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>
+                        <div>Notes from Initial Phone Screen:  
+                        <span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>
+                        </div>
+
+                        <Accordion>
+                            <Card>
+                                <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0}}>
+                                <Accordion.Toggle as={Button}  
+                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px"}} 
+                                    variant="link" 
+                                    eventKey="0"
+                                    onClick={() => this.setState({educationSectionOpened: !this.state.educationSectionOpened}, () => {
+                                        this.collapsibleOpened(0);
+                                        if(this.state.educationSectionOpened){
+                                            this.setState({workSectionOpened: false});
+                                    }})}>
+                                    Education <img src={this.state.educationSectionOpened ? minus : plus}/>
+                                </Accordion.Toggle>
+                                </Card.Header>
+                                <Accordion.Collapse eventKey="0">
+                                <Card.Body>
+                                    <div className="votingblock">
+                                        <div id="vertical">
+                                            <img name="education_up" src={this.state.education_up ? upvote_selected : upvote} onClick={this.voteClick}/>
+                                            <img name="education_q" src={this.state.education_q ? question_selected : question} onClick={this.voteClick}/>
+                                            <img name="education_down" src={this.state.education_down ? downvote_selected : downvote} onClick={this.voteClick}/>
+                                        </div>
+                                        <div id="subtext">{this.state.university}
+                                            <div id="subinfo">{this.state.degree}, {this.state.major}</div>
+                                            <div id="subinfogray">{this.state.duration}</div>
+                                        </div>
+                                    </div>
+                                </Card.Body>
+                                </Accordion.Collapse>
+                            </Card>
+                            <Card>
+                                <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0, borderTop: "1px solid black"}}>
+                                <Accordion.Toggle as={Button} 
+                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px"}} 
+                                    variant="link" 
+                                    eventKey="1"
+                                    onClick={() => this.setState({workSectionOpened: !this.state.workSectionOpened}, () => {
+                                        this.collapsibleOpened(1);
+                                        if(this.state.workSectionOpened){
+                                            this.setState({educationSectionOpened: false});
+                                    }})}>
+                                    Work Experience <img src={this.state.workSectionOpened ? minus : plus}/>
+                                </Accordion.Toggle>
+                                </Card.Header>
+                                <Accordion.Collapse eventKey="1">
+                                <Card.Body>
+                                    {this.renderPositionList()}
+                                </Card.Body>
+                                </Accordion.Collapse>
+                            </Card>
+                        </Accordion>
+                    </div>
                 </div>
-
-                <Accordion>
-                    <Card>
-                        <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0}}>
-                        <Accordion.Toggle as={Button}  
-                            style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px"}} 
-                            variant="link" 
-                            eventKey="0"
-                            onClick={() => this.setState({educationSectionOpened: !this.state.educationSectionOpened}, () => {
-                                this.collapsibleOpened(0);
-                                if(this.state.educationSectionOpened){
-                                    this.setState({workSectionOpened: false});
-                            }})}>
-                            Education <img src={this.state.educationSectionOpened ? minus : plus}/>
-                        </Accordion.Toggle>
-                        </Card.Header>
-                        <Accordion.Collapse eventKey="0">
-                        <Card.Body>
-                            <div className="votingblock">
-                                <div id="vertical">
-                                    <img name="education_up" src={this.state.education_up ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                    <img name="education_q" src={this.state.education_q ? question_selected : question} onClick={this.voteClick}/>
-                                    <img name="education_down" src={this.state.education_down ? downvote_selected : downvote} onClick={this.voteClick}/>
-                                </div>
-                                <div id="subtext">{this.state.university}
-                                    <div id="subinfo">{this.state.degree}, {this.state.major}</div>
-                                    <div id="subinfogray">{this.state.duration}</div>
-                                </div>
-                            </div>
-                        </Card.Body>
-                        </Accordion.Collapse>
-                    </Card>
-                    <Card>
-                        <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0, borderTop: "1px solid black"}}>
-                        <Accordion.Toggle as={Button} 
-                            style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px"}} 
-                            variant="link" 
-                            eventKey="1"
-                            onClick={() => this.setState({workSectionOpened: !this.state.workSectionOpened}, () => {
-                                this.collapsibleOpened(1);
-                                if(this.state.workSectionOpened){
-                                    this.setState({educationSectionOpened: false});
-                            }})}>
-                            Work Experience <img src={this.state.workSectionOpened ? minus : plus}/>
-                        </Accordion.Toggle>
-                        </Card.Header>
-                        <Accordion.Collapse eventKey="1">
-                        <Card.Body>
-                            {this.renderPositionList()}
-                        </Card.Body>
-                        </Accordion.Collapse>
-                    </Card>
-                </Accordion>
+                {this.state.resumeVersion == 1 && <div className="userID"><strong>{this.state.generatedID}</strong></div>}
             </div>
         );
     }
