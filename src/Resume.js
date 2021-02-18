@@ -28,7 +28,7 @@ class Resume extends React.Component {
         this.state = {
             //TODO: automate this
             //study version
-            studyVersion: 2,
+            studyVersion: 1,
 
             //which resume are they seeing (first or second)? update this in componentDidUpdate
             resumeVersion: 1,
@@ -85,6 +85,10 @@ class Resume extends React.Component {
     }
 
     componentDidMount(){
+        console.log(this.props.studyVersion)
+        this.setState({studyVersion: this.props.studyVersion}, () => {
+            console.log("study version: " + this.state.studyVersion)
+        })
         //TODO: get resume version
 
         const db = firebase.firestore();

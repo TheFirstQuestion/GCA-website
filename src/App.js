@@ -2,9 +2,39 @@ import React, {useState} from 'react';
 import Resume from './Resume';
 import './App.css';
 import { CSVLink, CSVDownload } from 'react-csv';
+import { HashRouter, Route, Link } from 'react-router-dom';
+import { AppBar } from '@material-ui/core';
 
+const App = () => (
+    <HashRouter className="overall">
+        <div className="overall">
+            <div className="app">
+                <Route 
+                    path='/v1'
+                    render={(props) => (
+                        <Resume {...props} studyVersion={1} />
+                    )}
+                />
+                <Route 
+                    path='/v2'
+                    render={(props) => (
+                        <Resume {...props} studyVersion={2} />
+                    )}
+                />
+                <Route 
+                    path='/v3'
+                    render={(props) => (
+                        <Resume {...props} studyVersion={3} />
+                    )}
+                />
+            </div>
+        </div>
+    </HashRouter>
+);
 
-class App extends React.Component {
+export default App;
+
+/*class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -31,10 +61,9 @@ class App extends React.Component {
         return (
             <div className="App" onMouseMove={this._onMouseMove.bind(this)}> 
                 <Resume/>
-                {/*<CSVLink data={this.state.csvData} filename={this.state.csv_filename}>Download CSV</CSVLink>*/}
             </div>
         );
     }
 }
 
-export default App;
+export default App;*/
