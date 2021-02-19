@@ -12,7 +12,6 @@ import Collapsible from 'react-collapsible';
 import Trigger from './Trigger';
 import Divider from '@material-ui/core/Divider';
 import ModalReact from 'react-modal';
-//import Modal from 'react-bootstrap/Modal'
 import plus from './plus_icon.png';
 import minus from './minus_icon.png';
 import firebase from './firebase';
@@ -21,6 +20,19 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { makeStyles } from '@material-ui/core';
+
+//google drive setup
+/*const { google } = require('googleapis');
+const credentials = require('./credentials.json');
+const scopes = [
+  'https://www.googleapis.com/auth/drive'
+];
+const auth = new google.auth.JWT(
+  credentials.client_email, null,
+  credentials.private_key, scopes
+);
+const drive = google.drive({ version: "v3", auth });*/
+//google API key: AIzaSyB62kAzqYdxNXg0vWj-kqEo_Ls1BvZJ-mI
 
 class Resume extends React.Component {
     constructor(props) {
@@ -86,9 +98,25 @@ class Resume extends React.Component {
         this.handleChange = this.handleChange.bind(this);
         this.voteClick = this.voteClick.bind(this);
         this.positionList = [];
+        this.IDlist = ["sheep", "koala", "whale", "dolphin", "panda", "snake", "bear", "lion", "tiger", "celery", 
+                        "carrot", "pizza", "salad", "chicken", "burger", "rice", "eggs", "soup", "green", "blue", 
+                        "purple", "red", "orange", "yellow", "silver", "olive", "pink", "gray"];
     }
 
     componentDidMount(){
+        //testing google drive
+        /*drive.files.list({}, (err, res) => {
+            if (err) throw err;
+            const files = res.data.files;
+            if (files.length) {
+            files.map((file) => {
+              console.log(file);
+            });
+            } else {
+              console.log('No files found');
+            }
+        });*/
+
         console.log(this.props.studyVersion)
         this.setState({studyVersion: this.props.studyVersion}, () => {
             console.log("study version: " + this.state.studyVersion)
@@ -226,7 +254,15 @@ class Resume extends React.Component {
         //TODO: not sure if it is worth it but maybe prevent concurrent reads 
 
         //generate ID
-        let userID = '_' + Math.random().toString(36).substr(2, 9);
+        //let userID = '_' + Math.random().toString(36).substr(2, 9);
+        var rand = Math.floor(Math.random() * 100) + 1;
+        let r = Math.floor(((Math.random() * 100) + 1) % 28);
+        if(r < 0 || r > 28){
+            //TODO: is this correct?
+            this.generateUniqueID();
+            return
+        }
+        let userID = this.IDlist[r] + "" + rand;
         console.log("user ID: " + userID)
 
         //check database to make sure it hasnt already been generated

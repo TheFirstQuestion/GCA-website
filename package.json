@@ -10,6 +10,9 @@
     "@testing-library/user-event": "^12.2.0",
     "bootstrap": "^4.6.0",
     "firebase": "^8.2.7",
+    "gapi-script": "^1.1.0",
+    "googleapis": "^67.1.0",
+    "http2": "^3.3.7",
     "react": "^17.0.1",
     "react-bootstrap": "^1.4.3",
     "react-collapsible": "^2.8.3",
@@ -20,6 +23,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.0",
     "recompose": "^0.30.0",
+    "scraperapi-sdk": "^1.0.6",
     "web-vitals": "^0.2.4"
   },
   "scripts": {

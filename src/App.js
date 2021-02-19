@@ -1,5 +1,7 @@
 import React, {useState} from 'react';
 import Resume from './Resume';
+import GoogleDrive from './GoogleDrive';
+import ReadData from './ReadData';
 import './App.css';
 import { CSVLink, CSVDownload } from 'react-csv';
 import { HashRouter, Route, Link } from 'react-router-dom';
@@ -13,6 +15,9 @@ class App extends React.Component {
 
     render() {
         return (
+            <div>
+            <ReadData/>
+            <GoogleDrive/>
             <HashRouter>
                 <Route 
                     path='/v1r1'
@@ -50,7 +55,14 @@ class App extends React.Component {
                         <Resume {...props} studyVersion={3} resumeVersion={2}/>
                     )}
                 />
+                <Route 
+                    path='/admin'
+                    render={(props) => (
+                        <ReadData/>
+                    )}
+                />
             </HashRouter>
+            </div>
         );
     }
 }
