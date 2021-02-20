@@ -42,7 +42,7 @@ class Resume extends React.Component {
             studyVersion: 1,
             resumeVersion: 1,
 
-            generatedID: '',
+            currentUserID: '',
             errorMessage: false,
 
             //all tracking outputs
@@ -50,14 +50,14 @@ class Resume extends React.Component {
             workexpOpenedCount: 0,
             notesOpenedCount: 0,
 
-            activityData: [],
+            //activityData: [],
 
             x: 0,
             y: 0,
-            mouseData: [],
+            //mouseData: [],
 
             modalOpened: false,
-            participant_number: '',
+            enterID: '',
 
             educationSectionOpened: false,
             workSectionOpened: false,
@@ -97,27 +97,20 @@ class Resume extends React.Component {
         this.submitUserID = this.submitUserID.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.voteClick = this.voteClick.bind(this);
+        this.updateMouseCSV = this.updateMouseCSV.bind(this);
         this.positionList = [];
+        this.mouseCounter = 0;
+        this.activityCounter = 0;
         this.IDlist = ["sheep", "koala", "whale", "dolphin", "panda", "snake", "bear", "lion", "tiger", "celery", 
                         "carrot", "pizza", "salad", "chicken", "burger", "rice", "eggs", "soup", "green", "blue", 
-                        "purple", "red", "orange", "yellow", "silver", "olive", "pink", "gray"];
+                        "purple", "red", "orange", "yellow", "silver", "olive", "pink", "gold", "shirt", "pants", 
+                        "tree", "smoke", "planet", "pencil", "pen", "cookie", "cake", "tire", "phone", "plant"];
     }
 
     componentDidMount(){
-        //testing google drive
-        /*drive.files.list({}, (err, res) => {
-            if (err) throw err;
-            const files = res.data.files;
-            if (files.length) {
-            files.map((file) => {
-              console.log(file);
-            });
-            } else {
-              console.log('No files found');
-            }
-        });*/
-
         console.log(this.props.studyVersion)
+        const db = firebase.firestore();
+
         this.setState({studyVersion: this.props.studyVersion}, () => {
             console.log("study version: " + this.state.studyVersion)
         })
@@ -132,16 +125,28 @@ class Resume extends React.Component {
             }
             console.log("resume version: " + this.state.resumeVersion)
         })
+    }
 
+    componentWillUnmount() {
+        if (this.timer) {
+            clearInterval(this.timer)
+        }
+      }    
+
+    //called from generateUniqueID function (so only called for resume 1)
+    selectValues(){
+        console.log("IN HERE")
         const db = firebase.firestore();
 
         //select gender
         let gender = Math.random();
         if(gender < 0.5){
             this.setState({gender_icon: man})
+            gender = "man"
         }
         else{
             this.setState({gender_icon: woman})
+            gender = "woman"
         }
 
         //select parenthood
@@ -152,6 +157,7 @@ class Resume extends React.Component {
                     this.setState({initialNotes: doc.data().parent})
                 })
             })
+            parenthood = true;
         }
         else{
             this.setState({parenthood: false}, () => {
@@ -159,6 +165,7 @@ class Resume extends React.Component {
                     this.setState({initialNotes: doc.data().nonparent})
                 })
             })
+            parenthood = false;
         }
 
         //select education
@@ -173,6 +180,7 @@ class Resume extends React.Component {
                     this.setState({university: doc.data().university})
                 })
             })
+            education = "a";
         }
         else{
             this.setState({education: 1}, () => {
@@ -184,6 +192,7 @@ class Resume extends React.Component {
                     this.setState({university: doc.data().university})
                 })
             })
+            education = "b";
         }
 
         //select work experience 1
@@ -194,6 +203,7 @@ class Resume extends React.Component {
                     this.positionList.push(doc)
                 })
             })
+            work1 = "a";
         }
         else{
             this.setState({work1: 1}, () => {
@@ -201,6 +211,7 @@ class Resume extends React.Component {
                     this.positionList.push(doc)
                 })
             })
+            work1 = "b"
         }
 
         //select work experience 2
@@ -211,6 +222,7 @@ class Resume extends React.Component {
                     this.positionList.push(doc)
                 })
             })
+            work2 = "a"
         }
         else{
             this.setState({work2: 1}, () => {
@@ -218,6 +230,7 @@ class Resume extends React.Component {
                     this.positionList.push(doc)
                 })
             })
+            work2 = "b"
         }
 
         //select work experience 3
@@ -228,6 +241,7 @@ class Resume extends React.Component {
                     this.positionList.push(doc)
                 })
             })
+            work3 = "a"
         }
         else{
             this.setState({work3: 1}, () => {
@@ -235,19 +249,161 @@ class Resume extends React.Component {
                     this.positionList.push(doc)
                 })
             })
+            work3 = "b"
         }
 
         //JUST FOR STUDY 2:
         //select remote or not remote
+        let remote = Math.random();
         if(this.state.studyVersion == 2){
-            let remote = Math.random();
             if(remote < 0.5){
                 this.setState({remote: true})
+                remote = true
             }
             else{
                 this.setState({remote: false})
+                remote = false
             }
         }
+        else{
+            remote = null
+        }
+
+        //initialize resume 1 values
+        const addDoc = db.collection("userIDs").doc(this.state.currentUserID).collection("values shown").doc("resume 1").set({
+            "gender": gender,
+            "parenthood": parenthood,
+            "education": education,
+            "work1": work1,
+            "work2": work2,
+            "work3": work3,
+            "remote": remote,
+        });
+    }
+
+    populateValues(){
+        const db = firebase.firestore();
+
+        db.collection("userIDs").doc(this.state.currentUserID).collection("values shown").doc("resume 1").get().then((doc) => {
+            let gender = null;
+            let parenthood = null;
+            let education = null;
+            let work1 = null;
+            let work2 = null;
+            let work3 = null;
+            let remote = null;
+
+            //gender - show the same
+            if(doc.data().gender == "man"){
+                this.setState({gender_icon: man})
+                gender = "man"
+            }
+            else{
+                this.setState({gender_icon: woman})
+                gender = "woman"
+            }
+
+            //parenthood - show the opposite
+            if(doc.data().parenthood == true){
+                db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                    this.setState({initialNotes: doc.data().nonparent})
+                })
+                parenthood = false;
+            }
+            else{
+                db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                    this.setState({initialNotes: doc.data().parent})
+                })
+                parenthood = true;
+            }
+            
+            //education - show the opposite
+            if(doc.data().education == "a"){
+                db.collection("resume").doc("education b").get().then((doc) => {
+                    this.setState({degree: doc.data().degree})
+                    this.setState({distinction: doc.data().distinction})
+                    this.setState({duration: doc.data().duration})
+                    this.setState({major: doc.data().major})
+                    this.setState({university: doc.data().university})
+                })
+                education = "b"
+            }
+            else{
+                db.collection("resume").doc("education a").get().then((doc) => {
+                    this.setState({degree: doc.data().degree})
+                    this.setState({distinction: doc.data().distinction})
+                    this.setState({duration: doc.data().duration})
+                    this.setState({major: doc.data().major})
+                    this.setState({university: doc.data().university})
+                })
+                education = "a"
+            }
+
+            //work1 - show the opposite
+            if(doc.data().work1 == "a"){
+                db.collection("resume").doc("work box 1b").get().then((doc) => {
+                    this.positionList.push(doc)
+                })
+                work1 = "b"
+            }
+            else{
+                db.collection("resume").doc("work box 1a").get().then((doc) => {
+                    this.positionList.push(doc)
+                })
+                work1 = "a"
+            }
+
+            //work2 - show the opposite
+            if(doc.data().work2 == "a"){
+                db.collection("resume").doc("work box 2b").get().then((doc) => {
+                    this.positionList.push(doc)
+                })
+                work2 = "b"
+            }
+            else{
+                db.collection("resume").doc("work box 2a").get().then((doc) => {
+                    this.positionList.push(doc)
+                })
+                work2 = "a"
+            }
+
+            //work3 - show the opposite
+            if(doc.data().work3 == "a"){
+                db.collection("resume").doc("work box 3b").get().then((doc) => {
+                    this.positionList.push(doc)
+                })
+                work3 = "b"
+            }
+            else{
+                db.collection("resume").doc("work box 3a").get().then((doc) => {
+                    this.positionList.push(doc)
+                })
+                work3 = "a"
+            }
+
+            //remote - show the opposite (JUST FOR STUDY 2)
+            if(this.state.studyVersion == 2){
+                if(doc.data().remote == true){
+                    this.setState({remote: false})
+                    remote = false
+                }
+                else{
+                    this.setState({remote: true})
+                    remote = true
+                }
+            }
+
+            //initialize resume 2 values
+            const addDoc = db.collection("userIDs").doc(this.state.currentUserID).collection("values shown").doc("resume 2").set({
+                "gender": gender,
+                "parenthood": parenthood,
+                "education": education,
+                "work1": work1,
+                "work2": work2,
+                "work3": work3,
+                "remote": remote,
+            });
+        })
     }
 
     generateUniqueID = () => {
@@ -256,8 +412,8 @@ class Resume extends React.Component {
         //generate ID
         //let userID = '_' + Math.random().toString(36).substr(2, 9);
         var rand = Math.floor(Math.random() * 100) + 1;
-        let r = Math.floor(((Math.random() * 100) + 1) % 28);
-        if(r < 0 || r > 28){
+        let r = Math.floor(((Math.random() * 100) + 1) % 40);
+        if(r < 0 || r > 40){
             //TODO: is this correct?
             this.generateUniqueID();
             return
@@ -267,7 +423,7 @@ class Resume extends React.Component {
 
         //check database to make sure it hasnt already been generated
         const db = firebase.firestore();
-        const idRef = db.collection("userIDs").doc(userID)
+        const idRef = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(userID)
         idRef.get()
             .then((docSnapshot) => {
                 if (docSnapshot.exists) {
@@ -280,12 +436,17 @@ class Resume extends React.Component {
                     console.log("DOES NOT EXIST")
                     
                     //add userID to database 
-                    const addDoc = db.collection("userIDs").doc(userID).set({
+                    const addDoc = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(userID).set({
                         //initialized: true,
                     });
                     
                     //display ID to user
-                    this.setState({generatedID: userID})
+                    this.setState({currentUserID: userID}, () => {
+                        this.selectValues();
+                        db.collection("settings").doc("mouse tracking").get().then((doc) => {
+                            this.timer = setInterval(this.updateMouseCSV, doc.data().interval);
+                        })
+                    })
                 }
             });
     }
@@ -329,39 +490,58 @@ class Resume extends React.Component {
     }
 
     collapsibleOpened(e){
+        const db = firebase.firestore();
+
+        this.activityCounter = this.activityCounter + 1;
+        let count = this.activityCounter.toString();
+        let description = '';
+
         var options = { hour12: false };
         let time = new Date().toLocaleString('en-US', options);
-        let newObj = []
+        //let newObj = []
         if(e == 0){
             console.log(time + " education");
             this.state.educationOpenedCount++;
-            newObj = [time, "opened education section"]
+            description = "opened education section"
+            //newObj = [time, "opened education section"]
         }
         else if(e == 1){ 
             console.log(time + " work");
             this.state.workexpOpenedCount++;
-            newObj = [time, "opened work section"]
+            description = "opened work section"
+            //newObj = [time, "opened work section"]
         }
-        console.log(newObj)
-        this.setState({activityData: [...this.state.activityData, newObj]})
+        //console.log(newObj)
+        //this.setState({activityData: [...this.state.activityData, newObj]})
+
+        const addDoc = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(this.state.currentUserID).collection("activityData_resume" + this.state.resumeVersion.toString()).doc(count).set({
+            "time": time,
+            "description": description,
+        });
     }
 
     submitUserID(){
-        if(this.state.participant_number == null || this.state.participant_number == ''){
+        if(this.state.enterID == null || this.state.enterID == ''){
             this.setState({errorMessage: true})
             return;
         }
 
         //read database to see if this ID exists
         const db = firebase.firestore();
-        const idRef = db.collection("userIDs").doc(this.state.participant_number)
+        const idRef = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(this.state.enterID)
         idRef.get()
             .then((docSnapshot) => {
                 if (docSnapshot.exists) {
                     idRef.onSnapshot((doc) => {
                         console.log("VALID: THIS DOES EXIST")
-                        this.setState({modalOpened: false})
                         this.setState({errorMessage: false})
+                        this.setState({currentUserID: this.state.enterID}, () => {
+                            this.populateValues();
+                            db.collection("settings").doc("mouse tracking").get().then((doc) => {
+                                this.timer = setInterval(this.updateMouseCSV, doc.data().interval);
+                            })
+                            this.setState({modalOpened: false})
+                        })
                     });
                 } 
                 else {
@@ -374,39 +554,74 @@ class Resume extends React.Component {
     }
 
     handleChange(event) {
-        this.setState({participant_number: event.target.value})
+        this.setState({enterID: event.target.value})
     }
 
     voteClick(event){
+        const db = firebase.firestore();
+
+        this.activityCounter = this.activityCounter + 1;
+        let count = this.activityCounter.toString();
+
         var options = { hour12: false };
         let time = new Date().toLocaleString('en-US', options);
-        let newObj = []
+        //let newObj = []
 
         this.setState({[event.target.name] : !this.state[event.target.name]}, () => {
             if(this.state[event.target.name]){
-                newObj = [time, "clicked " + event.target.name + " button"]
-                console.log(newObj)
-                this.setState({activityData: [...this.state.activityData, newObj]})
+                //newObj = [time, "clicked " + event.target.name + " button"]
+                //console.log(newObj)
+                const addDoc = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(this.state.currentUserID).collection("activityData_resume" + this.state.resumeVersion.toString()).doc(count).set({
+                    "time": time,
+                    "description": "clicked " + event.target.name + " button",
+                });
+                //this.setState({activityData: [...this.state.activityData, newObj]})
             }
             else{
-                newObj = [time, "unclicked " + event.target.name + " button"]
-                console.log(newObj)
-                this.setState({activityData: [...this.state.activityData, newObj]})
+                //newObj = [time, "unclicked " + event.target.name + " button"]
+                //console.log(newObj)
+                const addDoc = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(this.state.currentUserID).collection("activityData_resume" + this.state.resumeVersion.toString()).doc(count).set({
+                    "time": time,
+                    "description": "unclicked " + event.target.name + " button",
+                });
+                //this.setState({activityData: [...this.state.activityData, newObj]})
             }
         })
     }
 
     _onMouseMove(e) {
-        var options = { hour12: false };
+        //var options = { hour12: false };
 
-        this.setState({x: e.screenX, y: e.screenY});
-        let time = new Date().toLocaleString('en-US', options);
+        //this.setState({x: e.screenX, y: e.screenY});
+        //let time = new Date().toLocaleString('en-US', options);
         //console.log(time);
-        let x = e.clientX;// - e.target.offsetLeft
-        let y = e.clientY;// - e.target.offsetTop
+        //let x = e.clientX;// - e.target.offsetLeft
+        this.state.x = e.clientX;
+        //let y = e.clientY;// - e.target.offsetTop
+        this.state.y = e.clientY;
         //console.log("x: " + x + " y: " + y)
-        let newObj = [time, x, y]
-        this.setState({mouseData: [...this.state.mouseData, newObj]})
+        //let newObj = [time, x, y]
+        //this.setState({mouseData: [...this.state.mouseData, newObj]})
+    }
+
+    updateMouseCSV(){
+        const db = firebase.firestore();
+        this.mouseCounter = this.mouseCounter + 1;
+        let count = this.mouseCounter.toString();
+
+        var options = { hour12: false };
+        let time = new Date().toLocaleString('en-US', options);
+        //let newObj = [time, this.state.x, this.state.y]
+        let x = this.state.x;
+        let y = this.state.y;
+        //console.log(newObj)
+        console.log("RESUME VERSION: " + this.state.resumeVersion)
+        //this.setState({mouseData: [...this.state.mouseData, newObj]})
+        const addDoc = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(this.state.currentUserID).collection("mouseData_resume" + this.state.resumeVersion.toString()).doc(count).set({
+            "time": time,
+            "x": x,
+            "y": y,
+        });
     }
 
     render() {
@@ -417,11 +632,13 @@ class Resume extends React.Component {
                         <ModalReact className="modal_dtp"
                             isOpen={this.state.modalOpened}>
                             <div> Enter User ID: </div>
-                            <input onChange={this.handleChange.bind(this)} value={this.state.participant_number} />
+                            <input onChange={this.handleChange.bind(this)} value={this.state.enterID} />
                             <button onClick={() => this.submitUserID()}> Submit </button>
                             {this.state.errorMessage && <div id="red">Invalid ID. Please re-enter.</div>}
                         </ModalReact>
 
+                        {!this.state.modalOpened && 
+                        <div>
                         <img className="profile_image" src={this.state.gender_icon} alt="" />
                         <div className="header">Candidate {this.state.resumeVersion == 1 ? "A" : "B"}</div>
 
@@ -481,9 +698,10 @@ class Resume extends React.Component {
                                 </Accordion.Collapse>
                             </Card>
                         </Accordion>
+                        </div>}
                     </div>
                 </div>
-                {this.state.resumeVersion == 1 && <div className="userID"><strong>{this.state.generatedID}</strong></div>}
+                {this.state.resumeVersion == 1 && <div className="userID"><strong>{this.state.currentUserID}</strong></div>}
             </div>
         );
     }

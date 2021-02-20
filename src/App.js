@@ -16,8 +16,6 @@ class App extends React.Component {
     render() {
         return (
             <div>
-            <ReadData/>
-            <GoogleDrive/>
             <HashRouter>
                 <Route 
                     path='/v1r1'
