@@ -63,6 +63,7 @@ class ReadData extends React.Component {
         let newObj = [];
         firebase.firestore().collection('studies').doc('study ' + studyVersion).collection('userIDs').doc(itemID).collection("mouseData_resume1").onSnapshot((snapshot) => {
             snapshot.forEach((doc) => {
+                //console.log(doc.data().time)
                 newObj = [doc.data().time, doc.data().x, doc.data().y, 1]
                 csvList = [...csvList, newObj]
             })
@@ -82,8 +83,10 @@ class ReadData extends React.Component {
         let text = "masterActivity" + studyVersion
         let csvList = []
         let newObj = [];
+        //console.log(itemID)
         firebase.firestore().collection('studies').doc('study ' + studyVersion).collection('userIDs').doc(itemID).collection("activityData_resume1").onSnapshot((snapshot) => {
             snapshot.forEach((doc) => {
+                //console.log(doc.data().time)
                 newObj = [doc.data().time, doc.data().description, 1]
                 csvList = [...csvList, newObj]
             })
@@ -103,7 +106,7 @@ class ReadData extends React.Component {
         let text = "masterResume" + studyVersion
         let csvList = []
         let newObj = [];
-        console.log("ID IN RESUME CONTENT: " + itemID)
+        //console.log("ID IN RESUME CONTENT: " + itemID)
         const res1 = firebase.firestore().collection('userIDs').doc(itemID).collection("values shown").doc("resume 1")
         res1.get()
             .then((docSnapshot) => {

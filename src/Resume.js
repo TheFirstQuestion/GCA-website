@@ -108,14 +108,12 @@ class Resume extends React.Component {
     }
 
     componentDidMount(){
-        console.log(this.props.studyVersion)
+        console.log("study: " + this.props.studyVersion)
         const db = firebase.firestore();
 
-        this.setState({studyVersion: this.props.studyVersion}, () => {
-            console.log("study version: " + this.state.studyVersion)
-        })
+        this.setState({studyVersion: this.props.studyVersion});
         
-        console.log(this.props.resumeVersion)
+        console.log("resume: " + this.props.resumeVersion)
         this.setState({resumeVersion: this.props.resumeVersion}, () => {
             if(this.state.resumeVersion == 1){
                 this.generateUniqueID();
@@ -123,7 +121,6 @@ class Resume extends React.Component {
             else{
                 this.setState({modalOpened: true})
             }
-            console.log("resume version: " + this.state.resumeVersion)
         })
     }
 
@@ -135,7 +132,6 @@ class Resume extends React.Component {
 
     //called from generateUniqueID function (so only called for resume 1)
     selectValues(){
-        console.log("IN HERE")
         const db = firebase.firestore();
 
         //select gender
@@ -428,12 +424,12 @@ class Resume extends React.Component {
             .then((docSnapshot) => {
                 if (docSnapshot.exists) {
                     idRef.onSnapshot((doc) => {
-                        console.log("ALREADY EXISTS")
+                        //console.log("ALREADY EXISTS")
                         this.generateUniqueID();
                     });
                 } 
                 else {
-                    console.log("DOES NOT EXIST")
+                    //console.log("DOES NOT EXIST")
                     
                     //add userID to database 
                     const addDoc = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(userID).set({
@@ -500,13 +496,13 @@ class Resume extends React.Component {
         let time = new Date().toLocaleString('en-US', options);
         //let newObj = []
         if(e == 0){
-            console.log(time + " education");
+            //console.log(time + " education");
             this.state.educationOpenedCount++;
             description = "opened education section"
             //newObj = [time, "opened education section"]
         }
         else if(e == 1){ 
-            console.log(time + " work");
+            //console.log(time + " work");
             this.state.workexpOpenedCount++;
             description = "opened work section"
             //newObj = [time, "opened work section"]
@@ -603,12 +599,11 @@ class Resume extends React.Component {
         }
 
         //set upper limit of 30 min per participant
-        if(count <= 1200){
+        if(count <= 600){
             var options = { hour12: false };
             let time = new Date().toLocaleString('en-US', options);
             let x = this.state.x;
             let y = this.state.y;
-            console.log("RESUME VERSION: " + this.state.resumeVersion)
             
             //remove mouse tracking for now
             /*const addDoc = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(this.state.currentUserID).collection("mouseData_resume" + this.state.resumeVersion.toString()).doc(count).set({
