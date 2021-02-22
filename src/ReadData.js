@@ -61,10 +61,8 @@ class ReadData extends React.Component {
         let text = "masterMouse" + studyVersion
         let csvList = []
         let newObj = [];
-        //console.log(itemID)
         firebase.firestore().collection('studies').doc('study ' + studyVersion).collection('userIDs').doc(itemID).collection("mouseData_resume1").onSnapshot((snapshot) => {
             snapshot.forEach((doc) => {
-                //console.log(doc.data().time)
                 newObj = [doc.data().time, doc.data().x, doc.data().y, 1]
                 csvList = [...csvList, newObj]
             })
@@ -84,10 +82,8 @@ class ReadData extends React.Component {
         let text = "masterActivity" + studyVersion
         let csvList = []
         let newObj = [];
-        //console.log(itemID)
         firebase.firestore().collection('studies').doc('study ' + studyVersion).collection('userIDs').doc(itemID).collection("activityData_resume1").onSnapshot((snapshot) => {
             snapshot.forEach((doc) => {
-                //console.log(doc.data().time)
                 newObj = [doc.data().time, doc.data().description, 1]
                 csvList = [...csvList, newObj]
             })
@@ -170,7 +166,7 @@ class ReadData extends React.Component {
             this.study1List = [...study1.docs]
 
             this.study1List.forEach((item, index) => {
-                this.getMouseContent(item.id, 1)
+                //this.getMouseContent(item.id, 1)
                 this.getActivityContent(item.id, 1)
                 this.getResumeContent(item.id, 1)
             })
@@ -183,7 +179,7 @@ class ReadData extends React.Component {
             this.study2List = [...study2.docs]
 
             this.study2List.forEach((item, index) => {
-                this.getMouseContent(item.id, 2)
+                //this.getMouseContent(item.id, 2)
                 this.getActivityContent(item.id, 2)
                 this.getResumeContent(item.id, 2)
             })
@@ -196,7 +192,7 @@ class ReadData extends React.Component {
             this.study3List = [...study3.docs]
 
             this.study3List.forEach((item, index) => {
-                this.getMouseContent(item.id, 3)
+                //this.getMouseContent(item.id, 3)
                 this.getActivityContent(item.id, 3)
                 this.getResumeContent(item.id, 3)
             })
@@ -276,7 +272,7 @@ class ReadData extends React.Component {
             <div className="overall">
                 <div className="title">Download Data</div>
                 <div className="horizontal" id="big">
-                        <div>Mouse Data</div>
+                        {/*<div>Mouse Data</div>*/}
                         <div>Activity Data</div>
                         <div>Resume Data</div>
                     </div>
@@ -284,7 +280,7 @@ class ReadData extends React.Component {
                 <div className="list">
                     <div id="title">Study 1: </div>
                     <div className="horizontal">
-                        <div>{this.renderMouseData(1)}</div>
+                        {/*<div>{this.renderMouseData(1)}</div>*/}
                         <div>{this.renderActivityData(1)}</div> 
                         <div>{this.renderResumeData(1)}</div>
                     </div>
@@ -293,7 +289,7 @@ class ReadData extends React.Component {
                 <div className="list">
                     <div id="title">Study 2: </div>
                     <div className="horizontal">
-                        <div>{this.renderMouseData(2)}</div>
+                        {/*<div>{this.renderMouseData(2)}</div>*/}
                         <div>{this.renderActivityData(2)}</div>
                         <div>{this.renderResumeData(2)}</div>
                     </div>
@@ -302,7 +298,7 @@ class ReadData extends React.Component {
                 <div className="list">
                     <div id="title">Study 3: </div>
                     <div className="horizontal">
-                        <div>{this.renderMouseData(3)}</div>
+                        {/*<div>{this.renderMouseData(3)}</div>*/}
                         <div>{this.renderActivityData(3)}</div>
                         <div>{this.renderResumeData(3)}</div>
                     </div>

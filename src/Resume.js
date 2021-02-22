@@ -100,7 +100,7 @@ class Resume extends React.Component {
         this.updateMouseCSV = this.updateMouseCSV.bind(this);
         this.positionList = [];
         this.mouseCounter = 0;
-        this.activityCounter = 0;
+        this.activityCounter = 1;
         this.IDlist = ["sheep", "koala", "whale", "dolphin", "panda", "snake", "bear", "lion", "tiger", "celery", 
                         "carrot", "pizza", "salad", "chicken", "burger", "rice", "eggs", "soup", "green", "blue", 
                         "purple", "red", "orange", "yellow", "silver", "olive", "pink", "gold", "shirt", "pants", 
@@ -565,63 +565,58 @@ class Resume extends React.Component {
 
         var options = { hour12: false };
         let time = new Date().toLocaleString('en-US', options);
-        //let newObj = []
 
         this.setState({[event.target.name] : !this.state[event.target.name]}, () => {
             if(this.state[event.target.name]){
-                //newObj = [time, "clicked " + event.target.name + " button"]
-                //console.log(newObj)
                 const addDoc = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(this.state.currentUserID).collection("activityData_resume" + this.state.resumeVersion.toString()).doc(count).set({
                     "time": time,
                     "description": "clicked " + event.target.name + " button",
                 });
-                //this.setState({activityData: [...this.state.activityData, newObj]})
             }
             else{
-                //newObj = [time, "unclicked " + event.target.name + " button"]
-                //console.log(newObj)
                 const addDoc = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(this.state.currentUserID).collection("activityData_resume" + this.state.resumeVersion.toString()).doc(count).set({
                     "time": time,
                     "description": "unclicked " + event.target.name + " button",
                 });
-                //this.setState({activityData: [...this.state.activityData, newObj]})
             }
         })
     }
 
     _onMouseMove(e) {
-        //var options = { hour12: false };
-
-        //this.setState({x: e.screenX, y: e.screenY});
-        //let time = new Date().toLocaleString('en-US', options);
-        //console.log(time);
         //let x = e.clientX;// - e.target.offsetLeft
         this.state.x = e.clientX;
         //let y = e.clientY;// - e.target.offsetTop
         this.state.y = e.clientY;
-        //console.log("x: " + x + " y: " + y)
-        //let newObj = [time, x, y]
-        //this.setState({mouseData: [...this.state.mouseData, newObj]})
     }
 
     updateMouseCSV(){
         const db = firebase.firestore();
         this.mouseCounter = this.mouseCounter + 1;
         let count = this.mouseCounter.toString();
+        if(count == 1){
+            var options = { hour12: false };
+            let time = new Date().toLocaleString('en-US', options);
+            const addDoc = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(this.state.currentUserID).collection("activityData_resume" + this.state.resumeVersion.toString()).doc("1").set({
+                "time": time,
+                "description": "entered website",
+            });
+        }
 
-        var options = { hour12: false };
-        let time = new Date().toLocaleString('en-US', options);
-        //let newObj = [time, this.state.x, this.state.y]
-        let x = this.state.x;
-        let y = this.state.y;
-        //console.log(newObj)
-        console.log("RESUME VERSION: " + this.state.resumeVersion)
-        //this.setState({mouseData: [...this.state.mouseData, newObj]})
-        const addDoc = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(this.state.currentUserID).collection("mouseData_resume" + this.state.resumeVersion.toString()).doc(count).set({
-            "time": time,
-            "x": x,
-            "y": y,
-        });
+        //set upper limit of 30 min per participant
+        if(count <= 1200){
+            var options = { hour12: false };
+            let time = new Date().toLocaleString('en-US', options);
+            let x = this.state.x;
+            let y = this.state.y;
+            console.log("RESUME VERSION: " + this.state.resumeVersion)
+            
+            //remove mouse tracking for now
+            /*const addDoc = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(this.state.currentUserID).collection("mouseData_resume" + this.state.resumeVersion.toString()).doc(count).set({
+                "time": time,
+                "x": x,
+                "y": y,
+            });*/
+        }
     }
 
     render() {
