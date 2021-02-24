@@ -11,7 +11,7 @@
 }
 
 .resume{
-    width: 65%;
+    width: 75%;
     margin-top: 5%;
     margin-bottom: 5%;
     min-height: 150vh;
@@ -146,6 +146,12 @@
     flex-direction: row;
 }
 
+.votingblock_notes{
+    display: flex;
+    flex-direction: row;
+    margin-left: 3%;
+}
+
 .userID{
     padding-left: 10px;
     padding-bottom: 10px;
@@ -175,4 +181,11 @@
 
 .userItem{
     padding-top: 10px;
+}
+
+.notes{
+    max-width: 100%;
+    margin-right: 3%;
+    flex-wrap: wrap;
+    flex-direction: column;
 }

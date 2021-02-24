@@ -9,7 +9,6 @@ import downvote_selected from './downvote_selected.png';
 import question from './question.png';
 import question_selected from './question_selected.png';
 import Collapsible from 'react-collapsible';
-import Trigger from './Trigger';
 import Divider from '@material-ui/core/Divider';
 import ModalReact from 'react-modal';
 import plus from './plus_icon.png';
@@ -92,6 +91,10 @@ class Resume extends React.Component {
             work3_up: false,
             work3_q: false,
             work3_down: false,
+
+            notes_up: false,
+            notes_q: false,
+            notes_down: false,
         };
         this.collapsibleOpened = this.collapsibleOpened.bind(this);
         this.submitUserID = this.submitUserID.bind(this);
@@ -568,6 +571,57 @@ class Resume extends React.Component {
                     "time": time,
                     "description": "clicked " + event.target.name + " button",
                 });
+                
+                //unclick the others in the same box
+                if(event.target.name == "work1_up"){
+                    this.setState({work1_down: false, work1_q: false})
+                }
+                else if(event.target.name == "work2_up"){
+                    this.setState({work2_down: false, work2_q: false})
+                }
+                else if(event.target.name == "work3_up"){
+                    this.setState({work3_down: false, work3_q: false})
+                }
+
+                else if(event.target.name == "work1_down"){
+                    this.setState({work1_up: false, work1_q: false})
+                }
+                else if(event.target.name == "work2_down"){
+                    this.setState({work2_up: false, work2_q: false})
+                }
+                else if(event.target.name == "work3_down"){
+                    this.setState({work3_up: false, work3_q: false})
+                }
+
+                else if(event.target.name == "work1_q"){
+                    this.setState({work1_up: false, work1_down: false})
+                }
+                else if(event.target.name == "work2_q"){
+                    this.setState({work2_up: false, work2_down: false})
+                }
+                else if(event.target.name == "work3_q"){
+                    this.setState({work3_up: false, work3_down: false})
+                }
+
+                else if(event.target.name == "education_down"){
+                    this.setState({education_up: false, education_q: false})
+                }
+                else if(event.target.name == "education_up"){
+                    this.setState({education_down: false, education_q: false})
+                }
+                else if(event.target.name == "education_q"){
+                    this.setState({education_up: false, education_down: false})
+                }
+
+                else if(event.target.name == "notes_down"){
+                    this.setState({notes_up: false, notes_q: false})
+                }
+                else if(event.target.name == "notes_up"){
+                    this.setState({notes_down: false, notes_q: false})
+                }
+                else if(event.target.name == "notes_q"){
+                    this.setState({notes_up: false, notes_down: false})
+                }
             }
             else{
                 const addDoc = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(this.state.currentUserID).collection("activityData_resume" + this.state.resumeVersion.toString()).doc(count).set({
@@ -599,18 +653,18 @@ class Resume extends React.Component {
         }
 
         //set upper limit of 30 min per participant
-        if(count <= 600){
+        if(count <= 180){
             var options = { hour12: false };
             let time = new Date().toLocaleString('en-US', options);
             let x = this.state.x;
             let y = this.state.y;
             
             //remove mouse tracking for now
-            /*const addDoc = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(this.state.currentUserID).collection("mouseData_resume" + this.state.resumeVersion.toString()).doc(count).set({
+            const addDoc = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(this.state.currentUserID).collection("mouseData_resume" + this.state.resumeVersion.toString()).doc(count).set({
                 "time": time,
                 "x": x,
                 "y": y,
-            });*/
+            });
         }
     }
 
@@ -632,8 +686,15 @@ class Resume extends React.Component {
                         <img className="profile_image" src={this.state.gender_icon} alt="" />
                         <div className="header">Candidate {this.state.resumeVersion == 1 ? "A" : "B"}</div>
 
-                        <div>Notes from Initial Phone Screen:  
-                        <span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>
+                        <div className="votingblock_notes">
+                            <div id="vertical">
+                                <img name="notes_up" src={this.state.notes_up ? upvote_selected : upvote} onClick={this.voteClick}/>
+                                <img name="notes_q" src={this.state.notes_q ? question_selected : question} onClick={this.voteClick}/>
+                                <img name="notes_down" src={this.state.notes_down ? downvote_selected : downvote} onClick={this.voteClick}/>
+                            </div>
+                            <div class="notes">Notes from Initial Phone Screen:  
+                                <span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>
+                            </div>
                         </div>
 
                         <Accordion>

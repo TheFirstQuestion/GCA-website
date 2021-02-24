@@ -3,7 +3,8 @@ import './App.css';
 import firebase from './firebase';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { CSVLink, CSVDownload } from 'react-csv';
-
+import New_CSV_Link from './ReactCSV_New.js'
+import ModalReact from 'react-modal';
 
 class ReadData extends React.Component {
     constructor(props) {
@@ -34,6 +35,10 @@ class ReadData extends React.Component {
             mousestate: false,
 
             study1: [],
+
+            password: '',
+            errorMessage: false,
+            modalOpened: true,
         };
         this.study1List = [];
         this.study2List = [];
@@ -54,20 +59,20 @@ class ReadData extends React.Component {
 
     componentDidMount(){
         console.log("mounted")
-        this.getStudyLists();
     }
 
     getMouseContent(itemID, studyVersion) {
         let text = "masterMouse" + studyVersion
         let csvList = []
         let newObj = [];
-        firebase.firestore().collection('studies').doc('study ' + studyVersion).collection('userIDs').doc(itemID).collection("mouseData_resume1").onSnapshot((snapshot) => {
+        var snapshot1 = firebase.firestore().collection('studies').doc('study ' + studyVersion).collection('userIDs').doc(itemID).collection("mouseData_resume1").onSnapshot((snapshot) => {
             snapshot.forEach((doc) => {
                 //console.log(doc.data().time)
                 newObj = [doc.data().time, doc.data().x, doc.data().y, 1]
                 csvList = [...csvList, newObj]
             })
-            firebase.firestore().collection('studies').doc('study ' + studyVersion).collection('userIDs').doc(itemID).collection("mouseData_resume2").onSnapshot((snapshot) => {
+            snapshot1();
+            var snapshot2 = firebase.firestore().collection('studies').doc('study ' + studyVersion).collection('userIDs').doc(itemID).collection("mouseData_resume2").onSnapshot((snapshot) => {
                 snapshot.forEach((doc) => {
                     newObj = [doc.data().time, doc.data().x, doc.data().y, 2]
                     csvList = [...csvList, newObj]
@@ -75,6 +80,7 @@ class ReadData extends React.Component {
                 let largerObj = [itemID, csvList]
                 this[text] = [...this[text], largerObj]
                 this.setState({loading2mouse: true})
+                snapshot2();
             })
         })
     }
@@ -84,13 +90,14 @@ class ReadData extends React.Component {
         let csvList = []
         let newObj = [];
         //console.log(itemID)
-        firebase.firestore().collection('studies').doc('study ' + studyVersion).collection('userIDs').doc(itemID).collection("activityData_resume1").onSnapshot((snapshot) => {
+        var snapshot1 = firebase.firestore().collection('studies').doc('study ' + studyVersion).collection('userIDs').doc(itemID).collection("activityData_resume1").onSnapshot((snapshot) => {
             snapshot.forEach((doc) => {
                 //console.log(doc.data().time)
                 newObj = [doc.data().time, doc.data().description, 1]
                 csvList = [...csvList, newObj]
             })
-            firebase.firestore().collection('studies').doc('study ' + studyVersion).collection('userIDs').doc(itemID).collection("activityData_resume2").onSnapshot((snapshot) => {
+            snapshot1();
+            var snapshot2 = firebase.firestore().collection('studies').doc('study ' + studyVersion).collection('userIDs').doc(itemID).collection("activityData_resume2").onSnapshot((snapshot) => {
                 snapshot.forEach((doc) => {
                     newObj = [doc.data().time, doc.data().description, 2]
                     csvList = [...csvList, newObj]
@@ -98,6 +105,7 @@ class ReadData extends React.Component {
                 let largerObj = [itemID, csvList]
                 this[text] = [...this[text], largerObj]
                 this.setState({loading2activity: true})
+                snapshot2();
             })
         })
     }
@@ -111,7 +119,7 @@ class ReadData extends React.Component {
         res1.get()
             .then((docSnapshot) => {
                 if(docSnapshot.exists){
-                    res1.onSnapshot((doc) => {
+                    var snapshot1 = res1.onSnapshot((doc) => {
                         let parent = doc.data().parenthood
                         if(parent == false){
                             parent = "false"
@@ -124,13 +132,13 @@ class ReadData extends React.Component {
                         csvList = [...csvList, newObj]
                         this.setState({loading2resume: true})
 
-
+                        snapshot1();
 
                         const res2 = firebase.firestore().collection('userIDs').doc(itemID).collection("values shown").doc("resume 2")
                         res2.get()
                             .then((docSnapshot) => {
                                 if(docSnapshot.exists){
-                                    res2.onSnapshot((doc) => {
+                                    var snapshot2 = res2.onSnapshot((doc) => {
                                         let parent = doc.data().parenthood
                                         if(parent == false){
                                             parent = "false"
@@ -145,6 +153,8 @@ class ReadData extends React.Component {
                                         let largerObj = [itemID, csvList]
                                         this[text] = [...this[text], largerObj]
                                         this.setState({loading2resume: true})
+
+                                        snapshot2();
                                     });
                                 }
                                 else{
@@ -169,7 +179,7 @@ class ReadData extends React.Component {
             this.study1List = [...study1.docs]
 
             this.study1List.forEach((item, index) => {
-                //this.getMouseContent(item.id, 1)
+                this.getMouseContent(item.id, 1)
                 this.getActivityContent(item.id, 1)
                 this.getResumeContent(item.id, 1)
             })
@@ -182,7 +192,7 @@ class ReadData extends React.Component {
             this.study2List = [...study2.docs]
 
             this.study2List.forEach((item, index) => {
-                //this.getMouseContent(item.id, 2)
+                this.getMouseContent(item.id, 2)
                 this.getActivityContent(item.id, 2)
                 this.getResumeContent(item.id, 2)
             })
@@ -195,7 +205,7 @@ class ReadData extends React.Component {
             this.study3List = [...study3.docs]
 
             this.study3List.forEach((item, index) => {
-                //this.getMouseContent(item.id, 3)
+                this.getMouseContent(item.id, 3)
                 this.getActivityContent(item.id, 3)
                 this.getResumeContent(item.id, 3)
             })
@@ -214,7 +224,7 @@ class ReadData extends React.Component {
 
                 viewPositionList.push(
                     <div>
-                        <CSVLink data={item[1]} filename={item[0] + "_mouseData.csv"}>{item[0]}_mouseData</CSVLink>
+                        <New_CSV_Link data={item[1]} filename={item[0] + "_mouseData.csv"}>{item[0]}_mouseData</New_CSV_Link>
                         {/*<div id="subinfogray">{item}</div>*/}
                     </div>
                 )
@@ -236,7 +246,7 @@ class ReadData extends React.Component {
 
                 viewPositionList.push(
                     <div>
-                        <CSVLink data={item[1]} filename={item[0] + "_activityData.csv"}>{item[0]}_activityData</CSVLink>
+                        <New_CSV_Link data={item[1]} filename={item[0] + "_activityData.csv"}>{item[0]}_activityData</New_CSV_Link>
                         {/*<div id="subinfogray">{item}</div>*/}
                     </div>
                 )
@@ -245,6 +255,21 @@ class ReadData extends React.Component {
         }
         else{
             return null
+        }
+    }
+
+    handleChange(event) {
+        this.setState({errorMessage: false})
+        this.setState({password: event.target.value})
+    }
+
+    submitPassword(){
+        if(this.state.password == "$bhMNKt8K6"){
+            this.setState({modalOpened: false})
+            this.getStudyLists();
+        }
+        else{
+            this.setState({errorMessage: true})
         }
     }
 
@@ -258,7 +283,7 @@ class ReadData extends React.Component {
 
                 viewPositionList.push(
                     <div>
-                        <CSVLink data={item[1]} filename={item[0] + "_resumeData.csv"}>{item[0]}_resumeData</CSVLink>
+                        <New_CSV_Link data={item[1]} filename={item[0] + "_resumeData.csv"}>{item[0]}_resumeData</New_CSV_Link>
                         {/*<div id="subinfogray">{item}</div>*/}
                     </div>
                 )
@@ -273,9 +298,17 @@ class ReadData extends React.Component {
     render() {
         return (
             <div className="overall">
+                <ModalReact className="modal_dtp"
+                    isOpen={this.state.modalOpened}>
+                    <div> Enter password: </div>
+                    <input onChange={this.handleChange.bind(this)} value={this.state.password} />
+                    <button onClick={() => this.submitPassword()}> Submit </button>
+                    {this.state.errorMessage && <div id="red">Invalid password. Please re-enter.</div>}
+                </ModalReact>
+
                 <div className="title">Download Data</div>
                 <div className="horizontal" id="big">
-                        {/*<div>Mouse Data</div>*/}
+                        <div>Mouse Data</div>
                         <div>Activity Data</div>
                         <div>Resume Data</div>
                     </div>
@@ -283,7 +316,7 @@ class ReadData extends React.Component {
                 <div className="list">
                     <div id="title">Study 1: </div>
                     <div className="horizontal">
-                        {/*<div>{this.renderMouseData(1)}</div>*/}
+                        <div>{this.renderMouseData(1)}</div>
                         <div>{this.renderActivityData(1)}</div> 
                         <div>{this.renderResumeData(1)}</div>
                     </div>
@@ -292,7 +325,7 @@ class ReadData extends React.Component {
                 <div className="list">
                     <div id="title">Study 2: </div>
                     <div className="horizontal">
-                        {/*<div>{this.renderMouseData(2)}</div>*/}
+                        <div>{this.renderMouseData(2)}</div>
                         <div>{this.renderActivityData(2)}</div>
                         <div>{this.renderResumeData(2)}</div>
                     </div>
@@ -301,7 +334,7 @@ class ReadData extends React.Component {
                 <div className="list">
                     <div id="title">Study 3: </div>
                     <div className="horizontal">
-                        {/*<div>{this.renderMouseData(3)}</div>*/}
+                        <div>{this.renderMouseData(3)}</div>
                         <div>{this.renderActivityData(3)}</div>
                         <div>{this.renderResumeData(3)}</div>
                     </div>
