@@ -3,7 +3,6 @@ import './App.css';
 import firebase from './firebase';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { CSVLink, CSVDownload } from 'react-csv';
-import New_CSV_Link from './ReactCSV_New.js'
 import ModalReact from 'react-modal';
 
 class ReadData extends React.Component {
@@ -224,7 +223,7 @@ class ReadData extends React.Component {
 
                 viewPositionList.push(
                     <div>
-                        <New_CSV_Link data={item[1]} filename={item[0] + "_mouseData.csv"}>{item[0]}_mouseData</New_CSV_Link>
+                        <CSVLink data={item[1]} filename={item[0] + "_mouseData.csv"}>{item[0]}_mouseData</CSVLink>
                         {/*<div id="subinfogray">{item}</div>*/}
                     </div>
                 )
@@ -246,7 +245,7 @@ class ReadData extends React.Component {
 
                 viewPositionList.push(
                     <div>
-                        <New_CSV_Link data={item[1]} filename={item[0] + "_activityData.csv"}>{item[0]}_activityData</New_CSV_Link>
+                        <CSVLink data={item[1]} filename={item[0] + "_activityData.csv"}>{item[0]}_activityData</CSVLink>
                         {/*<div id="subinfogray">{item}</div>*/}
                     </div>
                 )
@@ -283,7 +282,7 @@ class ReadData extends React.Component {
 
                 viewPositionList.push(
                     <div>
-                        <New_CSV_Link data={item[1]} filename={item[0] + "_resumeData.csv"}>{item[0]}_resumeData</New_CSV_Link>
+                        <CSVLink data={item[1]} filename={item[0] + "_resumeData.csv"}>{item[0]}_resumeData</CSVLink>
                         {/*<div id="subinfogray">{item}</div>*/}
                     </div>
                 )

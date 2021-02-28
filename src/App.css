@@ -1,5 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300&display=swap');
 
+
+.overall{
+    background-color: lightgray;
+}
+
 .App {
     text-align: center;
     background: lightgray;
@@ -73,7 +78,7 @@
 }
 
 .profile_image{
-    height: 15%;
+    width: 15%;
     border-radius: 50%;
     border: solid black 1px;
 }
@@ -118,10 +123,8 @@
     margin-right: auto;
     margin-top: 100px;
     text-align: center;
-    outline: 1px solid black;
-    background: white;
+    background: lightgray;
 }
-
 
 .vote {
     display: inline-block;
@@ -154,8 +157,10 @@
 
 .userID{
     padding-left: 10px;
-    padding-bottom: 10px;
-    background: lightgray;
+    padding-right: 10px;
+    font-size: 20px;
+    background: yellow;
+    width: fit-content;
 }
 
 #red{

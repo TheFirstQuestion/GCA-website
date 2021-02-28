@@ -671,11 +671,12 @@ class Resume extends React.Component {
     render() {
         return (
             <div className="overall">
+                {this.state.resumeVersion == 1 && <div className="userID"><strong>{this.state.currentUserID}</strong></div>}
                 <div className="App" onMouseMove={this._onMouseMove.bind(this)}>
                     <div className="resume">
                         <ModalReact className="modal_dtp"
                             isOpen={this.state.modalOpened}>
-                            <div> Enter User ID: </div>
+                            <div>enter code: </div>
                             <input onChange={this.handleChange.bind(this)} value={this.state.enterID} />
                             <button onClick={() => this.submitUserID()}> Submit </button>
                             {this.state.errorMessage && <div id="red">Invalid ID. Please re-enter.</div>}
@@ -752,7 +753,6 @@ class Resume extends React.Component {
                         </div>}
                     </div>
                 </div>
-                {this.state.resumeVersion == 1 && <div className="userID"><strong>{this.state.currentUserID}</strong></div>}
             </div>
         );
     }
