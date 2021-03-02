@@ -13,6 +13,7 @@
     "gapi-script": "^1.1.0",
     "googleapis": "^67.1.0",
     "http2": "^3.3.7",
+    "jquery": "^3.6.0",
     "react": "^17.0.1",
     "react-bootstrap": "^1.4.3",
     "react-collapsible": "^2.8.3",

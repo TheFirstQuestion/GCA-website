@@ -4,6 +4,7 @@ import firebase from './firebase';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { CSVLink, CSVDownload } from 'react-csv';
 import ModalReact from 'react-modal';
+import { Button } from 'bootstrap';
 
 class ReadData extends React.Component {
     constructor(props) {
@@ -38,6 +39,8 @@ class ReadData extends React.Component {
             password: '',
             errorMessage: false,
             modalOpened: true,
+
+            adminVersion: "singleCSV",
         };
         this.study1List = [];
         this.study2List = [];
@@ -54,6 +57,17 @@ class ReadData extends React.Component {
         this.masterResume1 = [];
         this.masterResume2 = [];
         this.masterResume3 = [];
+
+
+        this.singleMouse1 = [];
+        this.singleMouse2 = [];
+        this.singleMouse3 = [];
+        this.singleActivity1 = [];
+        this.singleActivity2 = [];
+        this.singleActivity3 = [];
+        this.singleResume1 = [];
+        this.singleResume2 = [];
+        this.singleResume3 = [];
     }
 
     componentDidMount(){
@@ -64,22 +78,35 @@ class ReadData extends React.Component {
         let text = "masterMouse" + studyVersion
         let csvList = []
         let newObj = [];
+
+        let singleText = "singleMouse" + studyVersion
+        let singlecsvList = this[singleText];
+        let newObjSingle = [];
         var snapshot1 = firebase.firestore().collection('studies').doc('study ' + studyVersion).collection('userIDs').doc(itemID).collection("mouseData_resume1").onSnapshot((snapshot) => {
             snapshot.forEach((doc) => {
                 //console.log(doc.data().time)
                 newObj = [doc.data().time, doc.data().x, doc.data().y, 1]
                 csvList = [...csvList, newObj]
+
+                newObjSingle = [itemID, doc.data().time, doc.data().x, doc.data().y, 1]
+                singlecsvList = [...singlecsvList, newObjSingle]
+                //console.log("SINGLE CSV LSIT: " + singlecsvList)
             })
             snapshot1();
             var snapshot2 = firebase.firestore().collection('studies').doc('study ' + studyVersion).collection('userIDs').doc(itemID).collection("mouseData_resume2").onSnapshot((snapshot) => {
                 snapshot.forEach((doc) => {
                     newObj = [doc.data().time, doc.data().x, doc.data().y, 2]
                     csvList = [...csvList, newObj]
+
+                    newObjSingle = [itemID, doc.data().time, doc.data().x, doc.data().y, 1]
+                    singlecsvList = [...singlecsvList, newObjSingle]
                 })
                 let largerObj = [itemID, csvList]
                 this[text] = [...this[text], largerObj]
                 this.setState({loading2mouse: true})
                 snapshot2();
+
+                this[singleText] = [...this[text], singlecsvList]
             })
         })
     }
@@ -88,23 +115,37 @@ class ReadData extends React.Component {
         let text = "masterActivity" + studyVersion
         let csvList = []
         let newObj = [];
-        //console.log(itemID)
+
+        let singleText = "singleActivity" + studyVersion
+        let singlecsvList = this[singleText];
+        let newObjSingle = [];
         var snapshot1 = firebase.firestore().collection('studies').doc('study ' + studyVersion).collection('userIDs').doc(itemID).collection("activityData_resume1").onSnapshot((snapshot) => {
             snapshot.forEach((doc) => {
                 //console.log(doc.data().time)
                 newObj = [doc.data().time, doc.data().description, 1]
                 csvList = [...csvList, newObj]
+
+                newObjSingle = [itemID, doc.data().time, doc.data().description, 2]
+                singlecsvList = [...singlecsvList, newObjSingle]
+                //console.log("SINGLE CSV LSIT: " + singlecsvList)
             })
             snapshot1();
             var snapshot2 = firebase.firestore().collection('studies').doc('study ' + studyVersion).collection('userIDs').doc(itemID).collection("activityData_resume2").onSnapshot((snapshot) => {
                 snapshot.forEach((doc) => {
                     newObj = [doc.data().time, doc.data().description, 2]
                     csvList = [...csvList, newObj]
+
+                    newObjSingle = [itemID, doc.data().time, doc.data().description, 2]
+                    singlecsvList = [...singlecsvList, newObjSingle]
+                    //console.log("SINGLE CSV LSIT: " + singlecsvList)
                 })
                 let largerObj = [itemID, csvList]
                 this[text] = [...this[text], largerObj]
                 this.setState({loading2activity: true})
                 snapshot2();
+
+                //console.log("SINGLE CSV LSIT: " + singlecsvList)
+                this[singleText] = singlecsvList
             })
         })
     }
@@ -114,6 +155,10 @@ class ReadData extends React.Component {
         let csvList = []
         let newObj = [];
         //console.log("ID IN RESUME CONTENT: " + itemID)
+
+        let singleText = "singleResume" + studyVersion
+        let singlecsvList = this[singleText];
+        let newObjSingle = [];
         const res1 = firebase.firestore().collection('userIDs').doc(itemID).collection("values shown").doc("resume 1")
         res1.get()
             .then((docSnapshot) => {
@@ -129,6 +174,10 @@ class ReadData extends React.Component {
                         }
                         newObj = [doc.data().education, doc.data().gender, parent, remote, doc.data().work1, doc.data().work2, doc.data().work3, 1]
                         csvList = [...csvList, newObj]
+
+                        newObjSingle = [itemID, doc.data().education, doc.data().gender, parent, remote, doc.data().work1, doc.data().work2, doc.data().work3, 1]
+                        singlecsvList = [...singlecsvList, newObjSingle]
+
                         this.setState({loading2resume: true})
 
                         snapshot1();
@@ -151,9 +200,15 @@ class ReadData extends React.Component {
                         
                                         let largerObj = [itemID, csvList]
                                         this[text] = [...this[text], largerObj]
+
+                                        newObjSingle = [itemID, doc.data().education, doc.data().gender, parent, remote, doc.data().work1, doc.data().work2, doc.data().work3, 1]
+                                        singlecsvList = [...singlecsvList, newObjSingle]
+                        
                                         this.setState({loading2resume: true})
 
                                         snapshot2();
+
+                                        this[singleText] = singlecsvList
                                     });
                                 }
                                 else{
@@ -246,7 +301,6 @@ class ReadData extends React.Component {
                 viewPositionList.push(
                     <div>
                         <CSVLink data={item[1]} filename={item[0] + "_activityData.csv"}>{item[0]}_activityData</CSVLink>
-                        {/*<div id="subinfogray">{item}</div>*/}
                     </div>
                 )
             })
@@ -294,6 +348,58 @@ class ReadData extends React.Component {
         }
     }
 
+    renderMouseSingle = (studyVersion) => {
+        let text = "singleMouse" + studyVersion
+        if(this[text].length > 0){
+            let viewPositionList = []
+            viewPositionList.push(
+                <div>
+                    <CSVLink data={this[text]} filename={"mouseData" + studyVersion + ".csv"}>{"mouseData" + studyVersion + ".csv"}</CSVLink>
+                </div>
+            )
+            return viewPositionList
+        }
+        else{
+            return null
+        }
+    }
+
+    renderActivitySingle = (studyVersion) => {
+        let text = "singleActivity" + studyVersion
+        if(this[text].length > 0){
+            let viewPositionList = []
+            viewPositionList.push(
+                <div>
+                    <CSVLink data={this[text]} filename={"activityData" + studyVersion + ".csv"}>{"activityData" + studyVersion + ".csv"}</CSVLink>
+                </div>
+            )
+            return viewPositionList
+        }
+        else{
+            return null
+        }
+    }
+
+    renderResumeSingle = (studyVersion) => {
+        let text = "singleResume" + studyVersion
+        if(this[text].length > 0){
+            let viewPositionList = []
+            viewPositionList.push(
+                <div>
+                    <CSVLink data={this[text]} filename={"resumeData" + studyVersion + ".csv"}>{"resumeData" + studyVersion + ".csv"}</CSVLink>
+                </div>
+            )
+            return viewPositionList
+        }
+        else{
+            return null
+        }
+    }
+
+    switchAdminFormat(){
+        this.setState({adminVersion: "individualCSV"})
+    }
+
     render() {
         return (
             <div className="overall">
@@ -305,6 +411,10 @@ class ReadData extends React.Component {
                     {this.state.errorMessage && <div id="red">Invalid password. Please re-enter.</div>}
                 </ModalReact>
 
+                {/*<button onclick={() => this.switchAdminFormat()}>
+                    Switch to individual CSV format
+                </button>*/}
+
                 <div className="title">Download Data</div>
                 <div className="horizontal" id="big">
                         <div>Mouse Data</div>
@@ -315,27 +425,60 @@ class ReadData extends React.Component {
                 <div className="list">
                     <div id="title">Study 1: </div>
                     <div className="horizontal">
-                        <div>{this.renderMouseData(1)}</div>
-                        <div>{this.renderActivityData(1)}</div> 
-                        <div>{this.renderResumeData(1)}</div>
+                        {this.state.adminVersion == "individualCSV" && 
+                            <div>
+                                <div>{this.renderMouseData(1)}</div>
+                                <div>{this.renderActivityData(1)}</div> 
+                                <div>{this.renderResumeData(1)}</div>
+                            </div>
+                        }
+                        {this.state.adminVersion == "singleCSV" && 
+                            <div>
+                                <div>{this.renderMouseSingle(1)}</div>
+                                <div>{this.renderActivitySingle(1)}</div> 
+                                <div>{this.renderResumeSingle(1)}</div>
+                            </div>
+                        }
                     </div>
                 </div>
                 <hr/>
                 <div className="list">
                     <div id="title">Study 2: </div>
                     <div className="horizontal">
-                        <div>{this.renderMouseData(2)}</div>
-                        <div>{this.renderActivityData(2)}</div>
-                        <div>{this.renderResumeData(2)}</div>
+                        {this.state.adminVersion == "individualCSV" && 
+                            <div>
+                                <div>{this.renderMouseData(2)}</div>
+                                <div>{this.renderActivityData(2)}</div>
+                                <div>{this.renderResumeData(2)}</div>
+                            </div>
+                        }
+                        {this.state.adminVersion == "singleCSV" && 
+                            <div>
+                                <div>{this.renderMouseSingle(2)}</div>
+                                <div>{this.renderActivitySingle(2)}</div> 
+                                <div>{this.renderResumeSingle(2)}</div>
+                            </div>
+                        }
                     </div>
                 </div>
                 <hr/>
                 <div className="list">
                     <div id="title">Study 3: </div>
                     <div className="horizontal">
-                        <div>{this.renderMouseData(3)}</div>
-                        <div>{this.renderActivityData(3)}</div>
-                        <div>{this.renderResumeData(3)}</div>
+                        {this.state.adminVersion == "individualCSV" && 
+                            <div>
+                                <div>{this.renderMouseData(3)}</div>
+                                <div>{this.renderActivityData(3)}</div>
+                                <div>{this.renderResumeData(3)}</div>
+                            </div>
+                        }
+                        {this.state.adminVersion == "singleCSV" && 
+                            <div>
+                                <div>{this.renderMouseSingle(2)}</div>
+                                <div>{this.renderActivitySingle(2)}</div> 
+                                <div>{this.renderResumeSingle(2)}</div>
+                            </div>
+                        }
                     </div>
                 </div> 
             </div>

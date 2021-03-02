@@ -153,7 +153,17 @@ class Resume extends React.Component {
         if(parenthood < 0.5){
             this.setState({parenthood: true}, () => {
                 db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
-                    this.setState({initialNotes: doc.data().parent})
+                    let temp = doc.data().parent.toString()
+                    console.log("temp: " + temp)
+                    if(gender == "man"){
+                        temp = temp.replace("[pronoun]", "his")
+                        console.log(temp)
+                    }
+                    else{
+                        temp = temp.replace("[pronoun]", "her")
+                        console.log(temp)
+                    }
+                    this.setState({initialNotes: temp})
                 })
             })
             parenthood = true;
@@ -161,7 +171,17 @@ class Resume extends React.Component {
         else{
             this.setState({parenthood: false}, () => {
                 db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
-                    this.setState({initialNotes: doc.data().nonparent})
+                    let temp = doc.data().nonparent.toString()
+                    console.log("temp: " + temp)
+                    if(gender == "man"){
+                        temp = temp.replace("[pronoun]", "his")
+                        console.log(temp)
+                    }
+                    else{
+                        temp = temp.replace("[pronoun]", "her")
+                        console.log(temp)
+                    }
+                    this.setState({initialNotes: temp})
                 })
             })
             parenthood = false;
@@ -233,7 +253,7 @@ class Resume extends React.Component {
         }
 
         //select work experience 3
-        let work3 = Math.random();
+        /*let work3 = Math.random();
         if(work3 < 0.5){
             this.setState({work3: 0}, () => {
                 db.collection("resume").doc("work box 3a").get().then((doc) => {
@@ -249,7 +269,7 @@ class Resume extends React.Component {
                 })
             })
             work3 = "b"
-        }
+        }*/
 
         //JUST FOR STUDY 2:
         //select remote or not remote
@@ -275,7 +295,7 @@ class Resume extends React.Component {
             "education": education,
             "work1": work1,
             "work2": work2,
-            "work3": work3,
+            //"work3": work3,
             "remote": remote,
         });
     }
