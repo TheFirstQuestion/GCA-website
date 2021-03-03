@@ -95,12 +95,16 @@ class Resume extends React.Component {
             notes_up: false,
             notes_q: false,
             notes_down: false,
+
+
+            bulletList: [],
         };
         this.collapsibleOpened = this.collapsibleOpened.bind(this);
         this.submitUserID = this.submitUserID.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.voteClick = this.voteClick.bind(this);
         this.updateMouseCSV = this.updateMouseCSV.bind(this);
+        this.renderBulletList = this.renderBulletList.bind(this);
         this.positionList = [];
         this.mouseCounter = 0;
         this.activityCounter = 1;
@@ -154,16 +158,14 @@ class Resume extends React.Component {
             this.setState({parenthood: true}, () => {
                 db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
                     let temp = doc.data().parent.toString()
-                    console.log("temp: " + temp)
                     if(gender == "man"){
                         temp = temp.replace("[pronoun]", "his")
-                        console.log(temp)
                     }
                     else{
                         temp = temp.replace("[pronoun]", "her")
-                        console.log(temp)
                     }
-                    this.setState({initialNotes: temp})
+                    var split = temp.split(".")
+                    this.setState({bulletList: split})
                 })
             })
             parenthood = true;
@@ -172,16 +174,14 @@ class Resume extends React.Component {
             this.setState({parenthood: false}, () => {
                 db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
                     let temp = doc.data().nonparent.toString()
-                    console.log("temp: " + temp)
                     if(gender == "man"){
                         temp = temp.replace("[pronoun]", "his")
-                        console.log(temp)
                     }
                     else{
                         temp = temp.replace("[pronoun]", "her")
-                        console.log(temp)
                     }
-                    this.setState({initialNotes: temp})
+                    var split = temp.split(".")
+                    this.setState({bulletList: split})
                 })
             })
             parenthood = false;
@@ -324,14 +324,36 @@ class Resume extends React.Component {
 
             //parenthood - show the opposite
             if(doc.data().parenthood == true){
+                console.log("TRUE")
                 db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
-                    this.setState({initialNotes: doc.data().nonparent})
+                    let temp = doc.data().nonparent.toString()
+                    if(gender == "man"){
+                        temp = temp.replace("[pronoun]", "his")
+                    }
+                    else{
+                        temp = temp.replace("[pronoun]", "her")
+                    }
+                    var split = temp.split(".")
+                    this.setState({bulletList: split})
+
+                    //this.setState({initialNotes: doc.data().nonparent})
                 })
                 parenthood = false;
             }
             else{
+                console.log("FALSE")
                 db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
-                    this.setState({initialNotes: doc.data().parent})
+                    let temp = doc.data().parent.toString()
+                    if(gender == "man"){
+                        temp = temp.replace("[pronoun]", "his")
+                    }
+                    else{
+                        temp = temp.replace("[pronoun]", "her")
+                    }
+                    var split = temp.split(".")
+                    this.setState({bulletList: split})
+
+                    //this.setState({initialNotes: doc.data().parent})
                 })
                 parenthood = true;
             }
@@ -468,6 +490,23 @@ class Resume extends React.Component {
                     })
                 }
             });
+    }
+
+    renderBulletList = () => {
+        if(this.state.bulletList.length > 0){
+            let viewBulletList = []
+            this.state.bulletList.forEach((item, index) => {
+                if(item != " " && item != "" && item != null){
+                    viewBulletList.push(
+                        <li>{item}</li>
+                    )
+                }
+            })
+            return viewBulletList
+        }
+        else{
+            return null
+        }
     }
 
     renderPositionList = () => {
@@ -714,7 +753,11 @@ class Resume extends React.Component {
                                 <img name="notes_down" src={this.state.notes_down ? downvote_selected : downvote} onClick={this.voteClick}/>
                             </div>
                             <div class="notes">Notes from Initial Phone Screen:  
-                                <span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>
+                                <span id="subtext">
+                                    {this.renderBulletList()}
+                                    {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}
+                                </span>
+                                {/*<span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>*/}
                             </div>
                         </div>
 
