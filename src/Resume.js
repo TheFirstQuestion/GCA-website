@@ -61,6 +61,8 @@ class Resume extends React.Component {
             educationSectionOpened: false,
             workSectionOpened: false,
 
+            city: '',
+
             initialNotes: '',
             degree: '',
             distinction: '',
@@ -140,6 +142,11 @@ class Resume extends React.Component {
     //called from generateUniqueID function (so only called for resume 1)
     selectValues(){
         const db = firebase.firestore();
+
+        //get city
+        db.collection("resume").doc("study2_location").get().then((doc) => {
+            this.setState({city: doc.data().city})
+        })
 
         //select gender
         let gender = Math.random();
@@ -303,6 +310,11 @@ class Resume extends React.Component {
     populateValues(){
         const db = firebase.firestore();
 
+        //get city
+        db.collection("resume").doc("study2_location").get().then((doc) => {
+            this.setState({city: doc.data().city})
+        })
+
         db.collection("userIDs").doc(this.state.currentUserID).collection("values shown").doc("resume 1").get().then((doc) => {
             let gender = null;
             let parenthood = null;
@@ -409,7 +421,7 @@ class Resume extends React.Component {
             }
 
             //work3 - show the opposite
-            if(doc.data().work3 == "a"){
+            /*if(doc.data().work3 == "a"){
                 db.collection("resume").doc("work box 3b").get().then((doc) => {
                     this.positionList.push(doc)
                 })
@@ -420,7 +432,7 @@ class Resume extends React.Component {
                     this.positionList.push(doc)
                 })
                 work3 = "a"
-            }
+            }*/
 
             //remote - show the opposite (JUST FOR STUDY 2)
             if(this.state.studyVersion == 2){
@@ -459,7 +471,13 @@ class Resume extends React.Component {
             this.generateUniqueID();
             return
         }
-        let userID = this.IDlist[r] + "" + rand;
+        let userID = ''
+        if(rand < 10){
+            userID = this.IDlist[r] + "0" + rand;
+        }
+        else{
+            userID = this.IDlist[r] + "" + rand;
+        }
         console.log("user ID: " + userID)
 
         //check database to make sure it hasnt already been generated
@@ -528,9 +546,9 @@ class Resume extends React.Component {
 
                                     {/*remote && study version 2*/}
                                     {this.state.studyVersion == 2 && this.state.remote && index == 0 && <div id="subinfo"><i>Remote</i></div>}
-                                    {this.state.studyVersion == 2 && !this.state.remote && index == 0 && <div id="subinfo"><i>City</i></div>}
+                                    {this.state.studyVersion == 2 && !this.state.remote && index == 0 && <div id="subinfo"><i>{this.state.city}</i></div>}
                                     {this.state.studyVersion == 2 && index != 0 &&
-                                        <div id="subinfo"><i>City</i></div>}
+                                        <div id="subinfo"><i>{this.state.city}</i></div>}
                                 </div>
                                 <div id="subinfogray">{item.data().duration}</div>
                                 <div id="subinfo">{item.data().description}</div>
@@ -730,7 +748,6 @@ class Resume extends React.Component {
     render() {
         return (
             <div className="overall">
-                {this.state.resumeVersion == 1 && <div className="userID"><strong>{this.state.currentUserID}</strong></div>}
                 <div className="App" onMouseMove={this._onMouseMove.bind(this)}>
                     <div className="resume">
                         <ModalReact className="modal_dtp"
@@ -816,6 +833,7 @@ class Resume extends React.Component {
                         </div>}
                     </div>
                 </div>
+                {this.state.resumeVersion == 1 && <div className="userID"><strong>{this.state.currentUserID}</strong></div>}
             </div>
         );
     }
