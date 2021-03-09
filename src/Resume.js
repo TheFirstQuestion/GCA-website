@@ -770,9 +770,11 @@ class Resume extends React.Component {
                                 <img name="notes_down" src={this.state.notes_down ? downvote_selected : downvote} onClick={this.voteClick}/>
                             </div>
                             <div class="notes">Notes from Initial Phone Screen:  
-                                <span id="subtext">
+                                <span id="subtext_bullet">
+                                    <ul>
                                     {this.renderBulletList()}
                                     {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}
+                                    </ul>
                                 </span>
                                 {/*<span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>*/}
                             </div>
@@ -782,7 +784,7 @@ class Resume extends React.Component {
                             <Card>
                                 <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0}}>
                                 <Accordion.Toggle as={Button}  
-                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px"}} 
+                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}} 
                                     variant="link" 
                                     eventKey="0"
                                     onClick={() => this.setState({educationSectionOpened: !this.state.educationSectionOpened}, () => {
@@ -790,7 +792,7 @@ class Resume extends React.Component {
                                         if(this.state.educationSectionOpened){
                                             this.setState({workSectionOpened: false});
                                     }})}>
-                                    Education <img src={this.state.educationSectionOpened ? minus : plus}/>
+                                    Education <img id="toggle_icon" src={this.state.educationSectionOpened ? minus : plus}/>
                                 </Accordion.Toggle>
                                 </Card.Header>
                                 <Accordion.Collapse eventKey="0">
@@ -812,7 +814,7 @@ class Resume extends React.Component {
                             <Card>
                                 <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0, borderTop: "1px solid black"}}>
                                 <Accordion.Toggle as={Button} 
-                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px"}} 
+                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}} 
                                     variant="link" 
                                     eventKey="1"
                                     onClick={() => this.setState({workSectionOpened: !this.state.workSectionOpened}, () => {
@@ -820,7 +822,7 @@ class Resume extends React.Component {
                                         if(this.state.workSectionOpened){
                                             this.setState({educationSectionOpened: false});
                                     }})}>
-                                    Work Experience <img src={this.state.workSectionOpened ? minus : plus}/>
+                                    Work Experience <img img id="toggle_icon" src={this.state.workSectionOpened ? minus : plus}/>
                                 </Accordion.Toggle>
                                 </Card.Header>
                                 <Accordion.Collapse eventKey="1">

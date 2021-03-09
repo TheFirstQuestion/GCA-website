@@ -44,6 +44,20 @@
     width: 100%;
 }
 
+ul{ 
+    overflow: hidden; 
+    list-style-position: inside;
+    padding-left: 0;
+}
+
+#subtext_bullet{
+    font-size: 16px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    font-weight: bold;
+    width: 100%;
+}
+
 #horizontal{
     display: flex;
     flex-direction: row;
@@ -192,4 +206,9 @@
     margin-right: 3%;
     flex-wrap: wrap;
     flex-direction: column;
+}
+
+#toggle_icon{
+    height: 100%;
+     top: auto;
 }
