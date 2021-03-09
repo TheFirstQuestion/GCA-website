@@ -8,6 +8,8 @@ import downvote from './downvote.png';
 import downvote_selected from './downvote_selected.png';
 import question from './question.png';
 import question_selected from './question_selected.png';
+import circle from './circle.png';
+import circle_selected from './circle_selected.png';
 import Collapsible from 'react-collapsible';
 import Divider from '@material-ui/core/Divider';
 import ModalReact from 'react-modal';
@@ -100,6 +102,7 @@ class Resume extends React.Component {
 
 
             bulletList: [],
+            remoteNotesText: '',
         };
         this.collapsibleOpened = this.collapsibleOpened.bind(this);
         this.submitUserID = this.submitUserID.bind(this);
@@ -113,7 +116,15 @@ class Resume extends React.Component {
         this.IDlist = ["sheep", "koala", "whale", "dolphin", "panda", "snake", "bear", "lion", "tiger", "celery", 
                         "carrot", "pizza", "salad", "chicken", "burger", "rice", "eggs", "soup", "green", "blue", 
                         "purple", "red", "orange", "yellow", "silver", "olive", "pink", "gold", "shirt", "pants", 
-                        "tree", "smoke", "planet", "pencil", "pen", "cookie", "cake", "tire", "phone", "plant"];
+                        "tree", "smoke", "planet", "pencil", "pen", "cookie", "cake", "tire", "phone", "plant",
+                        "north", "east", "south", "west", "right", "left", "canyon", "mountain", "park", "field", 
+                        "snow", "rain", "beach", "ocean", "wind", "storm", "thunder", "hill", "road", "traffic", 
+                        "cliff", "waves", "shell", "island", "sand", "umbrella", "swim", "climb", "dive", "surf", 
+
+                        "hike", "run", "walk", "bike", "canoe", "boat", "ice", "air", "river", "pond", 
+                        "lake", "stream", "canal", "street", "coffee", "tea", "soda", "lunch", "dinner", "snack", 
+                        "eat", "drink", "sleep", "wake", "jump", "fall", "alaska", "florida", "idaho", "ohio",
+                    ];
     }
 
     componentDidMount(){
@@ -147,6 +158,21 @@ class Resume extends React.Component {
         db.collection("resume").doc("study2_location").get().then((doc) => {
             this.setState({city: doc.data().city})
         })
+
+        //select remote text for initial notes section (if study 2)
+        let remote_notes = Math.random();
+        if(remote_notes < 0.5){
+            db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                this.setState({remoteNotesText: doc.data().remote_text_1})
+                remote_notes = 1;
+            })
+        }
+        else{
+            db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                this.setState({remoteNotesText: doc.data().remote_text_2})
+                remote_notes = 2;
+            })
+        }
 
         //select gender
         let gender = Math.random();
@@ -304,6 +330,7 @@ class Resume extends React.Component {
             "work2": work2,
             //"work3": work3,
             "remote": remote,
+            "remoteNotesText": remote_notes,
         });
     }
 
@@ -323,8 +350,21 @@ class Resume extends React.Component {
             let work2 = null;
             let work3 = null;
             let remote = null;
+            let remote_notes_text = null;
 
             //gender - show the same
+            if(doc.data().remoteNotesText == 1){
+                db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                    this.setState({remoteNotesText: doc.data().remote_text_1})
+                })
+            }
+            else{
+                db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                    this.setState({remoteNotesText: doc.data().remote_text_1})
+                })
+            }
+
+            //remote notes text
             if(doc.data().gender == "man"){
                 this.setState({gender_icon: man})
                 gender = "man"
@@ -464,20 +504,16 @@ class Resume extends React.Component {
 
         //generate ID
         //let userID = '_' + Math.random().toString(36).substr(2, 9);
+
+        //console.log(this.IDlist.length)
         var rand = Math.floor(Math.random() * 100) + 1;
-        let r = Math.floor(((Math.random() * 100) + 1) % 40);
-        if(r < 0 || r > 40){
+        let r = Math.floor(((Math.random() * 100) + 1) % this.IDlist.length);
+        if(r < 10 || r > this.IDlist.length){
             //TODO: is this correct?
             this.generateUniqueID();
             return
         }
-        let userID = ''
-        if(rand < 10){
-            userID = this.IDlist[r] + "0" + rand;
-        }
-        else{
-            userID = this.IDlist[r] + "" + rand;
-        }
+        let userID = this.IDlist[r] + "" + rand;
         console.log("user ID: " + userID)
 
         //check database to make sure it hasnt already been generated
@@ -537,7 +573,7 @@ class Resume extends React.Component {
                         <div className="votingblock">
                             <div id="vertical">
                                 <img name={"work" + (index+1) + "_up"} src={this.state["work" + (index + 1) + "_up"] ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                <img name={"work" + (index+1) + "_q"} src={this.state["work" + (index + 1) + "_q"] ? question_selected : question} onClick={this.voteClick}/>
+                                <img name={"work" + (index+1) + "_q"} src={this.state["work" + (index + 1) + "_q"] ? circle_selected : circle} onClick={this.voteClick}/>
                                 <img name={"work" + (index+1) + "_down"} src={this.state["work" + (index + 1) + "_down"] ? downvote_selected : downvote} onClick={this.voteClick}/>
                             </div>
                             <div id="subtext"> {item.data().title}
@@ -602,16 +638,21 @@ class Resume extends React.Component {
             return;
         }
 
+        let userID = this.state.enterID.replace(/[.,\/#!$%\^&\*;:{}=\-_'`~()]/g,"");
+        userID = userID.replace(/\s{2,}/g," ");
+        userID = userID.replace(/\s/g,'');
+        //console.log("USER ID:" + userID + "hello")
+
         //read database to see if this ID exists
         const db = firebase.firestore();
-        const idRef = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(this.state.enterID)
+        const idRef = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(userID)
         idRef.get()
             .then((docSnapshot) => {
                 if (docSnapshot.exists) {
                     idRef.onSnapshot((doc) => {
                         console.log("VALID: THIS DOES EXIST")
                         this.setState({errorMessage: false})
-                        this.setState({currentUserID: this.state.enterID}, () => {
+                        this.setState({currentUserID: userID}, () => {
                             this.populateValues();
                             db.collection("settings").doc("mouse tracking").get().then((doc) => {
                                 this.timer = setInterval(this.updateMouseCSV, doc.data().interval);
@@ -766,14 +807,14 @@ class Resume extends React.Component {
                         <div className="votingblock_notes">
                             <div id="vertical">
                                 <img name="notes_up" src={this.state.notes_up ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                <img name="notes_q" src={this.state.notes_q ? question_selected : question} onClick={this.voteClick}/>
+                                <img name="notes_q" src={this.state.notes_q ? circle_selected : circle} onClick={this.voteClick}/>
                                 <img name="notes_down" src={this.state.notes_down ? downvote_selected : downvote} onClick={this.voteClick}/>
                             </div>
                             <div class="notes">Notes from Initial Phone Screen:  
                                 <span id="subtext_bullet">
                                     <ul>
-                                    {this.renderBulletList()}
-                                    {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}
+                                        {this.state.studyVersion == 2 && this.state.remote && <li>{this.state.remoteNotesText}</li>}
+                                        {this.renderBulletList()}
                                     </ul>
                                 </span>
                                 {/*<span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>*/}
@@ -800,7 +841,7 @@ class Resume extends React.Component {
                                     <div className="votingblock">
                                         <div id="vertical">
                                             <img name="education_up" src={this.state.education_up ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                            <img name="education_q" src={this.state.education_q ? question_selected : question} onClick={this.voteClick}/>
+                                            <img name="education_q" src={this.state.education_q ? circle_selected : circle} onClick={this.voteClick}/>
                                             <img name="education_down" src={this.state.education_down ? downvote_selected : downvote} onClick={this.voteClick}/>
                                         </div>
                                         <div id="subtext">{this.state.university}

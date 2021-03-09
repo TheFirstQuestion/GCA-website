@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import Resume from './Resume';
+import PracticeResume from './PracticeResume';
 import ReadData from './ReadData';
 import './App.css';
 import { CSVLink, CSVDownload } from 'react-csv';
@@ -50,6 +51,12 @@ class App extends React.Component {
                     path='/v3r2'
                     render={(props) => (
                         <Resume {...props} studyVersion={3} resumeVersion={2}/>
+                    )}
+                />
+                <Route 
+                    path='/practice'
+                    render={(props) => (
+                        <PracticeResume {...props} />
                     )}
                 />
                 <Route 
