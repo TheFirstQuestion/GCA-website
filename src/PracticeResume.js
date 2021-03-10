@@ -51,9 +51,6 @@ class PracticeResume extends React.Component {
             workexpOpenedCount: 0,
             notesOpenedCount: 0,
 
-            modalOpened: false,
-            enterID: '',
-
             educationSectionOpened: false,
             workSectionOpened: false,
 
@@ -101,11 +98,10 @@ class PracticeResume extends React.Component {
         this.voteClick = this.voteClick.bind(this);
         this.renderBulletList = this.renderBulletList.bind(this);
         this.positionList = [];
-        this.mouseCounter = 0;
-        this.activityCounter = 1;
     }
 
     componentDidMount(){
+        this.selectValues();
     }
 
     componentWillUnmount() {
@@ -114,24 +110,20 @@ class PracticeResume extends React.Component {
         }
       }    
 
-    //called from generateUniqueID function (so only called for resume 1)
     selectValues(){
         const db = firebase.firestore();
 
-        //select gender
-        let gender = Math.random();
-        if(gender < 0.5){
-            this.setState({gender_icon: man})
-            gender = "man"
-        }
-        else{
-            this.setState({gender_icon: woman})
-            gender = "woman"
-        }
-
         //select parenthood
         db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
-            let temp = doc.data().practice.toString()
+            let gender = doc.data().practice_gender.toString();
+            if(gender == "man"){
+                this.setState({gender_icon: man})
+            }
+            else{
+                this.setState({gender_icon: woman})
+            }
+
+            let temp = doc.data().practice_notes.toString()
             if(gender == "man"){
                 temp = temp.replace("[pronoun]", "his")
             }
@@ -140,6 +132,8 @@ class PracticeResume extends React.Component {
             }
             var split = temp.split(".")
             this.setState({bulletList: split})
+
+            this.setState({currentUserID: doc.data().practice_userID}) 
         })
 
         //select education
@@ -159,11 +153,6 @@ class PracticeResume extends React.Component {
         //select work experience 2
         db.collection("resume").doc("work box 2practice").get().then((doc) => {
             this.positionList.push(doc)
-        })
-
-        //select user ID
-        db.collection("resume").doc("userinfo").get().then((doc) => {
-            this.setState({currentUserID: doc.data().userID}) 
         })
     }
 
@@ -223,21 +212,8 @@ class PracticeResume extends React.Component {
     }
 
     voteClick(event){
-        const db = firebase.firestore();
-
-        this.activityCounter = this.activityCounter + 1;
-        let count = this.activityCounter.toString();
-
-        var options = { hour12: false };
-        let time = new Date().toLocaleString('en-US', options);
-
         this.setState({[event.target.name] : !this.state[event.target.name]}, () => {
             if(this.state[event.target.name]){
-                const addDoc = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(this.state.currentUserID).collection("activityData_resume" + this.state.resumeVersion.toString()).doc(count).set({
-                    "time": time,
-                    "description": "clicked " + event.target.name + " button",
-                });
-                
                 //unclick the others in the same box
                 if(event.target.name == "work1_up"){
                     this.setState({work1_down: false, work1_q: false})
@@ -289,12 +265,6 @@ class PracticeResume extends React.Component {
                     this.setState({notes_up: false, notes_down: false})
                 }
             }
-            else{
-                const addDoc = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(this.state.currentUserID).collection("activityData_resume" + this.state.resumeVersion.toString()).doc(count).set({
-                    "time": time,
-                    "description": "unclicked " + event.target.name + " button",
-                });
-            }
         })
     }
 
@@ -303,13 +273,6 @@ class PracticeResume extends React.Component {
             <div className="overall">
                 <div className="App">
                     <div className="resume">
-                        <ModalReact className="modal_dtp"
-                            isOpen={this.state.modalOpened}>
-                            <div>enter code: </div>
-                            <input onChange={this.handleChange.bind(this)} value={this.state.enterID} />
-                            <button onClick={() => this.submitUserID()}> Submit </button>
-                            {this.state.errorMessage && <div id="red">Invalid ID. Please re-enter.</div>}
-                        </ModalReact>
 
                         {!this.state.modalOpened && 
                         <div>

@@ -159,21 +159,6 @@ class Resume extends React.Component {
             this.setState({city: doc.data().city})
         })
 
-        //select remote text for initial notes section (if study 2)
-        let remote_notes = Math.random();
-        if(remote_notes < 0.5){
-            db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
-                this.setState({remoteNotesText: doc.data().remote_text_1})
-                remote_notes = 1;
-            })
-        }
-        else{
-            db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
-                this.setState({remoteNotesText: doc.data().remote_text_2})
-                remote_notes = 2;
-            })
-        }
-
         //select gender
         let gender = Math.random();
         if(gender < 0.5){
@@ -311,10 +296,16 @@ class Resume extends React.Component {
             if(remote < 0.5){
                 this.setState({remote: true})
                 remote = true
+                db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                    this.setState({remoteNotesText: doc.data().working_remotely})
+                })
             }
             else{
                 this.setState({remote: false})
                 remote = false
+                db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                    this.setState({remoteNotesText: doc.data().not_working_remotely})
+                })
             }
         }
         else{
@@ -330,7 +321,6 @@ class Resume extends React.Component {
             "work2": work2,
             //"work3": work3,
             "remote": remote,
-            "remoteNotesText": remote_notes,
         });
     }
 
@@ -350,21 +340,8 @@ class Resume extends React.Component {
             let work2 = null;
             let work3 = null;
             let remote = null;
-            let remote_notes_text = null;
 
-            //gender - show the same
-            if(doc.data().remoteNotesText == 1){
-                db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
-                    this.setState({remoteNotesText: doc.data().remote_text_1})
-                })
-            }
-            else{
-                db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
-                    this.setState({remoteNotesText: doc.data().remote_text_1})
-                })
-            }
-
-            //remote notes text
+            //gender- show the same
             if(doc.data().gender == "man"){
                 this.setState({gender_icon: man})
                 gender = "man"
@@ -479,10 +456,16 @@ class Resume extends React.Component {
                 if(doc.data().remote == true){
                     this.setState({remote: false})
                     remote = false
+                    db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                        this.setState({remoteNotesText: doc.data().not_working_remotely})
+                    })
                 }
                 else{
                     this.setState({remote: true})
                     remote = true
+                    db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                        this.setState({remoteNotesText: doc.data().working_remotely})
+                    })
                 }
             }
 
@@ -813,7 +796,7 @@ class Resume extends React.Component {
                             <div class="notes">Notes from Initial Phone Screen:  
                                 <span id="subtext_bullet">
                                     <ul>
-                                        {this.state.studyVersion == 2 && this.state.remote && <li>{this.state.remoteNotesText}</li>}
+                                        {this.state.studyVersion == 2 && <li>{this.state.remoteNotesText}</li>}
                                         {this.renderBulletList()}
                                     </ul>
                                 </span>
