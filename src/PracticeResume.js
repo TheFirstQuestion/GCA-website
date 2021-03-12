@@ -69,6 +69,7 @@ class PracticeResume extends React.Component {
             work1: 0, 
             work2: 0,
             remote: true,
+            name: '',
 
             //upvote + downvote + question mark
             education_up: false,
@@ -118,9 +119,17 @@ class PracticeResume extends React.Component {
             let gender = doc.data().practice_gender.toString();
             if(gender == "man"){
                 this.setState({gender_icon: man})
+
+                db.collection("resume").doc("candidate names").get().then((doc) => {
+                    this.setState({name: doc.data().man_practice})
+                })
             }
             else{
                 this.setState({gender_icon: woman})
+
+                db.collection("resume").doc("candidate names").get().then((doc) => {
+                    this.setState({name: doc.data().woman_practice})
+                })
             }
 
             let temp = doc.data().practice_notes.toString()
@@ -277,7 +286,7 @@ class PracticeResume extends React.Component {
                         {!this.state.modalOpened && 
                         <div>
                         <img className="profile_image" src={this.state.gender_icon} alt="" />
-                        <div className="header">Candidate {this.state.resumeVersion == 1 ? "A" : "B"}</div>
+                        <div className="header">{this.state.name}</div>
 
                         <div className="votingblock_notes">
                             <div id="vertical">

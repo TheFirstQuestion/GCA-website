@@ -73,6 +73,7 @@ class Resume extends React.Component {
             university: '',
 
             gender_icon: man,
+            name: '',
             parenthood: true,
             education: 0,
             work1: 0, 
@@ -161,13 +162,42 @@ class Resume extends React.Component {
 
         //select gender
         let gender = Math.random();
+        let name = Math.random();
         if(gender < 0.5){
             this.setState({gender_icon: man})
             gender = "man"
+            
+            //get name
+            if(name < 0.5){
+                db.collection("resume").doc("candidate names").get().then((doc) => {
+                    this.setState({name: doc.data().man_a})
+                })
+                name = "a";
+            }
+            else{
+                db.collection("resume").doc("candidate names").get().then((doc) => {
+                    this.setState({name: doc.data().man_b})
+                })
+                name = "b";
+            }
         }
         else{
             this.setState({gender_icon: woman})
             gender = "woman"
+
+            //get name
+            if(name < 0.5){
+                db.collection("resume").doc("candidate names").get().then((doc) => {
+                    this.setState({name: doc.data().woman_a})
+                })
+                name = "a";
+            }
+            else{
+                db.collection("resume").doc("candidate names").get().then((doc) => {
+                    this.setState({name: doc.data().woman_b})
+                })
+                name = "b";
+            }
         }
 
         //select parenthood
@@ -321,6 +351,7 @@ class Resume extends React.Component {
             "work2": work2,
             //"work3": work3,
             "remote": remote,
+            "name": name,
         });
     }
 
@@ -340,15 +371,42 @@ class Resume extends React.Component {
             let work2 = null;
             let work3 = null;
             let remote = null;
+            let name = null;
 
             //gender- show the same
             if(doc.data().gender == "man"){
                 this.setState({gender_icon: man})
                 gender = "man"
+
+                if(doc.data().name == "a"){
+                    db.collection("resume").doc("candidate names").get().then((doc) => {
+                        this.setState({name: doc.data().man_b})
+                    })
+                    name = "b"
+                }
+                else{
+                    db.collection("resume").doc("candidate names").get().then((doc) => {
+                        this.setState({name: doc.data().man_a})
+                    })
+                    name = "a"
+                }
             }
             else{
                 this.setState({gender_icon: woman})
                 gender = "woman"
+
+                if(doc.data().name == "a"){
+                    db.collection("resume").doc("candidate names").get().then((doc) => {
+                        this.setState({name: doc.data().woman_b})
+                    })
+                    name = "b"
+                }
+                else{
+                    db.collection("resume").doc("candidate names").get().then((doc) => {
+                        this.setState({name: doc.data().woman_a})
+                    })
+                    name = "a"
+                }
             }
 
             //parenthood - show the opposite
@@ -478,6 +536,7 @@ class Resume extends React.Component {
                 "work2": work2,
                 "work3": work3,
                 "remote": remote,
+                "name": name,
             });
         })
     }
@@ -624,6 +683,7 @@ class Resume extends React.Component {
         let userID = this.state.enterID.replace(/[.,\/#!$%\^&\*;:{}=\-_'`~()]/g,"");
         userID = userID.replace(/\s{2,}/g," ");
         userID = userID.replace(/\s/g,'');
+        userID = userID.toLowerCase();
         //console.log("USER ID:" + userID + "hello")
 
         //read database to see if this ID exists
@@ -785,7 +845,7 @@ class Resume extends React.Component {
                         {!this.state.modalOpened && 
                         <div>
                         <img className="profile_image" src={this.state.gender_icon} alt="" />
-                        <div className="header">Candidate {this.state.resumeVersion == 1 ? "A" : "B"}</div>
+                        <div className="header">{this.state.name}</div>
 
                         <div className="votingblock_notes">
                             <div id="vertical">

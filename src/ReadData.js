@@ -163,10 +163,10 @@ class ReadData extends React.Component {
                         if(remote == null){
                             remote = "N/A"
                         }
-                        newObj = [doc.data().education, doc.data().gender, parent, remote, doc.data().work1, doc.data().work2, doc.data().work3, 1]
+                        newObj = [doc.data().education, doc.data().gender, parent, remote, doc.data().work1, doc.data().work2, doc.data().name, 1]
                         csvList = [...csvList, newObj]
 
-                        newObjSingle = [itemID, doc.data().education, doc.data().gender, parent, remote, doc.data().work1, doc.data().work2, doc.data().work3, 1]
+                        newObjSingle = [itemID, doc.data().education, doc.data().gender, parent, remote, doc.data().work1, doc.data().work2, doc.data().name, 1]
                         this[singleText] = [...this[singleText], newObjSingle]
 
                         this.setState({loading2resume: true})
@@ -186,13 +186,14 @@ class ReadData extends React.Component {
                                         if(remote == null){
                                             remote = "N/A"
                                         }
-                                        newObj = [doc.data().education, doc.data().gender, parent, remote, doc.data().work1, doc.data().work2, doc.data().work3, 2]
+                                        console.log("resume 2 found for " + itemID)
+                                        newObj = [doc.data().education, doc.data().gender, parent, remote, doc.data().work1, doc.data().work2, doc.data().name, 2]
                                         csvList = [...csvList, newObj]
                         
                                         let largerObj = [itemID, csvList]
                                         this[text] = [...this[text], largerObj]
 
-                                        newObjSingle = [itemID, doc.data().education, doc.data().gender, parent, remote, doc.data().work1, doc.data().work2, doc.data().work3, 2]
+                                        newObjSingle = [itemID, doc.data().education, doc.data().gender, parent, remote, doc.data().work1, doc.data().work2, doc.data().name, 2]
                                         this[singleText] = [...this[singleText], newObjSingle]
                         
                                         this.setState({loading2resume: true})
