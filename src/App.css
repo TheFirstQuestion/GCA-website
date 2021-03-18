@@ -3,6 +3,7 @@
 
 .overall{
     background-color: lightgray;
+    height: 100%;
 }
 
 .App {
@@ -24,6 +25,11 @@
     padding-left: 3%;
     padding-top: 3%;
     padding-bottom: 3%;
+}
+
+#root{
+    height: 100vh;
+    background-color: lightgray;
 }
 
 .header{

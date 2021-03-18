@@ -21,6 +21,8 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { makeStyles } from '@material-ui/core';
+import { mockComponent } from 'react-dom/test-utils';
+var moment = require('moment-timezone');
 
 //google drive setup
 /*const { google } = require('googleapis');
@@ -651,7 +653,9 @@ class Resume extends React.Component {
         let description = '';
 
         var options = { hour12: false };
-        let time = new Date().toLocaleString('en-US', options);
+        //let time = new Date().toLocaleString('en-US', options);
+        let time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
+        //console.log("MOMENT: " + time)
         //let newObj = []
         if(e == 0){
             //console.log(time + " education");
@@ -724,7 +728,9 @@ class Resume extends React.Component {
         let count = this.activityCounter.toString();
 
         var options = { hour12: false };
-        let time = new Date().toLocaleString('en-US', options);
+        //let time = new Date().toLocaleString('en-US', options);
+        let time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
+        //console.log("MOMENT: " + time)
 
         this.setState({[event.target.name] : !this.state[event.target.name]}, () => {
             if(this.state[event.target.name]){
@@ -806,7 +812,9 @@ class Resume extends React.Component {
         let count = this.mouseCounter.toString();
         if(count == 1){
             var options = { hour12: false };
-            let time = new Date().toLocaleString('en-US', options);
+            //let time = new Date().toLocaleString('en-US', options);
+            let time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
+            //console.log("MOMENT: " + time)
             const addDoc = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(this.state.currentUserID).collection("activityData_resume" + this.state.resumeVersion.toString()).doc("1").set({
                 "time": time,
                 "description": "entered website",
@@ -816,7 +824,9 @@ class Resume extends React.Component {
         //set upper limit of 30 min per participant
         if(count <= 180){
             var options = { hour12: false };
-            let time = new Date().toLocaleString('en-US', options);
+            //let time = new Date().toLocaleString('en-US', options);
+            let time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
+            //console.log("MOMENT: " + time)
             let x = this.state.x;
             let y = this.state.y;
             
