@@ -105,6 +105,9 @@ class Resume extends React.Component {
             notes_q: false,
             notes_down: false,
 
+            misc_up: false,
+            misc_q: false,
+            misc_down: false,
 
             bulletList: [],
             remoteNotesText: '',
@@ -689,14 +692,33 @@ class Resume extends React.Component {
         if(e == 0){
             //console.log(time + " education");
             this.state.educationOpenedCount++;
-            description = "opened education section"
+            if(!this.state.educationSectionOpened){
+                description = "closed education section"
+            }
+            else{
+                description = "opened education section"
+            }
             //newObj = [time, "opened education section"]
         }
         else if(e == 1){ 
             //console.log(time + " work");
             this.state.workexpOpenedCount++;
-            description = "opened work section"
+            if(!this.state.workSectionOpened){
+                description = "closed work section"
+            }
+            else{
+                description = "opened work section"
+            }
             //newObj = [time, "opened work section"]
+        }
+        else if(e == 2){
+            this.state.miscOpenedCount++;
+            if(!this.state.miscellaneousSectionOpened){
+                description = "closed misc section"
+            }
+            else{
+                description = "opened misc section"
+            }
         }
         //console.log(newObj)
         //this.setState({activityData: [...this.state.activityData, newObj]})
@@ -817,6 +839,16 @@ class Resume extends React.Component {
                 }
                 else if(event.target.name == "notes_q"){
                     this.setState({notes_up: false, notes_down: false})
+                }
+
+                else if(event.target.name == "misc_down"){
+                    this.setState({misc_up: false, misc_q: false})
+                }
+                else if(event.target.name == "misc_up"){
+                    this.setState({misc_down: false, misc_q: false})
+                }
+                else if(event.target.name == "misc_q"){
+                    this.setState({misc_up: false, misc_down: false})
                 }
             }
             else{
@@ -973,7 +1005,16 @@ class Resume extends React.Component {
                                 </Card.Header>
                                 <Accordion.Collapse eventKey="2">
                                 <Card.Body>
-                                    {this.state.miscellaneousText}
+                                    <div className="votingblock">
+                                        <div id="vertical">
+                                            <img name="misc_up" src={this.state.misc_up ? upvote_selected : upvote} onClick={this.voteClick}/>
+                                            <img name="misc_q" src={this.state.misc_q ? circle_selected : circle} onClick={this.voteClick}/>
+                                            <img name="misc_down" src={this.state.misc_down ? downvote_selected : downvote} onClick={this.voteClick}/>
+                                        </div>
+                                        <div id="vertical">
+                                            {this.state.miscellaneousText}
+                                        </div>
+                                    </div>
                                 </Card.Body>
                                 </Accordion.Collapse>
                             </Card>

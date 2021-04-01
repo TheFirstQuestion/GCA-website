@@ -92,6 +92,9 @@ class PracticeResume extends React.Component {
             notes_q: false,
             notes_down: false,
 
+            misc_up: false,
+            misc_q: false,
+            misc_down: false,
 
             bulletList: [],
             remoteNotesText: '',
@@ -143,6 +146,11 @@ class PracticeResume extends React.Component {
             this.setState({bulletList: split})
 
             this.setState({currentUserID: doc.data().practice_userID}) 
+        })
+
+        //get misc
+        db.collection("resume").doc("misc").get().then((doc) => {
+            this.setState({miscellaneousText: doc.data().practice})
         })
 
         //select education
@@ -273,6 +281,16 @@ class PracticeResume extends React.Component {
                 else if(event.target.name == "notes_q"){
                     this.setState({notes_up: false, notes_down: false})
                 }
+
+                else if(event.target.name == "misc_down"){
+                    this.setState({misc_up: false, misc_q: false})
+                }
+                else if(event.target.name == "misc_up"){
+                    this.setState({misc_down: false, misc_q: false})
+                }
+                else if(event.target.name == "misc_q"){
+                    this.setState({misc_up: false, misc_down: false})
+                }
             }
         })
     }
@@ -351,6 +369,35 @@ class PracticeResume extends React.Component {
                                 <Accordion.Collapse eventKey="1">
                                 <Card.Body>
                                     {this.renderPositionList()}
+                                </Card.Body>
+                                </Accordion.Collapse>
+                            </Card>
+                            <Card>
+                                <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0, borderTop: "1px solid black"}}>
+                                <Accordion.Toggle as={Button} 
+                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}} 
+                                    variant="link" 
+                                    eventKey="2"
+                                    onClick={() => this.setState({miscellaneousSectionOpened: !this.state.miscellaneousSectionOpened}, () => {
+                                        if(this.state.miscellaneousSectionOpened){
+                                            this.setState({educationSectionOpened: false});
+                                            this.setState({workSectionOpened: false});
+                                    }})}>
+                                    Miscellaneous <img img id="toggle_icon" src={this.state.miscellaneousSectionOpened ? minus : plus}/>
+                                </Accordion.Toggle>
+                                </Card.Header>
+                                <Accordion.Collapse eventKey="2">
+                                <Card.Body>
+                                    <div className="votingblock">
+                                        <div id="vertical">
+                                            <img name="misc_up" src={this.state.misc_up ? upvote_selected : upvote} onClick={this.voteClick}/>
+                                            <img name="misc_q" src={this.state.misc_q ? circle_selected : circle} onClick={this.voteClick}/>
+                                            <img name="misc_down" src={this.state.misc_down ? downvote_selected : downvote} onClick={this.voteClick}/>
+                                        </div>
+                                        <div id="vertical">
+                                            {this.state.miscellaneousText}
+                                        </div>
+                                    </div>
                                 </Card.Body>
                                 </Accordion.Collapse>
                             </Card>
