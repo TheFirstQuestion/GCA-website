@@ -18,9 +18,15 @@ class App extends React.Component {
             <div>
             <HashRouter>
                 <Route 
-                    path='/v1r1'
+                    path='/v1r1m'
                     render={(props) => (
-                        <Resume {...props} studyVersion={1} resumeVersion={1}/>
+                        <Resume {...props} studyVersion={1} resumeVersion={1} gender={"male"}/>
+                    )}
+                />
+                <Route 
+                    path='/v1r1f'
+                    render={(props) => (
+                        <Resume {...props} studyVersion={1} resumeVersion={1} gender={"female"}/>
                     )}
                 />
                 <Route 
@@ -30,9 +36,15 @@ class App extends React.Component {
                     )}
                 />
                 <Route 
-                    path='/v2r1'
+                    path='/v2r1m'
                     render={(props) => (
-                        <Resume {...props} studyVersion={2} resumeVersion={1}/>
+                        <Resume {...props} studyVersion={2} resumeVersion={1} gender={"male"}/>
+                    )}
+                />
+                <Route 
+                    path='/v2r1f'
+                    render={(props) => (
+                        <Resume {...props} studyVersion={2} resumeVersion={1} gender={"female"}/>
                     )}
                 />
                 <Route 
@@ -42,9 +54,15 @@ class App extends React.Component {
                     )}
                 />
                 <Route 
-                    path='/v3r1'
+                    path='/v3r1m'
                     render={(props) => (
-                        <Resume {...props} studyVersion={3} resumeVersion={1}/>
+                        <Resume {...props} studyVersion={3} resumeVersion={1} gender={"male"}/>
+                    )}
+                />
+                <Route 
+                    path='/v3r1f'
+                    render={(props) => (
+                        <Resume {...props} studyVersion={3} resumeVersion={1} gender={"female"}/>
                     )}
                 />
                 <Route 

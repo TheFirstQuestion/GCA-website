@@ -44,6 +44,7 @@ class Resume extends React.Component {
             //study and resume version (pulled from props)
             studyVersion: 1,
             resumeVersion: 1,
+            gender: "male",
 
             currentUserID: '',
             errorMessage: false,
@@ -64,6 +65,7 @@ class Resume extends React.Component {
 
             educationSectionOpened: false,
             workSectionOpened: false,
+            miscellaneousSectionOpened: false,
 
             city: '',
 
@@ -145,6 +147,10 @@ class Resume extends React.Component {
                 this.setState({modalOpened: true})
             }
         })
+
+        if(this.props.resumeVersion == 1){
+            this.setState({gender: this.props.gender});
+        }
     }
 
     componentWillUnmount() {
@@ -163,9 +169,12 @@ class Resume extends React.Component {
         })
 
         //select gender
-        let gender = Math.random();
+        /*let gender = Math.random();
         let name = Math.random();
-        if(gender < 0.5){
+        if(gender < 0.5){*/
+        let name = Math.random();
+        let gender = "man";
+        if(this.state.gender == "male"){
             this.setState({gender_icon: man})
             gender = "man"
             
@@ -219,6 +228,11 @@ class Resume extends React.Component {
                 })
             })
             parenthood = true;
+
+            //get misc
+            db.collection("resume").doc("misc").get().then((doc) => {
+                this.setState({miscellaneousText: doc.data().parent})
+            })
         }
         else{
             this.setState({parenthood: false}, () => {
@@ -235,6 +249,11 @@ class Resume extends React.Component {
                 })
             })
             parenthood = false;
+
+            //get misc
+            db.collection("resume").doc("misc").get().then((doc) => {
+                this.setState({miscellaneousText: doc.data().nonparent})
+            })
         }
 
         //select education
@@ -428,6 +447,11 @@ class Resume extends React.Component {
                     //this.setState({initialNotes: doc.data().nonparent})
                 })
                 parenthood = false;
+
+                //get misc
+                db.collection("resume").doc("misc").get().then((doc) => {
+                    this.setState({miscellaneousText: doc.data().nonparent})
+                })
             }
             else{
                 console.log("FALSE")
@@ -445,6 +469,11 @@ class Resume extends React.Component {
                     //this.setState({initialNotes: doc.data().parent})
                 })
                 parenthood = true;
+
+                //get misc
+                db.collection("resume").doc("misc").get().then((doc) => {
+                    this.setState({miscellaneousText: doc.data().parent})
+                })
             }
             
             //education - show the opposite
@@ -885,6 +914,7 @@ class Resume extends React.Component {
                                         this.collapsibleOpened(0);
                                         if(this.state.educationSectionOpened){
                                             this.setState({workSectionOpened: false});
+                                            this.setState({miscellaneousSectionOpened: false});
                                     }})}>
                                     Education <img id="toggle_icon" src={this.state.educationSectionOpened ? minus : plus}/>
                                 </Accordion.Toggle>
@@ -915,6 +945,7 @@ class Resume extends React.Component {
                                         this.collapsibleOpened(1);
                                         if(this.state.workSectionOpened){
                                             this.setState({educationSectionOpened: false});
+                                            this.setState({miscellaneousSectionOpened: false});
                                     }})}>
                                     Work Experience <img img id="toggle_icon" src={this.state.workSectionOpened ? minus : plus}/>
                                 </Accordion.Toggle>
@@ -922,6 +953,27 @@ class Resume extends React.Component {
                                 <Accordion.Collapse eventKey="1">
                                 <Card.Body>
                                     {this.renderPositionList()}
+                                </Card.Body>
+                                </Accordion.Collapse>
+                            </Card>
+                            <Card>
+                                <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0, borderTop: "1px solid black"}}>
+                                <Accordion.Toggle as={Button} 
+                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}} 
+                                    variant="link" 
+                                    eventKey="2"
+                                    onClick={() => this.setState({miscellaneousSectionOpened: !this.state.miscellaneousSectionOpened}, () => {
+                                        this.collapsibleOpened(2);
+                                        if(this.state.miscellaneousSectionOpened){
+                                            this.setState({educationSectionOpened: false});
+                                            this.setState({workSectionOpened: false});
+                                    }})}>
+                                    Miscellaneous <img img id="toggle_icon" src={this.state.miscellaneousSectionOpened ? minus : plus}/>
+                                </Accordion.Toggle>
+                                </Card.Header>
+                                <Accordion.Collapse eventKey="2">
+                                <Card.Body>
+                                    {this.state.miscellaneousText}
                                 </Card.Body>
                                 </Accordion.Collapse>
                             </Card>
