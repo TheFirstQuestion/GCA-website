@@ -10,27 +10,18 @@ class ReadData extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            //study and resume version (pulled from props)
-            studyVersion: 1,
-            resumeVersion: 1,
-
+            //displaying mouse or displaying activity+resume (pulled from props)
+            displayingMouse: false,
+        
             generatedID: '',
             errorMessage: false,
 
             //all tracking outputs
             activityData: [],
 
-            loading1mouse: true,
-            loading2mouse: true,
-            loading3mouse: true,
-
-            loading1activity: true,
-            loading2activity: true,
-            loading3activity: true,
-
-            loading1resume: true,
-            loading2resume: true,
-            loading3resume: true,
+            loading1: true,
+            loading2: true,
+            loading3: true,
 
             mousestate: false,
 
@@ -73,10 +64,11 @@ class ReadData extends React.Component {
 
     componentDidMount(){
         console.log("mounted")
+        this.setState({displayingMouse: this.props.displayingMouse})
     }
 
     getMouseContent(itemID, studyVersion) {
-        //console.log("ITEM ID: " + itemID)
+        console.log("ITEM ID: " + itemID)
         let text = "masterMouse" + studyVersion
         let csvList = []
         let newObj = [];
@@ -93,6 +85,7 @@ class ReadData extends React.Component {
                 this[singleText] = [...this[singleText], newObjSingle]
             })
             snapshot1();
+            console.log("finished r1 mouse for: " + itemID)
             var snapshot2 = firebase.firestore().collection('studies').doc('study ' + studyVersion).collection('userIDs').doc(itemID).collection("mouseData_resume2").onSnapshot((snapshot) => {
                 snapshot.forEach((doc) => {
                     newObj = [doc.data().time, doc.data().x, doc.data().y, 2]
@@ -110,6 +103,7 @@ class ReadData extends React.Component {
     }
 
     getActivityContent(itemID, studyVersion) {
+        console.log("getting activity for " + itemID)
         let text = "masterActivity" + studyVersion
         let csvList = []
         let newObj = [];
@@ -155,6 +149,9 @@ class ReadData extends React.Component {
             .then((docSnapshot) => {
                 if(docSnapshot.exists){
                     var snapshot1 = res1.onSnapshot((doc) => {
+                        if(doc.data() == null){
+                            console.log("doc is null for: " + itemID)
+                        }
                         let parent = doc.data().parenthood
                         if(parent == false){
                             parent = "false"
@@ -171,6 +168,7 @@ class ReadData extends React.Component {
 
                         this.setState({loading2resume: true})
 
+                        console.log("got resume1 content for " + itemID);
                         snapshot1();
 
                         const res2 = firebase.firestore().collection('userIDs').doc(itemID).collection("values shown").doc("resume 2")
@@ -186,7 +184,7 @@ class ReadData extends React.Component {
                                         if(remote == null){
                                             remote = "N/A"
                                         }
-                                        console.log("resume 2 found for " + itemID)
+                                        //console.log("resume 2 found for " + itemID)
                                         newObj = [doc.data().education, doc.data().gender, parent, remote, doc.data().work1, doc.data().work2, doc.data().name, 2]
                                         csvList = [...csvList, newObj]
                         
@@ -198,6 +196,7 @@ class ReadData extends React.Component {
                         
                                         this.setState({loading2resume: true})
 
+                                        console.log("got resume2 content for " + itemID);
                                         snapshot2();
                                     });
                                 }
@@ -223,12 +222,16 @@ class ReadData extends React.Component {
             this.study1List = [...study1.docs]
 
             this.study1List.forEach((item, index) => {
-                this.getMouseContent(item.id, 1)
-                this.getActivityContent(item.id, 1)
-                this.getResumeContent(item.id, 1)
+                if(this.state.displayingMouse){
+                    this.getMouseContent(item.id, 1)
+                }
+                else{
+                    this.getActivityContent(item.id, 1)
+                    this.getResumeContent(item.id, 1)
+                }
             })
 
-            this.setState({loading1mouse: false})
+            console.log("all content should be loaded")
         }
 
         const study2 = await firebase.firestore().collection("studies").doc("study 2").collection("userIDs").get()
@@ -236,12 +239,14 @@ class ReadData extends React.Component {
             this.study2List = [...study2.docs]
 
             this.study2List.forEach((item, index) => {
-                this.getMouseContent(item.id, 2)
-                this.getActivityContent(item.id, 2)
-                this.getResumeContent(item.id, 2)
+                if(this.state.displayingMouse){
+                    this.getMouseContent(item.id, 2)
+                }
+                else{
+                    this.getActivityContent(item.id, 2)
+                    this.getResumeContent(item.id, 2)
+                }
             })
-
-            this.setState({loading2mouse: false})
         }
 
         const study3 = await firebase.firestore().collection("studies").doc("study 3").collection("userIDs").get()
@@ -249,12 +254,14 @@ class ReadData extends React.Component {
             this.study3List = [...study3.docs]
 
             this.study3List.forEach((item, index) => {
-                this.getMouseContent(item.id, 3)
-                this.getActivityContent(item.id, 3)
-                this.getResumeContent(item.id, 3)
+                if(this.displayingMouse){
+                    this.getMouseContent(item.id, 3)
+                }
+                else{
+                    this.getActivityContent(item.id, 3)
+                    this.getResumeContent(item.id, 3)
+                }
             })
-
-            this.setState({loading3mouse: false})
         }
     }
 
@@ -414,24 +421,38 @@ class ReadData extends React.Component {
 
 
                 <div className="title">Download Data</div>
-                <div className="horizontal" id="big">
-                        <div>Mouse Data</div>
-                        <div>Activity Data</div>
-                        <div>Resume Data</div>
+                {this.state.displayingMouse && 
+                    <div className="horizontal" id="big">
+                            <div>Mouse Data</div>
                     </div>
+                }
+                {!this.state.displayingMouse && 
+                    <div className="horizontal" id="big">
+                            <div>Activity Data</div>
+                            <div>Resume Data</div>
+                    </div>
+                }
                 <hr/>
                 <div className="list">
                     <div id="title">Study 1: </div>
-                    {this.state.adminVersion == "individualCSV" && 
+                    {this.state.adminVersion == "individualCSV" && this.state.displayingMouse &&
                         <div className="horizontal">
                             <div>{this.renderMouseData(1)}</div>
+                        </div>
+                    }
+                    {this.state.adminVersion == "individualCSV" && !this.state.displayingMouse &&
+                        <div className="horizontal">
                             <div>{this.renderActivityData(1)}</div> 
                             <div>{this.renderResumeData(1)}</div>
                         </div>
                     }
-                    {this.state.adminVersion == "singleCSV" && 
+                    {this.state.adminVersion == "singleCSV" && this.state.displayingMouse &&
                         <div className="horizontal">
                             <div>{this.renderMouseSingle(1)}</div>
+                        </div>
+                    }
+                    {this.state.adminVersion == "singleCSV" && !this.state.displayingMouse &&
+                        <div className="horizontal">
                             <div>{this.renderActivitySingle(1)}</div> 
                             <div>{this.renderResumeSingle(1)}</div>
                         </div>
@@ -440,16 +461,24 @@ class ReadData extends React.Component {
                 <hr/>
                 <div className="list">
                     <div id="title">Study 2: </div>
-                    {this.state.adminVersion == "individualCSV" && 
+                    {this.state.adminVersion == "individualCSV" && this.state.displayingMouse &&
                         <div className="horizontal">
                             <div>{this.renderMouseData(2)}</div>
+                        </div>
+                    }
+                    {this.state.adminVersion == "individualCSV" && !this.state.displayingMouse &&
+                        <div className="horizontal">
                             <div>{this.renderActivityData(2)}</div>
                             <div>{this.renderResumeData(2)}</div>
                         </div>
                     }
-                    {this.state.adminVersion == "singleCSV" && 
+                    {this.state.adminVersion == "singleCSV" && this.state.displayingMouse &&
                         <div className="horizontal">
                             <div>{this.renderMouseSingle(2)}</div>
+                        </div>
+                    }
+                    {this.state.adminVersion == "singleCSV" && !this.state.displayingMouse &&
+                        <div className="horizontal">
                             <div>{this.renderActivitySingle(2)}</div> 
                             <div>{this.renderResumeSingle(2)}</div>
                         </div>
@@ -458,16 +487,24 @@ class ReadData extends React.Component {
                 <hr/>
                 <div className="list">
                     <div id="title">Study 3: </div>
-                    {this.state.adminVersion == "individualCSV" && 
+                    {this.state.adminVersion == "individualCSV" && this.state.displayingMouse &&
                         <div className="horizontal">
                             <div>{this.renderMouseData(3)}</div>
+                        </div>
+                    }
+                    {this.state.adminVersion == "individualCSV" && !this.state.displayingMouse &&
+                        <div className="horizontal">
                             <div>{this.renderActivityData(3)}</div>
                             <div>{this.renderResumeData(3)}</div>
                         </div>
                     }
-                    {this.state.adminVersion == "singleCSV" && 
+                    {this.state.adminVersion == "singleCSV" && this.state.displayingMouse &&
                         <div className="horizontal">
                             <div>{this.renderMouseSingle(3)}</div>
+                        </div>
+                    }
+                    {this.state.adminVersion == "singleCSV" && !this.state.displayingMouse &&
+                        <div className="horizontal">
                             <div>{this.renderActivitySingle(3)}</div> 
                             <div>{this.renderResumeSingle(3)}</div>
                         </div>

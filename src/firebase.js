@@ -23,5 +23,6 @@ const config = {
 
 firebase.initializeApp(config);
 firebase.analytics();
+//firebase.firestore().enablePersistence();
 export default firebase;
 
