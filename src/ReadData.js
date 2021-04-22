@@ -229,6 +229,11 @@ class ReadData extends React.Component {
             if(i < this.study1List.length){
                 this.getMouse1(i)
             }
+            else{
+                if(this.study2List.length > 0){
+                    this.getMouse2(0);
+                }
+            }
         }, 60000)
     }
 
@@ -244,6 +249,11 @@ class ReadData extends React.Component {
             this.setState({completed: i})
             if(i < this.study2List.length){
                 this.getMouse2(i)
+            }
+            else{
+                if(this.study3List.length > 0){
+                    this.getMouse3(0);
+                }
             }
         }, 60000)
     }
@@ -289,7 +299,7 @@ class ReadData extends React.Component {
 
             if(this.state.displayingMouse){
                 this.setState({total: this.study2List.length})
-                this.getMouse2(0);
+                //this.getMouse2(0);
             }
             else{
                 this.study2List.forEach((item, index) => {
@@ -305,7 +315,7 @@ class ReadData extends React.Component {
 
             if(this.state.displayingMouse){
                 this.setState({total: this.study3List.length})
-                this.getMouse3(0);
+                //this.getMouse3(0);
             }
             else{
                 this.study3List.forEach((item, index) => {
@@ -469,8 +479,6 @@ class ReadData extends React.Component {
                 </ModalReact>
 
                 {/*<button onClick={() => this.switchAdminFormat()}> {this.state.buttonText} </button>*/}
-                {this.state.displayingMouse && <div>Processed {this.state.completed}/{this.state.total}</div>}
-
                 <div className="title">Download Data</div>
                 {this.state.displayingMouse && 
                     <div className="horizontal" id="big">
@@ -499,6 +507,7 @@ class ReadData extends React.Component {
                     }
                     {this.state.adminVersion == "singleCSV" && this.state.displayingMouse &&
                         <div className="horizontal">
+                            <div>Processed {this.state.completed1}/{this.state.total1}</div>
                             <div>{this.renderMouseSingle(1)}</div>
                         </div>
                     }
@@ -525,6 +534,7 @@ class ReadData extends React.Component {
                     }
                     {this.state.adminVersion == "singleCSV" && this.state.displayingMouse &&
                         <div className="horizontal">
+                            <div>Processed {this.state.completed2}/{this.state.total2}</div>
                             <div>{this.renderMouseSingle(2)}</div>
                         </div>
                     }
@@ -551,6 +561,7 @@ class ReadData extends React.Component {
                     }
                     {this.state.adminVersion == "singleCSV" && this.state.displayingMouse &&
                         <div className="horizontal">
+                            <div>Processed {this.state.completed3}/{this.state.total3}</div>
                             <div>{this.renderMouseSingle(3)}</div>
                         </div>
                     }
