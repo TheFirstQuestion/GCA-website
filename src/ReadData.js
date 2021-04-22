@@ -225,7 +225,7 @@ class ReadData extends React.Component {
                 this.getMouseContent(this.study1List[i].id, 1)
                 i++
             }
-            this.setState({completed: i})
+            this.setState({completed1: i})
             if(i < this.study1List.length){
                 this.getMouse1(i)
             }
@@ -246,7 +246,7 @@ class ReadData extends React.Component {
                 this.getMouseContent(this.study2List[i].id, 2)
                 i++
             }
-            this.setState({completed: i})
+            this.setState({completed2: i})
             if(i < this.study2List.length){
                 this.getMouse2(i)
             }
@@ -267,7 +267,7 @@ class ReadData extends React.Component {
                 this.getMouseContent(this.study3List[i].id, 3)
                 i++
             }
-            this.setState({completed: i})
+            this.setState({completed3: i})
             if(i < this.study3List.length){
                 this.getMouse3(i)
             }
@@ -280,7 +280,7 @@ class ReadData extends React.Component {
             this.study1List = [...study1.docs]
 
             if(this.state.displayingMouse){
-                this.setState({total: this.study1List.length})
+                this.setState({total1: this.study1List.length})
                 this.getMouse1(0);
             }
             else{
@@ -298,7 +298,7 @@ class ReadData extends React.Component {
             this.study2List = [...study2.docs]
 
             if(this.state.displayingMouse){
-                this.setState({total: this.study2List.length})
+                this.setState({total2: this.study2List.length})
                 //this.getMouse2(0);
             }
             else{
@@ -314,7 +314,7 @@ class ReadData extends React.Component {
             this.study3List = [...study3.docs]
 
             if(this.state.displayingMouse){
-                this.setState({total: this.study3List.length})
+                this.setState({total3: this.study3List.length})
                 //this.getMouse3(0);
             }
             else{
