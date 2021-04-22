@@ -216,20 +216,69 @@ class ReadData extends React.Component {
             })
     }
 
+    getMouse1(i){
+        setTimeout(() => {
+            console.log("in loop func")
+            console.log(this.study1List.length)
+            var max = i + 8
+            while(i < max && i < this.study1List.length){
+                this.getMouseContent(this.study1List[i].id, 1)
+                i++
+            }
+            this.setState({completed: i})
+            if(i < this.study1List.length){
+                this.getMouse1(i)
+            }
+        }, 60000)
+    }
+
+    getMouse2(i){
+        setTimeout(() => {
+            console.log("in loop func")
+            console.log(this.study2List.length)
+            var max = i + 8
+            while(i < max && i < this.study2List.length){
+                this.getMouseContent(this.study2List[i].id, 2)
+                i++
+            }
+            this.setState({completed: i})
+            if(i < this.study2List.length){
+                this.getMouse2(i)
+            }
+        }, 60000)
+    }
+
+    getMouse3(i){
+        setTimeout(() => {
+            console.log("in loop func")
+            console.log(this.study3List.length)
+            var max = i + 8
+            while(i < max && i < this.study3List.length){
+                this.getMouseContent(this.study3List[i].id, 3)
+                i++
+            }
+            this.setState({completed: i})
+            if(i < this.study3List.length){
+                this.getMouse3(i)
+            }
+        }, 60000)
+    }
+
     async getStudyLists(){
         const study1 = await firebase.firestore().collection("studies").doc("study 1").collection("userIDs").get()
         if(study1.docs.length > 0){
             this.study1List = [...study1.docs]
 
-            this.study1List.forEach((item, index) => {
-                if(this.state.displayingMouse){
-                    this.getMouseContent(item.id, 1)
-                }
-                else{
+            if(this.state.displayingMouse){
+                this.setState({total: this.study1List.length})
+                this.getMouse1(0);
+            }
+            else{
+                this.study1List.forEach((item, index) => {
                     this.getActivityContent(item.id, 1)
                     this.getResumeContent(item.id, 1)
-                }
-            })
+                })
+            }
 
             console.log("all content should be loaded")
         }
@@ -238,30 +287,32 @@ class ReadData extends React.Component {
         if(study2.docs.length > 0){
             this.study2List = [...study2.docs]
 
-            this.study2List.forEach((item, index) => {
-                if(this.state.displayingMouse){
-                    this.getMouseContent(item.id, 2)
-                }
-                else{
+            if(this.state.displayingMouse){
+                this.setState({total: this.study2List.length})
+                this.getMouse2(0);
+            }
+            else{
+                this.study2List.forEach((item, index) => {
                     this.getActivityContent(item.id, 2)
                     this.getResumeContent(item.id, 2)
-                }
-            })
+                })
+            }
         }
 
         const study3 = await firebase.firestore().collection("studies").doc("study 3").collection("userIDs").get()
         if(study3.docs.length > 0){
             this.study3List = [...study3.docs]
 
-            this.study3List.forEach((item, index) => {
-                if(this.displayingMouse){
-                    this.getMouseContent(item.id, 3)
-                }
-                else{
+            if(this.state.displayingMouse){
+                this.setState({total: this.study3List.length})
+                this.getMouse3(0);
+            }
+            else{
+                this.study3List.forEach((item, index) => {
                     this.getActivityContent(item.id, 3)
                     this.getResumeContent(item.id, 3)
-                }
-            })
+                })
+            }
         }
     }
 
@@ -417,8 +468,8 @@ class ReadData extends React.Component {
                     {this.state.errorMessage && <div id="red">Invalid password. Please re-enter.</div>}
                 </ModalReact>
 
-                <button onClick={() => this.switchAdminFormat()}> {this.state.buttonText} </button>
-
+                {/*<button onClick={() => this.switchAdminFormat()}> {this.state.buttonText} </button>*/}
+                {this.state.displayingMouse && <div>Processed {this.state.completed}/{this.state.total}</div>}
 
                 <div className="title">Download Data</div>
                 {this.state.displayingMouse && 
