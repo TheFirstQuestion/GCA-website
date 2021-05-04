@@ -78,15 +78,21 @@ class App extends React.Component {
                     )}
                 />
                 <Route 
-                    path='/admin_activity+resume'
+                    path='/admin_activity'
                     render={(props) => (
-                        <ReadData {...props} displayingMouse={false}/>
+                        <ReadData {...props} displayingActivity={true} displayingResume={false} displayingMouse={false}/>
+                    )}
+                />
+                <Route 
+                    path='/admin_resume'
+                    render={(props) => (
+                        <ReadData {...props} displayingResume={true} displayingActivity={false} displayingMouse={false}/>
                     )}
                 />
                 <Route 
                     path='/admin_mouse'
                     render={(props) => (
-                        <ReadData {...props} displayingMouse={true}/>
+                        <ReadData {...props} displayingMouse={true} displayingResume={false} displayingActivity={false}/>
                     )}
                 />
             </HashRouter>

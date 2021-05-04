@@ -12,6 +12,8 @@ class ReadData extends React.Component {
         this.state = {
             //displaying mouse or displaying activity+resume (pulled from props)
             displayingMouse: false,
+            displayingResume: false,
+            displayingActivity: false,
         
             generatedID: '',
             errorMessage: false,
@@ -65,6 +67,8 @@ class ReadData extends React.Component {
     componentDidMount(){
         console.log("mounted")
         this.setState({displayingMouse: this.props.displayingMouse})
+        this.setState({displayingActivity: this.props.displayingActivity})
+        this.setState({displayingResume: this.props.displayingResume})
     }
 
     getMouseContent(itemID, studyVersion) {
@@ -237,6 +241,122 @@ class ReadData extends React.Component {
         }, 60000)
     }
 
+    getActivity1(i){
+        setTimeout(() => {
+            console.log("in loop func")
+            console.log(this.study1List.length)
+            var max = i + 20
+            while(i < max && i < this.study1List.length){
+                this.getActivityContent(this.study1List[i].id, 1)
+                i++
+            }
+            this.setState({completed1: i})
+            if(i < this.study1List.length){
+                this.getActivity1(i)
+            }
+            else{
+                if(this.study2List.length > 0){
+                    this.getActivity2(0);
+                }
+            }
+        }, 30000)
+    }
+
+    getActivity2(i){
+        setTimeout(() => {
+            console.log("in loop func")
+            console.log(this.study2List.length)
+            var max = i + 20
+            while(i < max && i < this.study2List.length){
+                this.getActivityContent(this.study2List[i].id, 2)
+                i++
+            }
+            this.setState({completed2: i})
+            if(i < this.study2List.length){
+                this.getActivity2(i)
+            }
+            else{
+                if(this.study3List.length > 0){
+                    this.getActivity3(0);
+                }
+            }
+        }, 30000)
+    }
+
+    getActivity3(i){
+        setTimeout(() => {
+            console.log("in loop func")
+            console.log(this.study3List.length)
+            var max = i + 20
+            while(i < max && i < this.study3List.length){
+                this.getActivityContent(this.study3List[i].id, 3)
+                i++
+            }
+            this.setState({completed3: i})
+            if(i < this.study3List.length){
+                this.getActivity3(i)
+            }
+        }, 30000)
+    }
+
+    getResume1(i){
+        setTimeout(() => {
+            console.log("in loop func")
+            console.log(this.study1List.length)
+            var max = i + 80
+            while(i < max && i < this.study1List.length){
+                this.getResumeContent(this.study1List[i].id, 1)
+                i++
+            }
+            this.setState({completed1: i})
+            if(i < this.study1List.length){
+                this.getResume1(i)
+            }
+            else{
+                if(this.study2List.length > 0){
+                    this.getResume2(0);
+                }
+            }
+        }, 30000)
+    }
+
+    getResume2(i){
+        setTimeout(() => {
+            console.log("in loop func")
+            console.log(this.study2List.length)
+            var max = i + 80
+            while(i < max && i < this.study2List.length){
+                this.getResumeContent(this.study2List[i].id, 2)
+                i++
+            }
+            this.setState({completed2: i})
+            if(i < this.study2List.length){
+                this.getResume2(i)
+            }
+            else{
+                if(this.study3List.length > 0){
+                    this.getResume3(0);
+                }
+            }
+        }, 30000)
+    }
+
+    getResume3(i){
+        setTimeout(() => {
+            console.log("in loop func")
+            console.log(this.study3List.length)
+            var max = i + 80
+            while(i < max && i < this.study3List.length){
+                this.getResumeContent(this.study3List[i].id, 3)
+                i++
+            }
+            this.setState({completed3: i})
+            if(i < this.study3List.length){
+                this.getResume3(i)
+            }
+        }, 30000)
+    }
+
     getMouse2(i){
         setTimeout(() => {
             console.log("in loop func")
@@ -283,11 +403,20 @@ class ReadData extends React.Component {
                 this.setState({total1: this.study1List.length})
                 this.getMouse1(0);
             }
-            else{
+            /*else{
                 this.study1List.forEach((item, index) => {
                     this.getActivityContent(item.id, 1)
                     this.getResumeContent(item.id, 1)
                 })
+            }*/
+            //new version
+            else if(this.state.displayingActivity){
+                this.setState({total1: this.study1List.length})
+                this.getActivity1(0);
+            }
+            else{
+                this.setState({total1: this.study1List.length})
+                this.getResume1(0);
             }
 
             console.log("all content should be loaded")
@@ -301,11 +430,20 @@ class ReadData extends React.Component {
                 this.setState({total2: this.study2List.length})
                 //this.getMouse2(0);
             }
-            else{
+            /*else{
                 this.study2List.forEach((item, index) => {
                     this.getActivityContent(item.id, 2)
                     this.getResumeContent(item.id, 2)
                 })
+            }*/
+            //new version
+            else if(this.state.displayingActivity){
+                this.setState({total2: this.study2List.length})
+                //this.getMouse2(0);
+            }
+            else{
+                this.setState({total2: this.study2List.length})
+                //this.getMouse2(0);
             }
         }
 
@@ -317,11 +455,20 @@ class ReadData extends React.Component {
                 this.setState({total3: this.study3List.length})
                 //this.getMouse3(0);
             }
-            else{
+            /*else{
                 this.study3List.forEach((item, index) => {
                     this.getActivityContent(item.id, 3)
                     this.getResumeContent(item.id, 3)
                 })
+            }*/
+            //new version
+            else if(this.state.displayingActivity){
+                this.setState({total3: this.study3List.length})
+                //this.getMouse3(0);
+            } 
+            else{
+                this.setState({total3: this.study3List.length})
+                //this.getMouse3(0);
             }
         }
     }
@@ -485,9 +632,13 @@ class ReadData extends React.Component {
                             <div>Mouse Data</div>
                     </div>
                 }
-                {!this.state.displayingMouse && 
+                {this.state.displayingActivity && 
                     <div className="horizontal" id="big">
                             <div>Activity Data</div>
+                    </div>
+                }
+                {this.state.displayingResume && 
+                    <div className="horizontal" id="big">
                             <div>Resume Data</div>
                     </div>
                 }
@@ -499,21 +650,32 @@ class ReadData extends React.Component {
                             <div>{this.renderMouseData(1)}</div>
                         </div>
                     }
-                    {this.state.adminVersion == "individualCSV" && !this.state.displayingMouse &&
+                    {this.state.adminVersion == "individualCSV" && this.state.displayingActivity &&
                         <div className="horizontal">
                             <div>{this.renderActivityData(1)}</div> 
+                        </div>
+                    }
+                    {this.state.adminVersion == "individualCSV" && this.state.displayingResume &&
+                        <div className="horizontal">
                             <div>{this.renderResumeData(1)}</div>
                         </div>
                     }
+
                     {this.state.adminVersion == "singleCSV" && this.state.displayingMouse &&
                         <div className="horizontal">
                             <div>Processed {this.state.completed1}/{this.state.total1}</div>
                             <div>{this.renderMouseSingle(1)}</div>
                         </div>
                     }
-                    {this.state.adminVersion == "singleCSV" && !this.state.displayingMouse &&
+                    {this.state.adminVersion == "singleCSV" && this.state.displayingActivity &&
                         <div className="horizontal">
+                            <div>Processed {this.state.completed1}/{this.state.total1}</div>
                             <div>{this.renderActivitySingle(1)}</div> 
+                        </div>
+                    }
+                    {this.state.adminVersion == "singleCSV" && this.state.displayingResume &&
+                        <div className="horizontal">
+                            <div>Processed {this.state.completed1}/{this.state.total1}</div>
                             <div>{this.renderResumeSingle(1)}</div>
                         </div>
                     }
@@ -526,21 +688,32 @@ class ReadData extends React.Component {
                             <div>{this.renderMouseData(2)}</div>
                         </div>
                     }
-                    {this.state.adminVersion == "individualCSV" && !this.state.displayingMouse &&
+                    {this.state.adminVersion == "individualCSV" && this.state.displayingActivity &&
                         <div className="horizontal">
                             <div>{this.renderActivityData(2)}</div>
+                        </div>
+                    }
+                    {this.state.adminVersion == "individualCSV" && this.state.displayingResume &&
+                        <div className="horizontal">
                             <div>{this.renderResumeData(2)}</div>
                         </div>
                     }
+
                     {this.state.adminVersion == "singleCSV" && this.state.displayingMouse &&
                         <div className="horizontal">
                             <div>Processed {this.state.completed2}/{this.state.total2}</div>
                             <div>{this.renderMouseSingle(2)}</div>
                         </div>
                     }
-                    {this.state.adminVersion == "singleCSV" && !this.state.displayingMouse &&
+                    {this.state.adminVersion == "singleCSV" && this.state.displayingActivity &&
                         <div className="horizontal">
+                            <div>Processed {this.state.completed2}/{this.state.total2}</div>     
                             <div>{this.renderActivitySingle(2)}</div> 
+                        </div>
+                    }
+                    {this.state.adminVersion == "singleCSV" && this.state.displayingResume &&
+                        <div className="horizontal">
+                            <div>Processed {this.state.completed2}/{this.state.total2}</div>
                             <div>{this.renderResumeSingle(2)}</div>
                         </div>
                     }
@@ -553,21 +726,32 @@ class ReadData extends React.Component {
                             <div>{this.renderMouseData(3)}</div>
                         </div>
                     }
-                    {this.state.adminVersion == "individualCSV" && !this.state.displayingMouse &&
+                    {this.state.adminVersion == "individualCSV" && this.state.displayingActivity &&
                         <div className="horizontal">
                             <div>{this.renderActivityData(3)}</div>
+                        </div>
+                    }
+                    {this.state.adminVersion == "individualCSV" && this.state.displayingResume &&
+                        <div className="horizontal">
                             <div>{this.renderResumeData(3)}</div>
                         </div>
                     }
+
                     {this.state.adminVersion == "singleCSV" && this.state.displayingMouse &&
                         <div className="horizontal">
                             <div>Processed {this.state.completed3}/{this.state.total3}</div>
                             <div>{this.renderMouseSingle(3)}</div>
                         </div>
                     }
-                    {this.state.adminVersion == "singleCSV" && !this.state.displayingMouse &&
+                    {this.state.adminVersion == "singleCSV" && this.state.displayingActivity &&
                         <div className="horizontal">
+                            <div>Processed {this.state.completed3}/{this.state.total3}</div>
                             <div>{this.renderActivitySingle(3)}</div> 
+                        </div>
+                    }
+                    {this.state.adminVersion == "singleCSV" && this.state.displayingResume &&
+                        <div className="horizontal">
+                            <div>Processed {this.state.completed3}/{this.state.total3}</div>
                             <div>{this.renderResumeSingle(3)}</div>
                         </div>
                     }
