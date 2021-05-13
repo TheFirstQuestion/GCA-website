@@ -216,31 +216,44 @@ class Resume extends React.Component {
 
         //select parenthood
         let parenthood = Math.random();
-        if(parenthood < 0.5){
-            this.setState({parenthood: true}, () => {
-                db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
-                    let temp = doc.data().parent.toString()
-                    if(gender == "man"){
-                        temp = temp.replace("[pronoun]", "his")
-                    }
-                    else{
-                        temp = temp.replace("[pronoun]", "her")
-                    }
-                    var split = temp.split(".")
-                    this.setState({bulletList: split})
+        if(this.state.studyVersion != "2b"){
+            if(parenthood < 0.5){
+                this.setState({parenthood: true}, () => {
+                    db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                        let temp = doc.data().parent.toString()
+                        if(gender == "man"){
+                            temp = temp.replace("[pronoun]", "his")
+                        }
+                        else{
+                            temp = temp.replace("[pronoun]", "her")
+                        }
+                        var split = temp.split(".")
+                        this.setState({bulletList: split})
+                    })
                 })
-            })
-            parenthood = true;
-
-            //get misc
-            db.collection("resume").doc("misc").get().then((doc) => {
-                this.setState({miscellaneousText: doc.data().parent})
-            })
+                parenthood = true;
+            }
+            else{
+                this.setState({parenthood: false}, () => {
+                    db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                        let temp = doc.data().nonparent.toString()
+                        if(gender == "man"){
+                            temp = temp.replace("[pronoun]", "his")
+                        }
+                        else{
+                            temp = temp.replace("[pronoun]", "her")
+                        }
+                        var split = temp.split(".")
+                        this.setState({bulletList: split})
+                    })
+                })
+                parenthood = false;
+            }
         }
-        else{
-            this.setState({parenthood: false}, () => {
+        else{   //HOWEVER, for study 2b, everyone is a parent. just choose between parent_a and parent_b
+            if(parenthood < 0.5){
                 db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
-                    let temp = doc.data().nonparent.toString()
+                    let temp = doc.data().parent_a.toString()
                     if(gender == "man"){
                         temp = temp.replace("[pronoun]", "his")
                     }
@@ -250,13 +263,27 @@ class Resume extends React.Component {
                     var split = temp.split(".")
                     this.setState({bulletList: split})
                 })
-            })
-            parenthood = false;
+                parenthood = 'a'
+            }
+            else{
+                db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                    let temp = doc.data().parent_b.toString()
+                    if(gender == "man"){
+                        temp = temp.replace("[pronoun]", "his")
+                    }
+                    else{
+                        temp = temp.replace("[pronoun]", "her")
+                    }
+                    var split = temp.split(".")
+                    this.setState({bulletList: split})
+                })
+                parenthood = 'b';
 
-            //get misc
-            db.collection("resume").doc("misc").get().then((doc) => {
-                this.setState({miscellaneousText: doc.data().nonparent})
-            })
+                //get misc
+                db.collection("resume").doc("misc").get().then((doc) => {
+                    this.setState({miscellaneousText: doc.data().nonparent})
+                })
+            }
         }
 
         //select education
@@ -346,13 +373,51 @@ class Resume extends React.Component {
         //JUST FOR STUDY 2:
         //select remote or not remote
         let remote = Math.random();
-        if(this.state.studyVersion == 2){
+        if(this.state.studyVersion == 2 || this.state.studyVersion == "2b"){
             if(remote < 0.5){
                 this.setState({remote: true})
                 remote = true
-                db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
-                    this.setState({remoteNotesText: doc.data().working_remotely})
-                })
+                if(this.state.studyVersion == 2){
+                    db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                        this.setState({remoteNotesText: doc.data().working_remotely})
+                    })
+                }
+                else if(this.state.studyVersion == "2b"){
+                    let remote_text = Math.random();
+                    console.log("getting 2b remote val: " + remote_text)
+                    if(remote_text < 0.25){
+                        db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                            this.setState({remoteNotesText: doc.data().working_remotely_2b1})
+                        }, () => {
+                            console.log(this.state.remoteNotesText)
+                        })
+                        remote = "2b1"
+                    }
+                    else if(remote_text < 0.5){
+                        db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                            this.setState({remoteNotesText: doc.data().working_remotely_2b2})
+                        }, () => {
+                            console.log(this.state.remoteNotesText)
+                        })
+                        remote = "2b2"
+                    }
+                    else if(remote_text < 0.75){
+                        db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                            this.setState({remoteNotesText: doc.data().working_remotely_2b3})
+                        }, () => {
+                            console.log(this.state.remoteNotesText)
+                        })
+                        remote = "2b3"
+                    }
+                    else{
+                        db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                            this.setState({remoteNotesText: doc.data().working_remotely_2b4})
+                        }, () => {
+                            console.log(this.state.remoteNotesText)
+                        })
+                        remote = "2b4"
+                    }
+                }
             }
             else{
                 this.setState({remote: false})
@@ -434,49 +499,81 @@ class Resume extends React.Component {
             }
 
             //parenthood - show the opposite
-            if(doc.data().parenthood == true){
-                console.log("TRUE")
-                db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
-                    let temp = doc.data().nonparent.toString()
-                    if(gender == "man"){
-                        temp = temp.replace("[pronoun]", "his")
-                    }
-                    else{
-                        temp = temp.replace("[pronoun]", "her")
-                    }
-                    var split = temp.split(".")
-                    this.setState({bulletList: split})
+            if(this.state.studyVersion != "2b"){
+                if(doc.data().parenthood == true){
+                    console.log("TRUE")
+                    db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                        let temp = doc.data().nonparent.toString()
+                        if(gender == "man"){
+                            temp = temp.replace("[pronoun]", "his")
+                        }
+                        else{
+                            temp = temp.replace("[pronoun]", "her")
+                        }
+                        var split = temp.split(".")
+                        this.setState({bulletList: split})
 
-                    //this.setState({initialNotes: doc.data().nonparent})
-                })
-                parenthood = false;
+                        //this.setState({initialNotes: doc.data().nonparent})
+                    })
+                    parenthood = false;
 
-                //get misc
-                db.collection("resume").doc("misc").get().then((doc) => {
-                    this.setState({miscellaneousText: doc.data().nonparent})
-                })
+                    //get misc
+                    db.collection("resume").doc("misc").get().then((doc) => {
+                        this.setState({miscellaneousText: doc.data().nonparent})
+                    })
+                }
+                else{
+                    console.log("FALSE")
+                    db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                        let temp = doc.data().parent.toString()
+                        if(gender == "man"){
+                            temp = temp.replace("[pronoun]", "his")
+                        }
+                        else{
+                            temp = temp.replace("[pronoun]", "her")
+                        }
+                        var split = temp.split(".")
+                        this.setState({bulletList: split})
+
+                        //this.setState({initialNotes: doc.data().parent})
+                    })
+                    parenthood = true;
+
+                    //get misc
+                    db.collection("resume").doc("misc").get().then((doc) => {
+                        this.setState({miscellaneousText: doc.data().parent})
+                    })
+                }
             }
-            else{
-                console.log("FALSE")
-                db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
-                    let temp = doc.data().parent.toString()
-                    if(gender == "man"){
-                        temp = temp.replace("[pronoun]", "his")
-                    }
-                    else{
-                        temp = temp.replace("[pronoun]", "her")
-                    }
-                    var split = temp.split(".")
-                    this.setState({bulletList: split})
-
-                    //this.setState({initialNotes: doc.data().parent})
-                })
-                parenthood = true;
-
-                //get misc
-                db.collection("resume").doc("misc").get().then((doc) => {
-                    this.setState({miscellaneousText: doc.data().parent})
-                })
+            else{   //for 2b, everyone is a parent, just pick between parent_a and parent_b
+                if(doc.data().parenthood == "a"){
+                    db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                        let temp = doc.data().parent_b.toString()
+                        if(gender == "man"){
+                            temp = temp.replace("[pronoun]", "his")
+                        }
+                        else{
+                            temp = temp.replace("[pronoun]", "her")
+                        }
+                        var split = temp.split(".")
+                        this.setState({bulletList: split})
+                    })
+                    parenthood = 'b';
+                }
+                else{
+                    db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                        let temp = doc.data().parent_a.toString()
+                        if(gender == "man"){
+                            temp = temp.replace("[pronoun]", "his")
+                        }
+                        else{
+                            temp = temp.replace("[pronoun]", "her")
+                        }
+                        var split = temp.split(".")
+                        this.setState({bulletList: split})
+                    })
+                    parenthood = 'a';
+                }
             }
             
             //education - show the opposite
@@ -544,8 +641,8 @@ class Resume extends React.Component {
             }*/
 
             //remote - show the opposite (JUST FOR STUDY 2)
-            if(this.state.studyVersion == 2){
-                if(doc.data().remote == true){
+            if(this.state.studyVersion == 2 || this.state.studyVersion == "2b"){
+                if(doc.data().remote != false){
                     this.setState({remote: false})
                     remote = false
                     db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
@@ -555,9 +652,47 @@ class Resume extends React.Component {
                 else{
                     this.setState({remote: true})
                     remote = true
-                    db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
-                        this.setState({remoteNotesText: doc.data().working_remotely})
-                    })
+                    if(this.state.studyVersion == 2){
+                        db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                            this.setState({remoteNotesText: doc.data().working_remotely})
+                        })
+                    }
+                    else if(this.state.studyVersion == "2b"){
+                        let remote_text = Math.random();
+                        console.log("getting 2b remote val: " + remote_text)
+                        if(remote_text < 0.25){
+                            db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                                this.setState({remoteNotesText: doc.data().working_remotely_2b1})
+                            }, () => {
+                                console.log(this.state.remoteNotesText)
+                            })
+                            remote = "2b1"
+                        }
+                        else if(remote_text < 0.5){
+                            db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                                this.setState({remoteNotesText: doc.data().working_remotely_2b2})
+                            }, () => {
+                                console.log(this.state.remoteNotesText)
+                            })
+                            remote = "2b2"
+                        }
+                        else if(remote_text < 0.75){
+                            db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                                this.setState({remoteNotesText: doc.data().working_remotely_2b3})
+                            }, () => {
+                                console.log(this.state.remoteNotesText)
+                            })
+                            remote = "2b3"
+                        }
+                        else{
+                            db.collection("resume").doc("notes from initial phone screen").get().then((doc) => {
+                                this.setState({remoteNotesText: doc.data().working_remotely_2b4})
+                            }, () => {
+                                console.log(this.state.remoteNotesText)
+                            })
+                            remote = "2b4"
+                        }
+                    }
                 }
             }
 
@@ -594,17 +729,80 @@ class Resume extends React.Component {
 
         //check database to make sure it hasnt already been generated
         const db = firebase.firestore();
-        const idRef = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(userID)
+        const idRef1 = db.collection("studies").doc("study 1").collection("userIDs").doc(userID)
+        idRef1.get()
+        .then((docSnapshot) => {
+            if (docSnapshot.exists) {
+                idRef1.onSnapshot((doc) => {
+                    console.log("ALREADY EXISTS in study 1")
+                    this.generateUniqueID();
+                });
+            }
+            else{
+                const idRef2 = db.collection("studies").doc("study 2").collection("userIDs").doc(userID)
+                idRef2.get()
+                .then((docSnapshot) => {
+                    if (docSnapshot.exists) {
+                        idRef2.onSnapshot((doc) => {
+                            console.log("ALREADY EXISTS in study 2")
+                            this.generateUniqueID();
+                        });
+                    }
+                    else{
+                        const idRef2b = db.collection("studies").doc("study 2b").collection("userIDs").doc(userID)
+                        idRef2b.get()
+                        .then((docSnapshot) => {
+                            if (docSnapshot.exists) {
+                                idRef2b.onSnapshot((doc) => {
+                                    console.log("ALREADY EXISTS in study 2b")
+                                    this.generateUniqueID();
+                                });
+                            }
+                            else{
+                                const idRef3 = db.collection("studies").doc("study 3").collection("userIDs").doc(userID)
+                                idRef3.get()
+                                .then((docSnapshot) => {
+                                    if (docSnapshot.exists) {
+                                        idRef3.onSnapshot((doc) => {
+                                            console.log("ALREADY EXISTS in study 3")
+                                            this.generateUniqueID();
+                                        });
+                                    }
+                                    else{
+                                        console.log("DOES NOT EXIST")
+                    
+                                        //add userID to database 
+                                        const addDoc = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(userID).set({
+                                            //initialized: true,
+                                        });
+                                        
+                                        //display ID to user
+                                        this.setState({currentUserID: userID}, () => {
+                                            this.selectValues();
+                                            db.collection("settings").doc("mouse tracking").get().then((doc) => {
+                                                this.timer = setInterval(this.updateMouseCSV, doc.data().interval);
+                                            })
+                                        })
+                                    } 
+                                });
+                            } 
+                        });
+                    } 
+                });
+            } 
+        });
+        //THIS WAS AN ERROR^ I should actually be checking ALL studies to make sure it doesn't already exist
+        /*const idRef = db.collection("userIDs").doc(userID)
         idRef.get()
             .then((docSnapshot) => {
                 if (docSnapshot.exists) {
                     idRef.onSnapshot((doc) => {
-                        //console.log("ALREADY EXISTS")
+                        console.log("ALREADY EXISTS")
                         this.generateUniqueID();
                     });
                 } 
                 else {
-                    //console.log("DOES NOT EXIST")
+                    console.log("DOES NOT EXIST")
                     
                     //add userID to database 
                     const addDoc = db.collection("studies").doc("study " + this.state.studyVersion).collection("userIDs").doc(userID).set({
@@ -619,7 +817,7 @@ class Resume extends React.Component {
                         })
                     })
                 }
-            });
+            });*/
     }
 
     renderBulletList = () => {
@@ -927,7 +1125,7 @@ class Resume extends React.Component {
                             <div class="notes">Notes from Initial Phone Screen:  
                                 <span id="subtext_bullet">
                                     <ul>
-                                        {this.state.studyVersion == 2 && <li>{this.state.remoteNotesText}</li>}
+                                        {(this.state.studyVersion == 2 || this.state.studyVersion == "2b") && <li>{this.state.remoteNotesText}</li>}
                                         {this.renderBulletList()}
                                     </ul>
                                 </span>
@@ -988,6 +1186,7 @@ class Resume extends React.Component {
                                 </Card.Body>
                                 </Accordion.Collapse>
                             </Card>
+                            {this.state.studyVersion != "2b" &&
                             <Card>
                                 <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0, borderTop: "1px solid black"}}>
                                 <Accordion.Toggle as={Button} 
@@ -1017,7 +1216,7 @@ class Resume extends React.Component {
                                     </div>
                                 </Card.Body>
                                 </Accordion.Collapse>
-                            </Card>
+                            </Card>}
                         </Accordion>
                         </div>}
                     </div>

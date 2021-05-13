@@ -53,6 +53,26 @@ class App extends React.Component {
                         <Resume {...props} studyVersion={2} resumeVersion={2}/>
                     )}
                 />
+                {/*study 2b*/}
+                <Route 
+                    path='/v2br1m'
+                    render={(props) => (
+                        <Resume {...props} studyVersion={"2b"} resumeVersion={1} gender={"male"}/>
+                    )}
+                />
+                <Route 
+                    path='/v2br1f'
+                    render={(props) => (
+                        <Resume {...props} studyVersion={"2b"} resumeVersion={1} gender={"female"}/>
+                    )}
+                />
+                <Route 
+                    path='/v2br2'
+                    render={(props) => (
+                        <Resume {...props} studyVersion={"2b"} resumeVersion={2}/>
+                    )}
+                />
+                {/*study 3*/}
                 <Route 
                     path='/v3r1m'
                     render={(props) => (
