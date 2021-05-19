@@ -24,27 +24,17 @@ import { makeStyles } from '@material-ui/core';
 import { mockComponent } from 'react-dom/test-utils';
 var moment = require('moment-timezone');
 
-//google drive setup
-/*const { google } = require('googleapis');
-const credentials = require('./credentials.json');
-const scopes = [
-  'https://www.googleapis.com/auth/drive'
-];
-const auth = new google.auth.JWT(
-  credentials.client_email, null,
-  credentials.private_key, scopes
-);
-const drive = google.drive({ version: "v3", auth });*/
-//google API key: AIzaSyB62kAzqYdxNXg0vWj-kqEo_Ls1BvZJ-mI
-
 class Resume extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            //study and resume version (pulled from props)
-            studyVersion: 1,
-            resumeVersion: 1,
-            gender: "male",
+            //women and men (pulled from props)
+            women: 1,
+            men: 1,
+
+            //names
+            names: [],
+            resumes: [1, 2, 3, 4, 5],
 
             currentUserID: '',
             errorMessage: false,
@@ -63,18 +53,18 @@ class Resume extends React.Component {
             modalOpened: false,
             enterID: '',
 
-            educationSectionOpened: false,
-            workSectionOpened: false,
-            miscellaneousSectionOpened: false,
+            section1opened: false,
+            section2opened: false,
+            section3opened: false,
 
             city: '',
 
-            initialNotes: '',
-            degree: '',
-            distinction: '',
-            duration: '',
-            major: '',
-            university: '',
+            initialNotes: 'Something something something. Something something',
+            degree: 'BA',
+            distinction: 'Honors',
+            duration: '2017-2021',
+            major: 'Computer Science',
+            university: 'Stanford University',
 
             gender_icon: man,
             name: '',
@@ -112,34 +102,76 @@ class Resume extends React.Component {
             bulletList: [],
             remoteNotesText: '',
         };
-        this.collapsibleOpened = this.collapsibleOpened.bind(this);
-        this.submitUserID = this.submitUserID.bind(this);
-        this.handleChange = this.handleChange.bind(this);
-        this.voteClick = this.voteClick.bind(this);
-        this.updateMouseCSV = this.updateMouseCSV.bind(this);
-        this.renderBulletList = this.renderBulletList.bind(this);
-        this.positionList = [];
-        this.mouseCounter = 0;
-        this.activityCounter = 1;
-        this.IDlist = ["sheep", "koala", "whale", "dolphin", "panda", "snake", "bear", "lion", "tiger", "celery", 
-                        "carrot", "pizza", "salad", "chicken", "burger", "rice", "eggs", "soup", "green", "blue", 
-                        "purple", "red", "orange", "yellow", "silver", "olive", "pink", "gold", "shirt", "pants", 
-                        "tree", "smoke", "planet", "pencil", "pen", "cookie", "cake", "tire", "phone", "plant",
-                        "north", "east", "south", "west", "right", "left", "canyon", "mountain", "park", "field", 
-                        "snow", "rain", "beach", "ocean", "wind", "storm", "thunder", "hill", "road", "traffic", 
-                        "cliff", "waves", "shell", "island", "sand", "umbrella", "swim", "climb", "dive", "surf", 
-
-                        "hike", "run", "walk", "bike", "canoe", "boat", "ice", "air", "river", "pond", 
-                        "lake", "stream", "canal", "street", "coffee", "tea", "soda", "lunch", "dinner", "snack", 
-                        "eat", "drink", "sleep", "wake", "jump", "fall", "alaska", "florida", "idaho", "ohio",
-                    ];
+        this.selectNames = this.selectNames.bind(this);
     }
 
     componentDidMount(){
+        console.log("men: " + this.props.men)
+        console.log("women: " + this.props.women)
+
+        const db = firebase.firestore();
+
+        this.setState({men: this.props.men});
+        this.setState({women: this.props.women}, () => {
+            //select names
+            this.selectNames(this.state.men, this.state.women);
+        });
+
+        //shuffle resume order
+        this.shuffle(this.state.resumes)
     }
 
-    componentWillUnmount() {
-      }    
+    selectNames(number_men, number_women){
+        let gender = "male"
+        if(number_men <= 0 && number_women <= 0){
+            //shuffle names
+            this.shuffle(this.state.names)
+            return
+        }
+        else if(number_men == 0){
+            gender = "female"
+        }
+
+        const db = firebase.firestore();
+
+        let name = Math.floor(Math.random() * 4);
+        db.collection("names").doc(gender).get().then((doc) => {
+            let curr_name = doc.data()[gender + "_" + (name+1)]
+            if(!this.state.names.includes(curr_name)){
+                this.state.names.push(doc.data()[gender + "_" + (name+1)])
+                if(gender == "male"){
+                    this.selectNames(number_men - 1, number_women)
+                }
+                else{
+                    this.selectNames(number_men, number_women - 1)
+                }
+            }
+            else{
+                this.selectNames(number_men, number_women)
+            }
+        })
+    }
+
+    shuffle(array) {
+        console.log("before shuffle: " + this.state.names)
+        var currentIndex = array.length, temporaryValue, randomIndex;
+        
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+        
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+        
+            // And swap it with the current element.
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+        }
+        
+        console.log("after shuffle: " + this.state.names)
+        return array;
+    }
 
     renderBulletList = () => {
         if(this.state.bulletList.length > 0){
@@ -161,38 +193,8 @@ class Resume extends React.Component {
     render() {
         return (
             <div className="overall">
-                <div className="App" onMouseMove={this._onMouseMove.bind(this)}>
+                <div className="App">
                     <div className="resume">
-                        <ModalReact className="modal_dtp"
-                            isOpen={this.state.modalOpened}>
-                            <div>enter code: </div>
-                            <input onChange={this.handleChange.bind(this)} value={this.state.enterID} />
-                            <button onClick={() => this.submitUserID()}> Submit </button>
-                            {this.state.errorMessage && <div id="red">Invalid ID. Please re-enter.</div>}
-                        </ModalReact>
-
-                        {!this.state.modalOpened && 
-                        <div>
-                        <img className="profile_image" src={this.state.gender_icon} alt="" />
-                        <div className="header">{this.state.name}</div>
-
-                        <div className="votingblock_notes">
-                            <div id="vertical">
-                                <img name="notes_up" src={this.state.notes_up ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                <img name="notes_q" src={this.state.notes_q ? circle_selected : circle} onClick={this.voteClick}/>
-                                <img name="notes_down" src={this.state.notes_down ? downvote_selected : downvote} onClick={this.voteClick}/>
-                            </div>
-                            <div class="notes">Notes from Initial Phone Screen:  
-                                <span id="subtext_bullet">
-                                    <ul>
-                                        {(this.state.studyVersion == 2 || this.state.studyVersion == "2b") && <li>{this.state.remoteNotesText}</li>}
-                                        {this.renderBulletList()}
-                                    </ul>
-                                </span>
-                                {/*<span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>*/}
-                            </div>
-                        </div>
-
                         <Accordion>
                             <Card>
                                 <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0}}>
@@ -200,17 +202,36 @@ class Resume extends React.Component {
                                     style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}} 
                                     variant="link" 
                                     eventKey="0"
-                                    onClick={() => this.setState({educationSectionOpened: !this.state.educationSectionOpened}, () => {
-                                        this.collapsibleOpened(0);
-                                        if(this.state.educationSectionOpened){
-                                            this.setState({workSectionOpened: false});
-                                            this.setState({miscellaneousSectionOpened: false});
+                                    onClick={() => this.setState({section1opened: !this.state.section1opened}, () => {
+                                        if(this.state.section1opened){
+                                            this.setState({section2opened: false});
+                                            this.setState({section3opened: false});
                                     }})}>
-                                    Education <img id="toggle_icon" src={this.state.educationSectionOpened ? minus : plus}/>
+                                    Jake <img id="toggle_icon" src={this.state.section1opened ? minus : plus}/>
                                 </Accordion.Toggle>
                                 </Card.Header>
                                 <Accordion.Collapse eventKey="0">
                                 <Card.Body>
+                                <div className="resume">
+                                    <img className="profile_image" src={this.state.gender_icon} alt="" />
+                                    <div className="header">{this.state.name}</div>
+
+                                    <div className="votingblock_notes">
+                                        <div id="vertical">
+                                            <img name="notes_up" src={this.state.notes_up ? upvote_selected : upvote} onClick={this.voteClick}/>
+                                            <img name="notes_q" src={this.state.notes_q ? circle_selected : circle} onClick={this.voteClick}/>
+                                            <img name="notes_down" src={this.state.notes_down ? downvote_selected : downvote} onClick={this.voteClick}/>
+                                        </div>
+                                        <div class="notes">Notes from Initial Phone Screen:  
+                                            <span id="subtext_bullet">
+                                                <ul>
+                                                    {(this.state.studyVersion == 2 || this.state.studyVersion == "2b") && <li>{this.state.remoteNotesText}</li>}
+                                                    {this.renderBulletList()}
+                                                </ul>
+                                            </span>
+                                            {/*<span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>*/}
+                                        </div>
+                                    </div>
                                     <div className="votingblock">
                                         <div id="vertical">
                                             <img name="education_up" src={this.state.education_up ? upvote_selected : upvote} onClick={this.voteClick}/>
@@ -222,48 +243,6 @@ class Resume extends React.Component {
                                             <div id="subinfogray">{this.state.duration}</div>
                                         </div>
                                     </div>
-                                </Card.Body>
-                                </Accordion.Collapse>
-                            </Card>
-                            <Card>
-                                <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0, borderTop: "1px solid black"}}>
-                                <Accordion.Toggle as={Button} 
-                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}} 
-                                    variant="link" 
-                                    eventKey="1"
-                                    onClick={() => this.setState({workSectionOpened: !this.state.workSectionOpened}, () => {
-                                        this.collapsibleOpened(1);
-                                        if(this.state.workSectionOpened){
-                                            this.setState({educationSectionOpened: false});
-                                            this.setState({miscellaneousSectionOpened: false});
-                                    }})}>
-                                    Work Experience <img img id="toggle_icon" src={this.state.workSectionOpened ? minus : plus}/>
-                                </Accordion.Toggle>
-                                </Card.Header>
-                                <Accordion.Collapse eventKey="1">
-                                <Card.Body>
-                                    {this.renderPositionList()}
-                                </Card.Body>
-                                </Accordion.Collapse>
-                            </Card>
-                            {this.state.studyVersion != "2b" &&
-                            <Card>
-                                <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0, borderTop: "1px solid black"}}>
-                                <Accordion.Toggle as={Button} 
-                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}} 
-                                    variant="link" 
-                                    eventKey="2"
-                                    onClick={() => this.setState({miscellaneousSectionOpened: !this.state.miscellaneousSectionOpened}, () => {
-                                        this.collapsibleOpened(2);
-                                        if(this.state.miscellaneousSectionOpened){
-                                            this.setState({educationSectionOpened: false});
-                                            this.setState({workSectionOpened: false});
-                                    }})}>
-                                    Miscellaneous <img img id="toggle_icon" src={this.state.miscellaneousSectionOpened ? minus : plus}/>
-                                </Accordion.Toggle>
-                                </Card.Header>
-                                <Accordion.Collapse eventKey="2">
-                                <Card.Body>
                                     <div className="votingblock">
                                         <div id="vertical">
                                             <img name="misc_up" src={this.state.misc_up ? upvote_selected : upvote} onClick={this.voteClick}/>
@@ -271,42 +250,9 @@ class Resume extends React.Component {
                                             <img name="misc_down" src={this.state.misc_down ? downvote_selected : downvote} onClick={this.voteClick}/>
                                         </div>
                                         <div id="vertical">
-                                            {this.state.miscellaneousText}
+                                            misc text
                                         </div>
                                     </div>
-                                </Card.Body>
-                                </Accordion.Collapse>
-                            </Card>}
-                        </Accordion>
-
-                        <Accordion>
-                            <Card>
-                                <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0}}>
-                                <Accordion.Toggle as={Button}  
-                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}} 
-                                    variant="link" 
-                                    eventKey="0"
-                                    onClick={() => this.setState({educationSectionOpened: !this.state.educationSectionOpened}, () => {
-                                        this.collapsibleOpened(0);
-                                        if(this.state.educationSectionOpened){
-                                            this.setState({workSectionOpened: false});
-                                            this.setState({miscellaneousSectionOpened: false});
-                                    }})}>
-                                    Education <img id="toggle_icon" src={this.state.educationSectionOpened ? minus : plus}/>
-                                </Accordion.Toggle>
-                                </Card.Header>
-                                <Accordion.Collapse eventKey="0">
-                                <Card.Body>
-                                    <div className="votingblock">
-                                        <div id="vertical">
-                                            <img name="education_up" src={this.state.education_up ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                            <img name="education_q" src={this.state.education_q ? circle_selected : circle} onClick={this.voteClick}/>
-                                            <img name="education_down" src={this.state.education_down ? downvote_selected : downvote} onClick={this.voteClick}/>
-                                        </div>
-                                        <div id="subtext">{this.state.university}
-                                            <div id="subinfo">{this.state.degree}, {this.state.major}</div>
-                                            <div id="subinfogray">{this.state.duration}</div>
-                                        </div>
                                     </div>
                                 </Card.Body>
                                 </Accordion.Collapse>
@@ -317,18 +263,16 @@ class Resume extends React.Component {
                                     style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}} 
                                     variant="link" 
                                     eventKey="1"
-                                    onClick={() => this.setState({workSectionOpened: !this.state.workSectionOpened}, () => {
-                                        this.collapsibleOpened(1);
-                                        if(this.state.workSectionOpened){
-                                            this.setState({educationSectionOpened: false});
-                                            this.setState({miscellaneousSectionOpened: false});
+                                    onClick={() => this.setState({section2opened: !this.state.section2opened}, () => {
+                                        if(this.state.section2opened){
+                                            this.setState({section1opened: false});
+                                            this.setState({section3opened: false});
                                     }})}>
-                                    Work Experience <img img id="toggle_icon" src={this.state.workSectionOpened ? minus : plus}/>
+                                    Jordan <img img id="toggle_icon" src={this.state.section2opened ? minus : plus}/>
                                 </Accordion.Toggle>
                                 </Card.Header>
                                 <Accordion.Collapse eventKey="1">
                                 <Card.Body>
-                                    {this.renderPositionList()}
                                 </Card.Body>
                                 </Accordion.Collapse>
                             </Card>
@@ -338,13 +282,56 @@ class Resume extends React.Component {
                                     style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}} 
                                     variant="link" 
                                     eventKey="2"
-                                    onClick={() => this.setState({miscellaneousSectionOpened: !this.state.miscellaneousSectionOpened}, () => {
-                                        this.collapsibleOpened(2);
-                                        if(this.state.miscellaneousSectionOpened){
-                                            this.setState({educationSectionOpened: false});
-                                            this.setState({workSectionOpened: false});
+                                    onClick={() => this.setState({section3opened: !this.state.section3opened}, () => {
+                                        if(this.state.section3opened){
+                                            this.setState({section1opened: false});
+                                            this.setState({section2opened: false});
                                     }})}>
-                                    resume 1 name <img img id="toggle_icon" src={this.state.miscellaneousSectionOpened ? minus : plus}/>
+                                    Josh <img img id="toggle_icon" src={this.state.section3opened ? minus : plus}/>
+                                </Accordion.Toggle>
+                                </Card.Header>
+                                <Accordion.Collapse eventKey="2">
+                                <Card.Body>
+                                    <div>
+                                        resume 1 content
+                                    </div>
+                                </Card.Body>
+                                </Accordion.Collapse>
+                            </Card>
+                            <Card>
+                                <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0, borderTop: "1px solid black"}}>
+                                <Accordion.Toggle as={Button} 
+                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}} 
+                                    variant="link" 
+                                    eventKey="2"
+                                    onClick={() => this.setState({section3opened: !this.state.section3opened}, () => {
+                                        if(this.state.section3opened){
+                                            this.setState({section1opened: false});
+                                            this.setState({section2opened: false});
+                                    }})}>
+                                    Placeholder 1 <img img id="toggle_icon" src={this.state.section3opened ? minus : plus}/>
+                                </Accordion.Toggle>
+                                </Card.Header>
+                                <Accordion.Collapse eventKey="2">
+                                <Card.Body>
+                                    <div>
+                                        resume 1 content
+                                    </div>
+                                </Card.Body>
+                                </Accordion.Collapse>
+                            </Card>
+                            <Card>
+                                <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0, borderTop: "1px solid black"}}>
+                                <Accordion.Toggle as={Button} 
+                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}} 
+                                    variant="link" 
+                                    eventKey="2"
+                                    onClick={() => this.setState({section3opened: !this.state.section3opened}, () => {
+                                        if(this.state.section3opened){
+                                            this.setState({section1opened: false});
+                                            this.setState({section2opened: false});
+                                    }})}>
+                                    Placeholder 2 <img img id="toggle_icon" src={this.state.section3opened ? minus : plus}/>
                                 </Accordion.Toggle>
                                 </Card.Header>
                                 <Accordion.Collapse eventKey="2">
@@ -356,11 +343,9 @@ class Resume extends React.Component {
                                 </Accordion.Collapse>
                             </Card>
                         </Accordion>
-                        </div>}
+                        </div>
                     </div>
                 </div>
-                {this.state.resumeVersion == 1 && <div className="userID"><strong>{this.state.currentUserID}</strong></div>}
-            </div>
         );
     }
 }

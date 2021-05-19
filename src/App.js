@@ -18,101 +18,27 @@ class App extends React.Component {
             <div>
             <HashRouter>
                 <Route 
-                    path='/v1r1m'
+                    path='/1w4m'
                     render={(props) => (
-                        <Resume {...props} studyVersion={1} resumeVersion={1} gender={"male"}/>
+                        <Resume {...props} women={1} men={4}/>
                     )}
                 />
                 <Route 
-                    path='/v1r1f'
+                    path='/2w3m'
                     render={(props) => (
-                        <Resume {...props} studyVersion={1} resumeVersion={1} gender={"female"}/>
+                        <Resume {...props} women={2} men={3}/>
                     )}
                 />
                 <Route 
-                    path='/v1r2'
+                    path='/3w2m'
                     render={(props) => (
-                        <Resume {...props} studyVersion={1} resumeVersion={2}/>
+                        <Resume {...props} women={3} men={2}/>
                     )}
                 />
                 <Route 
-                    path='/v2r1m'
+                    path='/4w1m'
                     render={(props) => (
-                        <Resume {...props} studyVersion={2} resumeVersion={1} gender={"male"}/>
-                    )}
-                />
-                <Route 
-                    path='/v2r1f'
-                    render={(props) => (
-                        <Resume {...props} studyVersion={2} resumeVersion={1} gender={"female"}/>
-                    )}
-                />
-                <Route 
-                    path='/v2r2'
-                    render={(props) => (
-                        <Resume {...props} studyVersion={2} resumeVersion={2}/>
-                    )}
-                />
-                {/*study 2b*/}
-                <Route 
-                    path='/v2br1m'
-                    render={(props) => (
-                        <Resume {...props} studyVersion={"2b"} resumeVersion={1} gender={"male"}/>
-                    )}
-                />
-                <Route 
-                    path='/v2br1f'
-                    render={(props) => (
-                        <Resume {...props} studyVersion={"2b"} resumeVersion={1} gender={"female"}/>
-                    )}
-                />
-                <Route 
-                    path='/v2br2'
-                    render={(props) => (
-                        <Resume {...props} studyVersion={"2b"} resumeVersion={2}/>
-                    )}
-                />
-                {/*study 3*/}
-                <Route 
-                    path='/v3r1m'
-                    render={(props) => (
-                        <Resume {...props} studyVersion={3} resumeVersion={1} gender={"male"}/>
-                    )}
-                />
-                <Route 
-                    path='/v3r1f'
-                    render={(props) => (
-                        <Resume {...props} studyVersion={3} resumeVersion={1} gender={"female"}/>
-                    )}
-                />
-                <Route 
-                    path='/v3r2'
-                    render={(props) => (
-                        <Resume {...props} studyVersion={3} resumeVersion={2}/>
-                    )}
-                />
-                <Route 
-                    path='/practice'
-                    render={(props) => (
-                        <PracticeResume {...props} />
-                    )}
-                />
-                <Route 
-                    path='/admin_activity'
-                    render={(props) => (
-                        <ReadData {...props} displayingActivity={true} displayingResume={false} displayingMouse={false}/>
-                    )}
-                />
-                <Route 
-                    path='/admin_resume'
-                    render={(props) => (
-                        <ReadData {...props} displayingResume={true} displayingActivity={false} displayingMouse={false}/>
-                    )}
-                />
-                <Route 
-                    path='/admin_mouse'
-                    render={(props) => (
-                        <ReadData {...props} displayingMouse={true} displayingResume={false} displayingActivity={false}/>
+                        <Resume {...props} women={4} men={1}/>
                     )}
                 />
             </HashRouter>
