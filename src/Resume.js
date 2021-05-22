@@ -114,7 +114,10 @@ class Resume extends React.Component {
                         "lake", "stream", "canal", "street", "coffee", "tea", "soda", "lunch", "dinner", "snack", 
                         "eat", "drink", "sleep", "wake", "jump", "fall", "alaska", "florida", "idaho", "ohio",
                     ];
+        this.activityCounter = 1;
         this.selectNames = this.selectNames.bind(this);
+        this.shuffle = this.shuffle.bind(this)
+        this.generateUniqueID = this.generateUniqueID.bind(this)
     }
 
     componentDidMount(){
@@ -125,12 +128,8 @@ class Resume extends React.Component {
 
         this.setState({men: this.props.men});
         this.setState({women: this.props.women}, () => {
-            //select names
-            this.selectNames(this.state.men, this.state.women);
+            this.generateUniqueID();
         });
-
-        //shuffle resume order
-        this.shuffle(this.state.resumes)
     }
 
     generateUniqueID = () => {
@@ -157,16 +156,14 @@ class Resume extends React.Component {
                     });
                 } 
                 else {
-                    console.log("DOES NOT EXIST")
-                    
-                    //add userID to database 
-                    const addDoc = db.collection("userIDs").doc(userID).set({
-                        //initialized: true,
-                    });
+                    console.log("DOES NOT EXIST")                    
                     
                     //display ID to user
                     this.setState({currentUserID: userID}, () => {
-                        this.selectValues();
+                        console.log("set currentUserID to: " + this.state.currentUserID)
+                        
+                        //select names
+                        this.selectNames(this.state.men, this.state.women);
                     })
                 }
             });
@@ -175,8 +172,41 @@ class Resume extends React.Component {
     selectNames(number_men, number_women){
         let gender = "male"
         if(number_men <= 0 && number_women <= 0){
+            const db = firebase.firestore();
+
             //shuffle names
-            this.shuffle(this.state.names)
+            this.shuffle(this.state.names, function() {
+                console.log("finished shuffling name order")
+                const addDoc = db.collection("userIDs").doc(this.state.currentUserID).set({
+                    "candidate1_name": this.state.names[0],
+                    "candidate2_name": this.state.names[1],
+                    "candidate3_name": this.state.names[2],
+                    "candidate4_name": this.state.names[3],
+                    "candidate5_name": this.state.names[4],
+                }).then(() => {
+                    console.log("about to start shuffling")
+                    //shuffle resume order
+                    this.shuffle(this.state.resumes, function() {
+                        console.log("finished shuffling resume order")
+                        const addDoc = db.collection("userIDs").doc(this.state.currentUserID).update({
+                            "candidate1_resume": this.state.resumes[0],
+                            "candidate2_resume": this.state.resumes[1],
+                            "candidate3_resume": this.state.resumes[2],
+                            "candidate4_resume": this.state.resumes[3],
+                            "candidate5_resume": this.state.resumes[4],
+                        }).then(() => {
+                            let count = this.activityCounter.toString();
+
+                            let time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
+
+                            const addDoc = db.collection("userIDs").doc(this.state.currentUserID).collection("activityData").doc(count).set({
+                                "time": time,
+                                "description": "website information loaded",
+                            });
+                        })
+                    })
+                })
+            })
             return
         }
         else if(number_men == 0){
@@ -205,6 +235,7 @@ class Resume extends React.Component {
 
     //get values for this.state.resumes[resume_number]
     pullValues(resume_number){
+        console.log("pulling values for resume: " + resume_number)
         if(resume_number == 5){
             return
         }
@@ -233,10 +264,12 @@ class Resume extends React.Component {
         })
 
         this.state.resumeList.push(new_dict)
+        console.log(this.state.resumeList.length)
+        this.setState({resumeList: this.state.resumeList})
         this.pullValues(resume_number + 1)
     }
 
-    shuffle(array) {
+    shuffle(array, callback) {
         var currentIndex = array.length, temporaryValue, randomIndex;
         
         // While there remain elements to shuffle...
@@ -257,7 +290,11 @@ class Resume extends React.Component {
                 this.pullValues(0)
             }
         })
-        return array;
+        
+        let boundCallback = callback.bind(this)
+        boundCallback()
+        console.log("exit shuffle")
+        //return array;
     }
 
     renderBulletList = () => {
@@ -277,8 +314,32 @@ class Resume extends React.Component {
         }
     }
 
+    collapsibleOpened(e){
+        const db = firebase.firestore();
+
+        this.activityCounter = this.activityCounter + 1;
+        let count = this.activityCounter.toString();
+        let description = '';
+
+        var options = { hour12: false };
+        let time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
+
+        console.log("OPENED OR CLOSED: " + this.state["section" + (e + 1) + "opened"])
+        if(!this.state["section" + (e + 1) + "opened"]){
+            description = "closed resume " + (e + 1);
+        }
+        else{
+            description = "opened resume " + (e + 1);
+        }
+    
+        const addDoc = db.collection("userIDs").doc(this.state.currentUserID).collection("activityData").doc(count).set({
+            "time": time,
+            "description": description,
+        });
+    }
+
     render() {
-        console.log(this.state.resumeList.length)
+        console.log("list length: " + this.state.resumeList.length)
         /*if(this.state.resumeList.length == 5){
             console.log(this.state.resumeList[0]["edu_degree"])
         }*/
@@ -295,6 +356,7 @@ class Resume extends React.Component {
                                     variant="link" 
                                     eventKey="0"
                                     onClick={() => this.setState({section1opened: !this.state.section1opened}, () => {
+                                        this.collapsibleOpened(0);
                                         if(this.state.section1opened){
                                             this.setState({section2opened: false});
                                             this.setState({section3opened: false});
@@ -310,47 +372,26 @@ class Resume extends React.Component {
                                     <img className="profile_image" src={this.state.gender_icon} alt="" />
                                     <div className="header">{this.state.name}</div>
 
-                                    <div className="votingblock_notes">
-                                        <div id="vertical">
-                                            <img name="notes_up" src={this.state.notes_up ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                            <img name="notes_q" src={this.state.notes_q ? circle_selected : circle} onClick={this.voteClick}/>
-                                            <img name="notes_down" src={this.state.notes_down ? downvote_selected : downvote} onClick={this.voteClick}/>
-                                        </div>
-                                        <div class="notes">Notes from Initial Phone Screen:  
-                                            <span id="subtext_bullet">
-                                                <ul>
-                                                    {(this.state.studyVersion == 2 || this.state.studyVersion == "2b") && <li>{this.state.remoteNotesText}</li>}
-                                                    {this.renderBulletList()}
-                                                </ul>
-                                            </span>
-                                            {/*<span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>*/}
-                                        </div>
+                                    <div class="notes">Notes from Initial Phone Screen:  
+                                        <span id="subtext_bullet">
+                                            <ul>
+                                                {(this.state.studyVersion == 2 || this.state.studyVersion == "2b") && <li>{this.state.remoteNotesText}</li>}
+                                                {this.renderBulletList()}
+                                            </ul>
+                                        </span>
+                                        {/*<span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>*/}
                                     </div>
-                                    <div className="votingblock">
-                                        <div id="vertical">
-                                            <img name="education_up" src={this.state.education_up ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                            <img name="education_q" src={this.state.education_q ? circle_selected : circle} onClick={this.voteClick}/>
-                                            <img name="education_down" src={this.state.education_down ? downvote_selected : downvote} onClick={this.voteClick}/>
-                                        </div>
-                                        <div id="subtext">{this.state.resumeList[0]["edu_university"]}
-                                            <div id="subinfo">{this.state.resumeList[0]["edu_degree"]}, {this.state.resumeList[0]["edu_major"]}</div>
-                                            <div id="subinfogray">{this.state.resumeList[0]["edu_duration"]}</div>
-                                        </div>
+                                    <div id="subtext">{this.state.resumeList[0]["edu_university"]}
+                                        <div id="subinfo">{this.state.resumeList[0]["edu_degree"]}, {this.state.resumeList[0]["edu_major"]}</div>
+                                        <div id="subinfogray">{this.state.resumeList[0]["edu_duration"]}</div>
                                     </div>
-                                    <div className="votingblock">
-                                        {/*<div id="vertical">
-                                            <img name={"work" + (index+1) + "_up"} src={this.state["work" + (index + 1) + "_up"] ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                            <img name={"work" + (index+1) + "_q"} src={this.state["work" + (index + 1) + "_q"] ? circle_selected : circle} onClick={this.voteClick}/>
-                                            <img name={"work" + (index+1) + "_down"} src={this.state["work" + (index + 1) + "_down"] ? downvote_selected : downvote} onClick={this.voteClick}/>
-                                        </div>*/}
-                                        <div id="subtext"> {this.state.resumeList[0]["work1_title"]}
-                                            <div id="horizontal">
-                                                <div id="subinfo">{this.state.resumeList[0]["work1_company"]}</div>
-                                                <div id="subinfo"><i>{this.state.resumeList[0]["work1_location"]}</i></div>
-                                            </div>
-                                            <div id="subinfogray">{this.state.resumeList[0]["work1_duration"]}</div>
-                                            <div id="subinfo">{this.state.resumeList[0]["work1_description"]}</div>
+                                    <div id="subtext"> {this.state.resumeList[0]["work1_title"]}
+                                        <div id="horizontal">
+                                            <div id="subinfo">{this.state.resumeList[0]["work1_company"]}</div>
+                                            <div id="subinfo"><i>{this.state.resumeList[0]["work1_location"]}</i></div>
                                         </div>
+                                        <div id="subinfogray">{this.state.resumeList[0]["work1_duration"]}</div>
+                                        <div id="subinfo">{this.state.resumeList[0]["work1_description"]}</div>
                                     </div>
                                     <Divider />
                                 </div>
@@ -364,6 +405,7 @@ class Resume extends React.Component {
                                     variant="link" 
                                     eventKey="1"
                                     onClick={() => this.setState({section2opened: !this.state.section2opened}, () => {
+                                        this.collapsibleOpened(1);
                                         if(this.state.section2opened){
                                             this.setState({section1opened: false});
                                             this.setState({section3opened: false});
@@ -379,47 +421,26 @@ class Resume extends React.Component {
                                     <img className="profile_image" src={this.state.gender_icon} alt="" />
                                     <div className="header">{this.state.name}</div>
 
-                                    <div className="votingblock_notes">
-                                        <div id="vertical">
-                                            <img name="notes_up" src={this.state.notes_up ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                            <img name="notes_q" src={this.state.notes_q ? circle_selected : circle} onClick={this.voteClick}/>
-                                            <img name="notes_down" src={this.state.notes_down ? downvote_selected : downvote} onClick={this.voteClick}/>
-                                        </div>
-                                        <div class="notes">Notes from Initial Phone Screen:  
-                                            <span id="subtext_bullet">
-                                                <ul>
-                                                    {(this.state.studyVersion == 2 || this.state.studyVersion == "2b") && <li>{this.state.remoteNotesText}</li>}
-                                                    {this.renderBulletList()}
-                                                </ul>
-                                            </span>
-                                            {/*<span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>*/}
-                                        </div>
+                                    <div class="notes">Notes from Initial Phone Screen:  
+                                        <span id="subtext_bullet">
+                                            <ul>
+                                                {(this.state.studyVersion == 2 || this.state.studyVersion == "2b") && <li>{this.state.remoteNotesText}</li>}
+                                                {this.renderBulletList()}
+                                            </ul>
+                                        </span>
+                                        {/*<span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>*/}
                                     </div>
-                                    <div className="votingblock">
-                                        <div id="vertical">
-                                            <img name="education_up" src={this.state.education_up ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                            <img name="education_q" src={this.state.education_q ? circle_selected : circle} onClick={this.voteClick}/>
-                                            <img name="education_down" src={this.state.education_down ? downvote_selected : downvote} onClick={this.voteClick}/>
-                                        </div>
-                                        <div id="subtext">{this.state.resumeList[1]["edu_university"]}
-                                            <div id="subinfo">{this.state.resumeList[1]["edu_degree"]}, {this.state.resumeList[1]["edu_major"]}</div>
-                                            <div id="subinfogray">{this.state.resumeList[1]["edu_duration"]}</div>
-                                        </div>
+                                    <div id="subtext">{this.state.resumeList[1]["edu_university"]}
+                                        <div id="subinfo">{this.state.resumeList[1]["edu_degree"]}, {this.state.resumeList[1]["edu_major"]}</div>
+                                        <div id="subinfogray">{this.state.resumeList[1]["edu_duration"]}</div>
                                     </div>
-                                    <div className="votingblock">
-                                        {/*<div id="vertical">
-                                            <img name={"work" + (index+1) + "_up"} src={this.state["work" + (index + 1) + "_up"] ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                            <img name={"work" + (index+1) + "_q"} src={this.state["work" + (index + 1) + "_q"] ? circle_selected : circle} onClick={this.voteClick}/>
-                                            <img name={"work" + (index+1) + "_down"} src={this.state["work" + (index + 1) + "_down"] ? downvote_selected : downvote} onClick={this.voteClick}/>
-                                        </div>*/}
-                                        <div id="subtext"> {this.state.resumeList[1]["work1_title"]}
-                                            <div id="horizontal">
-                                                <div id="subinfo">{this.state.resumeList[1]["work1_company"]}</div>
-                                                <div id="subinfo"><i>{this.state.resumeList[1]["work1_location"]}</i></div>
-                                            </div>
-                                            <div id="subinfogray">{this.state.resumeList[1]["work1_duration"]}</div>
-                                            <div id="subinfo">{this.state.resumeList[1]["work1_description"]}</div>
+                                    <div id="subtext"> {this.state.resumeList[1]["work1_title"]}
+                                        <div id="horizontal">
+                                            <div id="subinfo">{this.state.resumeList[1]["work1_company"]}</div>
+                                            <div id="subinfo"><i>{this.state.resumeList[1]["work1_location"]}</i></div>
                                         </div>
+                                        <div id="subinfogray">{this.state.resumeList[1]["work1_duration"]}</div>
+                                        <div id="subinfo">{this.state.resumeList[1]["work1_description"]}</div>
                                     </div>
                                     <Divider />
                                 </div>
@@ -433,6 +454,7 @@ class Resume extends React.Component {
                                     variant="link" 
                                     eventKey="2"
                                     onClick={() => this.setState({section3opened: !this.state.section3opened}, () => {
+                                        this.collapsibleOpened(2);
                                         if(this.state.section3opened){
                                             this.setState({section1opened: false});
                                             this.setState({section2opened: false});
@@ -448,47 +470,28 @@ class Resume extends React.Component {
                                     <img className="profile_image" src={this.state.gender_icon} alt="" />
                                     <div className="header">{this.state.name}</div>
 
-                                    <div className="votingblock_notes">
-                                        <div id="vertical">
-                                            <img name="notes_up" src={this.state.notes_up ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                            <img name="notes_q" src={this.state.notes_q ? circle_selected : circle} onClick={this.voteClick}/>
-                                            <img name="notes_down" src={this.state.notes_down ? downvote_selected : downvote} onClick={this.voteClick}/>
-                                        </div>
-                                        <div class="notes">Notes from Initial Phone Screen:  
-                                            <span id="subtext_bullet">
-                                                <ul>
-                                                    {(this.state.studyVersion == 2 || this.state.studyVersion == "2b") && <li>{this.state.remoteNotesText}</li>}
-                                                    {this.renderBulletList()}
-                                                </ul>
-                                            </span>
-                                            {/*<span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>*/}
-                                        </div>
+                                    <div class="notes">Notes from Initial Phone Screen:  
+                                        <span id="subtext_bullet">
+                                            <ul>
+                                                {(this.state.studyVersion == 2 || this.state.studyVersion == "2b") && <li>{this.state.remoteNotesText}</li>}
+                                                {this.renderBulletList()}
+                                            </ul>
+                                        </span>
+                                        {/*<span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>*/}
                                     </div>
-                                    <div className="votingblock">
-                                        <div id="vertical">
-                                            <img name="education_up" src={this.state.education_up ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                            <img name="education_q" src={this.state.education_q ? circle_selected : circle} onClick={this.voteClick}/>
-                                            <img name="education_down" src={this.state.education_down ? downvote_selected : downvote} onClick={this.voteClick}/>
-                                        </div>
-                                        <div id="subtext">{this.state.resumeList[2]["edu_university"]}
-                                            <div id="subinfo">{this.state.resumeList[2]["edu_degree"]}, {this.state.resumeList[2]["edu_major"]}</div>
-                                            <div id="subinfogray">{this.state.resumeList[2]["edu_duration"]}</div>
-                                        </div>
+
+                                    <div id="subtext">{this.state.resumeList[2]["edu_university"]}
+                                        <div id="subinfo">{this.state.resumeList[2]["edu_degree"]}, {this.state.resumeList[2]["edu_major"]}</div>
+                                        <div id="subinfogray">{this.state.resumeList[2]["edu_duration"]}</div>
                                     </div>
-                                    <div className="votingblock">
-                                        {/*<div id="vertical">
-                                            <img name={"work" + (index+1) + "_up"} src={this.state["work" + (index + 1) + "_up"] ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                            <img name={"work" + (index+1) + "_q"} src={this.state["work" + (index + 1) + "_q"] ? circle_selected : circle} onClick={this.voteClick}/>
-                                            <img name={"work" + (index+1) + "_down"} src={this.state["work" + (index + 1) + "_down"] ? downvote_selected : downvote} onClick={this.voteClick}/>
-                                        </div>*/}
-                                        <div id="subtext"> {this.state.resumeList[2]["work1_title"]}
-                                            <div id="horizontal">
-                                                <div id="subinfo">{this.state.resumeList[2]["work1_company"]}</div>
-                                                <div id="subinfo"><i>{this.state.resumeList[2]["work1_location"]}</i></div>
-                                            </div>
-                                            <div id="subinfogray">{this.state.resumeList[2]["work1_duration"]}</div>
-                                            <div id="subinfo">{this.state.resumeList[2]["work1_description"]}</div>
+
+                                    <div id="subtext"> {this.state.resumeList[2]["work1_title"]}
+                                        <div id="horizontal">
+                                            <div id="subinfo">{this.state.resumeList[2]["work1_company"]}</div>
+                                            <div id="subinfo"><i>{this.state.resumeList[2]["work1_location"]}</i></div>
                                         </div>
+                                        <div id="subinfogray">{this.state.resumeList[2]["work1_duration"]}</div>
+                                        <div id="subinfo">{this.state.resumeList[2]["work1_description"]}</div>
                                     </div>
                                     <Divider />
                                 </div>
@@ -502,6 +505,7 @@ class Resume extends React.Component {
                                     variant="link" 
                                     eventKey="3"
                                     onClick={() => this.setState({section4opened: !this.state.section4opened}, () => {
+                                        this.collapsibleOpened(3);
                                         if(this.state.section4opened){
                                             this.setState({section1opened: false});
                                             this.setState({section2opened: false});
@@ -517,47 +521,26 @@ class Resume extends React.Component {
                                     <img className="profile_image" src={this.state.gender_icon} alt="" />
                                     <div className="header">{this.state.name}</div>
 
-                                    <div className="votingblock_notes">
-                                        <div id="vertical">
-                                            <img name="notes_up" src={this.state.notes_up ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                            <img name="notes_q" src={this.state.notes_q ? circle_selected : circle} onClick={this.voteClick}/>
-                                            <img name="notes_down" src={this.state.notes_down ? downvote_selected : downvote} onClick={this.voteClick}/>
-                                        </div>
-                                        <div class="notes">Notes from Initial Phone Screen:  
-                                            <span id="subtext_bullet">
-                                                <ul>
-                                                    {(this.state.studyVersion == 2 || this.state.studyVersion == "2b") && <li>{this.state.remoteNotesText}</li>}
-                                                    {this.renderBulletList()}
-                                                </ul>
-                                            </span>
-                                            {/*<span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>*/}
-                                        </div>
+                                    <div class="notes">Notes from Initial Phone Screen:  
+                                        <span id="subtext_bullet">
+                                            <ul>
+                                                {(this.state.studyVersion == 2 || this.state.studyVersion == "2b") && <li>{this.state.remoteNotesText}</li>}
+                                                {this.renderBulletList()}
+                                            </ul>
+                                        </span>
+                                        {/*<span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>*/}
                                     </div>
-                                    <div className="votingblock">
-                                        <div id="vertical">
-                                            <img name="education_up" src={this.state.education_up ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                            <img name="education_q" src={this.state.education_q ? circle_selected : circle} onClick={this.voteClick}/>
-                                            <img name="education_down" src={this.state.education_down ? downvote_selected : downvote} onClick={this.voteClick}/>
-                                        </div>
-                                        <div id="subtext">{this.state.resumeList[3]["edu_university"]}
-                                            <div id="subinfo">{this.state.resumeList[3]["edu_degree"]}, {this.state.resumeList[3]["edu_major"]}</div>
-                                            <div id="subinfogray">{this.state.resumeList[3]["edu_duration"]}</div>
-                                        </div>
+                                    <div id="subtext">{this.state.resumeList[3]["edu_university"]}
+                                        <div id="subinfo">{this.state.resumeList[3]["edu_degree"]}, {this.state.resumeList[3]["edu_major"]}</div>
+                                        <div id="subinfogray">{this.state.resumeList[3]["edu_duration"]}</div>
                                     </div>
-                                    <div className="votingblock">
-                                        {/*<div id="vertical">
-                                            <img name={"work" + (index+1) + "_up"} src={this.state["work" + (index + 1) + "_up"] ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                            <img name={"work" + (index+1) + "_q"} src={this.state["work" + (index + 1) + "_q"] ? circle_selected : circle} onClick={this.voteClick}/>
-                                            <img name={"work" + (index+1) + "_down"} src={this.state["work" + (index + 1) + "_down"] ? downvote_selected : downvote} onClick={this.voteClick}/>
-                                        </div>*/}
-                                        <div id="subtext"> {this.state.resumeList[3]["work1_title"]}
-                                            <div id="horizontal">
-                                                <div id="subinfo">{this.state.resumeList[3]["work1_company"]}</div>
-                                                <div id="subinfo"><i>{this.state.resumeList[3]["work1_location"]}</i></div>
-                                            </div>
-                                            <div id="subinfogray">{this.state.resumeList[3]["work1_duration"]}</div>
-                                            <div id="subinfo">{this.state.resumeList[3]["work1_description"]}</div>
+                                    <div id="subtext"> {this.state.resumeList[3]["work1_title"]}
+                                        <div id="horizontal">
+                                            <div id="subinfo">{this.state.resumeList[3]["work1_company"]}</div>
+                                            <div id="subinfo"><i>{this.state.resumeList[3]["work1_location"]}</i></div>
                                         </div>
+                                        <div id="subinfogray">{this.state.resumeList[3]["work1_duration"]}</div>
+                                        <div id="subinfo">{this.state.resumeList[3]["work1_description"]}</div>
                                     </div>
                                     <Divider />
                                 </div>
@@ -571,6 +554,7 @@ class Resume extends React.Component {
                                     variant="link" 
                                     eventKey="4"
                                     onClick={() => this.setState({section5opened: !this.state.section5opened}, () => {
+                                        this.collapsibleOpened(4);
                                         if(this.state.section5opened){
                                             this.setState({section1opened: false});
                                             this.setState({section2opened: false});
@@ -586,47 +570,26 @@ class Resume extends React.Component {
                                     <img className="profile_image" src={this.state.gender_icon} alt="" />
                                     <div className="header">{this.state.name}</div>
 
-                                    <div className="votingblock_notes">
-                                        <div id="vertical">
-                                            <img name="notes_up" src={this.state.notes_up ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                            <img name="notes_q" src={this.state.notes_q ? circle_selected : circle} onClick={this.voteClick}/>
-                                            <img name="notes_down" src={this.state.notes_down ? downvote_selected : downvote} onClick={this.voteClick}/>
-                                        </div>
-                                        <div class="notes">Notes from Initial Phone Screen:  
-                                            <span id="subtext_bullet">
-                                                <ul>
-                                                    {(this.state.studyVersion == 2 || this.state.studyVersion == "2b") && <li>{this.state.remoteNotesText}</li>}
-                                                    {this.renderBulletList()}
-                                                </ul>
-                                            </span>
-                                            {/*<span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>*/}
-                                        </div>
+                                    <div class="notes">Notes from Initial Phone Screen:  
+                                        <span id="subtext_bullet">
+                                            <ul>
+                                                {(this.state.studyVersion == 2 || this.state.studyVersion == "2b") && <li>{this.state.remoteNotesText}</li>}
+                                                {this.renderBulletList()}
+                                            </ul>
+                                        </span>
+                                        {/*<span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>*/}
                                     </div>
-                                    <div className="votingblock">
-                                        <div id="vertical">
-                                            <img name="education_up" src={this.state.education_up ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                            <img name="education_q" src={this.state.education_q ? circle_selected : circle} onClick={this.voteClick}/>
-                                            <img name="education_down" src={this.state.education_down ? downvote_selected : downvote} onClick={this.voteClick}/>
-                                        </div>
-                                        <div id="subtext">{this.state.resumeList[4]["edu_university"]}
-                                            <div id="subinfo">{this.state.resumeList[4]["edu_degree"]}, {this.state.resumeList[4]["edu_major"]}</div>
-                                            <div id="subinfogray">{this.state.resumeList[4]["edu_duration"]}</div>
-                                        </div>
+                                    <div id="subtext">{this.state.resumeList[4]["edu_university"]}
+                                        <div id="subinfo">{this.state.resumeList[4]["edu_degree"]}, {this.state.resumeList[4]["edu_major"]}</div>
+                                        <div id="subinfogray">{this.state.resumeList[4]["edu_duration"]}</div>
                                     </div>
-                                    <div className="votingblock">
-                                        {/*<div id="vertical">
-                                            <img name={"work" + (index+1) + "_up"} src={this.state["work" + (index + 1) + "_up"] ? upvote_selected : upvote} onClick={this.voteClick}/>
-                                            <img name={"work" + (index+1) + "_q"} src={this.state["work" + (index + 1) + "_q"] ? circle_selected : circle} onClick={this.voteClick}/>
-                                            <img name={"work" + (index+1) + "_down"} src={this.state["work" + (index + 1) + "_down"] ? downvote_selected : downvote} onClick={this.voteClick}/>
-                                        </div>*/}
-                                        <div id="subtext"> {this.state.resumeList[4]["work1_title"]}
-                                            <div id="horizontal">
-                                                <div id="subinfo">{this.state.resumeList[4]["work1_company"]}</div>
-                                                <div id="subinfo"><i>{this.state.resumeList[4]["work1_location"]}</i></div>
-                                            </div>
-                                            <div id="subinfogray">{this.state.resumeList[4]["work1_duration"]}</div>
-                                            <div id="subinfo">{this.state.resumeList[4]["work1_description"]}</div>
+                                    <div id="subtext"> {this.state.resumeList[4]["work1_title"]}
+                                        <div id="horizontal">
+                                            <div id="subinfo">{this.state.resumeList[4]["work1_company"]}</div>
+                                            <div id="subinfo"><i>{this.state.resumeList[4]["work1_location"]}</i></div>
                                         </div>
+                                        <div id="subinfogray">{this.state.resumeList[4]["work1_duration"]}</div>
+                                        <div id="subinfo">{this.state.resumeList[4]["work1_description"]}</div>
                                     </div>
                                     <Divider />
                                 </div>
