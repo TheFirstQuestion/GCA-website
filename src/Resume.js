@@ -31,9 +31,13 @@ class Resume extends React.Component {
             //women and men (pulled from props)
             women: 1,
             men: 1,
+            linkEnding: "1w4m",
 
             //names
             names: [],
+            namesOrder: [1, 2, 3, 4, 5],
+            headshotOrder: [],
+            genderOrder: [],
             resumes: [1, 2, 3, 4, 5],
             //resumeList: [{"edu_degree": "temp", "edu_distinction": "temp", "edu_duration": "temp", "edu_major": "temp", "edu_university": "temp",}],
             resumeList: [],
@@ -118,6 +122,7 @@ class Resume extends React.Component {
         this.selectNames = this.selectNames.bind(this);
         this.shuffle = this.shuffle.bind(this)
         this.generateUniqueID = this.generateUniqueID.bind(this)
+        this.selectHeadshots = this.selectHeadshots.bind(this);
     }
 
     componentDidMount(){
@@ -162,73 +167,98 @@ class Resume extends React.Component {
                     this.setState({currentUserID: userID}, () => {
                         console.log("set currentUserID to: " + this.state.currentUserID)
                         
-                        //select names
-                        this.selectNames(this.state.men, this.state.women);
+                        this.setState({linkEnding: this.state.women + "w" + this.state.men + "m"}, () => {
+                            this.selectNames();
+                        })
                     })
                 }
             });
     }
 
     selectNames(number_men, number_women){
-        let gender = "male"
-        if(number_men <= 0 && number_women <= 0){
+        this.shuffle(this.state.namesOrder, function() {
+            console.log("finished shuffling name order")
             const db = firebase.firestore();
-
-            //shuffle names
-            this.shuffle(this.state.names, function() {
-                console.log("finished shuffling name order")
-                const addDoc = db.collection("userIDs").doc(this.state.currentUserID).set({
-                    "candidate1_name": this.state.names[0],
-                    "candidate2_name": this.state.names[1],
-                    "candidate3_name": this.state.names[2],
-                    "candidate4_name": this.state.names[3],
-                    "candidate5_name": this.state.names[4],
+            console.log("link ending: " + this.state.linkEnding)
+                db.collection("names").doc(this.state.linkEnding).get().then((doc) => {
+                    for(let i = 0; i < this.state.namesOrder.length; i++){
+                        let curr_name = doc.data()["person_" + (this.state.namesOrder[i])]
+                        let index = curr_name.indexOf("_")
+                        let curr_gender = curr_name.substring(0, index)
+                        curr_name = curr_name.substring(index + 1)
+                        console.log("gender: " + curr_gender)
+                        this.state.genderOrder.push(curr_gender)
+                        this.state.names.push(curr_name)
+                    }
                 }).then(() => {
-                    console.log("about to start shuffling")
-                    //shuffle resume order
-                    this.shuffle(this.state.resumes, function() {
-                        console.log("finished shuffling resume order")
-                        const addDoc = db.collection("userIDs").doc(this.state.currentUserID).update({
-                            "candidate1_resume": this.state.resumes[0],
-                            "candidate2_resume": this.state.resumes[1],
-                            "candidate3_resume": this.state.resumes[2],
-                            "candidate4_resume": this.state.resumes[3],
-                            "candidate5_resume": this.state.resumes[4],
-                        }).then(() => {
-                            let count = this.activityCounter.toString();
-
-                            let time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
-
-                            const addDoc = db.collection("userIDs").doc(this.state.currentUserID).collection("activityData").doc(count).set({
-                                "time": time,
-                                "description": "website information loaded",
-                            });
-                        })
+                    while(this.state.names.length != 5 && this.state.genderOrder.length != 5){
+                        //wait
+                    }
+                    console.log("genderOrder: " + this.state.genderOrder)
+                    this.selectHeadshots(0)
+                    const addDoc = db.collection("userIDs").doc(this.state.currentUserID).set({
+                        "candidate1_name": this.state.names[0],
+                        "candidate2_name": this.state.names[1],
+                        "candidate3_name": this.state.names[2],
+                        "candidate4_name": this.state.names[3],
+                        "candidate5_name": this.state.names[4],
+                    }).then(() => {
+                        console.log("about to start shuffling")
+                            //shuffle resume order
+                            this.shuffle(this.state.resumes, function() {
+                                console.log("finished shuffling resume order")
+                                const addDoc = db.collection("userIDs").doc(this.state.currentUserID).update({
+                                    "candidate1_resume": this.state.resumes[0],
+                                    "candidate2_resume": this.state.resumes[1],
+                                    "candidate3_resume": this.state.resumes[2],
+                                    "candidate4_resume": this.state.resumes[3],
+                                    "candidate5_resume": this.state.resumes[4],
+                                }).then(() => {
+                                    let count = this.activityCounter.toString();
+        
+                                    let time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
+        
+                                    const addDoc = db.collection("userIDs").doc(this.state.currentUserID).collection("activityData").doc(count).set({
+                                        "time": time,
+                                        "description": "website information loaded",
+                                    });
+                                })
+                            })
                     })
                 })
-            })
-            return
-        }
-        else if(number_men == 0){
-            gender = "female"
-        }
+        })
+    }
 
+    selectHeadshots(i){    
         const db = firebase.firestore();
 
-        let name = Math.floor(Math.random() * 4);
+        if(i >= 5){
+            //update database with order
+            while(this.state.headshotOrder.length != 5){
+                //wait
+            }
+            console.log("headshot order: " + this.state.headshotOrder)
+            const addDoc = db.collection("userIDs").doc(this.state.currentUserID).update({
+                "candidate1_headshot": this.state.headshotOrder[0],
+                "candidate2_headshot": this.state.headshotOrder[1],
+                "candidate3_headshot": this.state.headshotOrder[2],
+                "candidate4_headshot": this.state.headshotOrder[3],
+                "candidate5_headshot": this.state.headshotOrder[4],
+            }).then(() => {
+                console.log("exit headshots")
+            })
+            return
+        }   
+        let gender = this.state.genderOrder[i];
+        let headshotProb = Math.floor(Math.random() * 4);
         db.collection("names").doc(gender).get().then((doc) => {
-            let curr_name = doc.data()[gender + "_" + (name+1)]
-            if(!this.state.names.includes(curr_name)){
-                this.state.names.push(doc.data()[gender + "_" + (name+1)])
-                if(gender == "male"){
-                    this.selectNames(number_men - 1, number_women)
-                }
-                else{
-                    this.selectNames(number_men, number_women - 1)
-                }
+            let headshot = doc.data()[gender + "_" + (headshotProb + 1)]
+            if(!this.state.headshotOrder.includes(headshot)){
+                this.state.headshotOrder.push(headshot)
+                this.selectHeadshots(i + 1)
             }
             else{
-                this.selectNames(number_men, number_women)
+                this.selectHeadshots(i)
             }
         })
     }
@@ -369,26 +399,17 @@ class Resume extends React.Component {
                                 <Accordion.Collapse eventKey="0">
                                 <Card.Body>
                                 <div className="resume">
-                                    <img className="profile_image" src={this.state.gender_icon} alt="" />
-                                    <div className="header">{this.state.name}</div>
-
-                                    <div class="notes">Notes from Initial Phone Screen:  
-                                        <span id="subtext_bullet">
-                                            <ul>
-                                                {(this.state.studyVersion == 2 || this.state.studyVersion == "2b") && <li>{this.state.remoteNotesText}</li>}
-                                                {this.renderBulletList()}
-                                            </ul>
-                                        </span>
-                                        {/*<span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>*/}
-                                    </div>
+                                    <img className="profile_image" src={"http://drive.google.com/uc?export=view&id=" + this.state.headshotOrder[0]} alt="" />
+                                    <div className="header">Education</div>
                                     <div id="subtext">{this.state.resumeList[0]["edu_university"]}
                                         <div id="subinfo">{this.state.resumeList[0]["edu_degree"]}, {this.state.resumeList[0]["edu_major"]}</div>
                                         <div id="subinfogray">{this.state.resumeList[0]["edu_duration"]}</div>
                                     </div>
+                                    <Divider />
+                                    <div className="header">Experience</div>
                                     <div id="subtext"> {this.state.resumeList[0]["work1_title"]}
                                         <div id="horizontal">
                                             <div id="subinfo">{this.state.resumeList[0]["work1_company"]}</div>
-                                            <div id="subinfo"><i>{this.state.resumeList[0]["work1_location"]}</i></div>
                                         </div>
                                         <div id="subinfogray">{this.state.resumeList[0]["work1_duration"]}</div>
                                         <div id="subinfo">{this.state.resumeList[0]["work1_description"]}</div>
@@ -418,18 +439,9 @@ class Resume extends React.Component {
                                 <Accordion.Collapse eventKey="1">
                                 <Card.Body>
                                 <div className="resume">
-                                    <img className="profile_image" src={this.state.gender_icon} alt="" />
+                                    <img className="profile_image" src={"http://drive.google.com/uc?export=view&id=" + this.state.headshotOrder[1]} alt="" />
                                     <div className="header">{this.state.name}</div>
 
-                                    <div class="notes">Notes from Initial Phone Screen:  
-                                        <span id="subtext_bullet">
-                                            <ul>
-                                                {(this.state.studyVersion == 2 || this.state.studyVersion == "2b") && <li>{this.state.remoteNotesText}</li>}
-                                                {this.renderBulletList()}
-                                            </ul>
-                                        </span>
-                                        {/*<span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>*/}
-                                    </div>
                                     <div id="subtext">{this.state.resumeList[1]["edu_university"]}
                                         <div id="subinfo">{this.state.resumeList[1]["edu_degree"]}, {this.state.resumeList[1]["edu_major"]}</div>
                                         <div id="subinfogray">{this.state.resumeList[1]["edu_duration"]}</div>
@@ -437,7 +449,6 @@ class Resume extends React.Component {
                                     <div id="subtext"> {this.state.resumeList[1]["work1_title"]}
                                         <div id="horizontal">
                                             <div id="subinfo">{this.state.resumeList[1]["work1_company"]}</div>
-                                            <div id="subinfo"><i>{this.state.resumeList[1]["work1_location"]}</i></div>
                                         </div>
                                         <div id="subinfogray">{this.state.resumeList[1]["work1_duration"]}</div>
                                         <div id="subinfo">{this.state.resumeList[1]["work1_description"]}</div>
@@ -467,18 +478,8 @@ class Resume extends React.Component {
                                 <Accordion.Collapse eventKey="2">
                                 <Card.Body>
                                 <div className="resume">
-                                    <img className="profile_image" src={this.state.gender_icon} alt="" />
+                                    <img className="profile_image" src={"http://drive.google.com/uc?export=view&id=" + this.state.headshotOrder[2]} alt="" />
                                     <div className="header">{this.state.name}</div>
-
-                                    <div class="notes">Notes from Initial Phone Screen:  
-                                        <span id="subtext_bullet">
-                                            <ul>
-                                                {(this.state.studyVersion == 2 || this.state.studyVersion == "2b") && <li>{this.state.remoteNotesText}</li>}
-                                                {this.renderBulletList()}
-                                            </ul>
-                                        </span>
-                                        {/*<span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>*/}
-                                    </div>
 
                                     <div id="subtext">{this.state.resumeList[2]["edu_university"]}
                                         <div id="subinfo">{this.state.resumeList[2]["edu_degree"]}, {this.state.resumeList[2]["edu_major"]}</div>
@@ -488,7 +489,6 @@ class Resume extends React.Component {
                                     <div id="subtext"> {this.state.resumeList[2]["work1_title"]}
                                         <div id="horizontal">
                                             <div id="subinfo">{this.state.resumeList[2]["work1_company"]}</div>
-                                            <div id="subinfo"><i>{this.state.resumeList[2]["work1_location"]}</i></div>
                                         </div>
                                         <div id="subinfogray">{this.state.resumeList[2]["work1_duration"]}</div>
                                         <div id="subinfo">{this.state.resumeList[2]["work1_description"]}</div>
@@ -518,18 +518,9 @@ class Resume extends React.Component {
                                 <Accordion.Collapse eventKey="3">
                                 <Card.Body>
                                 <div className="resume">
-                                    <img className="profile_image" src={this.state.gender_icon} alt="" />
+                                    <img className="profile_image" src={"http://drive.google.com/uc?export=view&id=" + this.state.headshotOrder[3]} alt="" />
                                     <div className="header">{this.state.name}</div>
 
-                                    <div class="notes">Notes from Initial Phone Screen:  
-                                        <span id="subtext_bullet">
-                                            <ul>
-                                                {(this.state.studyVersion == 2 || this.state.studyVersion == "2b") && <li>{this.state.remoteNotesText}</li>}
-                                                {this.renderBulletList()}
-                                            </ul>
-                                        </span>
-                                        {/*<span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>*/}
-                                    </div>
                                     <div id="subtext">{this.state.resumeList[3]["edu_university"]}
                                         <div id="subinfo">{this.state.resumeList[3]["edu_degree"]}, {this.state.resumeList[3]["edu_major"]}</div>
                                         <div id="subinfogray">{this.state.resumeList[3]["edu_duration"]}</div>
@@ -537,7 +528,6 @@ class Resume extends React.Component {
                                     <div id="subtext"> {this.state.resumeList[3]["work1_title"]}
                                         <div id="horizontal">
                                             <div id="subinfo">{this.state.resumeList[3]["work1_company"]}</div>
-                                            <div id="subinfo"><i>{this.state.resumeList[3]["work1_location"]}</i></div>
                                         </div>
                                         <div id="subinfogray">{this.state.resumeList[3]["work1_duration"]}</div>
                                         <div id="subinfo">{this.state.resumeList[3]["work1_description"]}</div>
@@ -567,18 +557,9 @@ class Resume extends React.Component {
                                 <Accordion.Collapse eventKey="4">
                                 <Card.Body>
                                 <div className="resume">
-                                    <img className="profile_image" src={this.state.gender_icon} alt="" />
+                                    <img className="profile_image" src={"http://drive.google.com/uc?export=view&id=" + this.state.headshotOrder[4]} alt="" />
                                     <div className="header">{this.state.name}</div>
 
-                                    <div class="notes">Notes from Initial Phone Screen:  
-                                        <span id="subtext_bullet">
-                                            <ul>
-                                                {(this.state.studyVersion == 2 || this.state.studyVersion == "2b") && <li>{this.state.remoteNotesText}</li>}
-                                                {this.renderBulletList()}
-                                            </ul>
-                                        </span>
-                                        {/*<span id="subtext"> {this.state.initialNotes} {this.state.studyVersion == 2 && this.state.remote && " + working remotely"}</span>*/}
-                                    </div>
                                     <div id="subtext">{this.state.resumeList[4]["edu_university"]}
                                         <div id="subinfo">{this.state.resumeList[4]["edu_degree"]}, {this.state.resumeList[4]["edu_major"]}</div>
                                         <div id="subinfogray">{this.state.resumeList[4]["edu_duration"]}</div>
@@ -586,7 +567,6 @@ class Resume extends React.Component {
                                     <div id="subtext"> {this.state.resumeList[4]["work1_title"]}
                                         <div id="horizontal">
                                             <div id="subinfo">{this.state.resumeList[4]["work1_company"]}</div>
-                                            <div id="subinfo"><i>{this.state.resumeList[4]["work1_location"]}</i></div>
                                         </div>
                                         <div id="subinfogray">{this.state.resumeList[4]["work1_duration"]}</div>
                                         <div id="subinfo">{this.state.resumeList[4]["work1_description"]}</div>
