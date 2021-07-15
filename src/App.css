@@ -16,8 +16,8 @@
     justify-content: center;
 }
 
-.resume{
-    width: 75%;
+.resume_master{
+    width: 95%;
     margin-top: 5%;
     margin-bottom: 5%;
     background-color: white;
@@ -25,6 +25,15 @@
     padding-left: 3%;
     padding-top: 3%;
     padding-bottom: 3%;
+    margin-right: 0;
+}
+
+.resume{
+    width: 100%;
+    margin-bottom: 3%;
+    background-color: white;
+    text-align: start;
+    padding-top: 3%;
 }
 
 #root{
@@ -34,7 +43,17 @@
 
 .header{
     font-size: 20px;
-    padding-top: 3%;
+    padding-top: 0;
+}
+
+.fit_content{
+    width: 20%;
+    max-width: 20%;
+}
+
+.expand{
+    width: 100%;
+    max-width: 100%;
 }
 
 .section{
@@ -69,6 +88,12 @@ ul{
     justify-content: space-between;
 }
 
+#horizontal_master{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
 .horizontal{
     display: flex;
     flex-direction: row;
@@ -83,7 +108,7 @@ ul{
 }
 
 #subinfo{
-    font-size: 14px;
+    font-size: 15px;
     padding-top: 5px;
     padding-bottom: 5px;
     font-weight: normal;
@@ -96,7 +121,7 @@ ul{
 }
 
 .profile_image{
-    width: 25%;
+    width: 75%;
     border-radius: 50%;
     border: solid black 1px;
 }

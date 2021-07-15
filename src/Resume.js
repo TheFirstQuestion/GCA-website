@@ -29,6 +29,7 @@ class Resume extends React.Component {
         super(props);
         this.state = {
             //women and men (pulled from props)
+            page: 1, 
             women: 1,
             men: 1,
             linkEnding: "1w4m",
@@ -51,7 +52,7 @@ class Resume extends React.Component {
             notesOpenedCount: 0,
 
             //activityData: [],
-
+ 
             modalOpened: false,
             enterID: '',
 
@@ -119,10 +120,15 @@ class Resume extends React.Component {
                         "eat", "drink", "sleep", "wake", "jump", "fall", "alaska", "florida", "idaho", "ohio",
                     ];
         this.activityCounter = 1;
+        this.num = '';
         this.selectNames = this.selectNames.bind(this);
         this.shuffle = this.shuffle.bind(this)
         this.generateUniqueID = this.generateUniqueID.bind(this)
         this.selectHeadshots = this.selectHeadshots.bind(this);
+        this.renderBulletList = this.renderBulletList.bind(this);
+        this.submitUserID = this.submitUserID.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this.populateValues = this.populateValues.bind(this);
     }
 
     componentDidMount(){
@@ -131,9 +137,16 @@ class Resume extends React.Component {
 
         const db = firebase.firestore();
 
-        this.setState({men: this.props.men});
-        this.setState({women: this.props.women}, () => {
-            this.generateUniqueID();
+        this.setState({page: this.props.page}, () => {
+            if(this.state.page == 2){
+                this.setState({modalOpened: true})
+            }
+            else{
+                this.setState({men: this.props.men});
+                this.setState({women: this.props.women}, () => {
+                    this.generateUniqueID();
+                });
+            }
         });
     }
 
@@ -287,10 +300,26 @@ class Resume extends React.Component {
             new_dict["edu_university"] = doc.data().edu_university
 
             new_dict["work1_company"] = doc.data().work1_company
-            new_dict["work1_description"] = doc.data().work1_description
+            new_dict["work1_description"] = this.renderBulletList(doc.data().work1_description)
             new_dict["work1_duration"] = doc.data().work1_duration
             new_dict["work1_location"] = doc.data().work1_location
             new_dict["work1_title"] = doc.data().work1_title
+
+            new_dict["work2_company"] = doc.data().work2_company
+            if(doc.data().work2_description != null){
+                new_dict["work2_description"] = this.renderBulletList(doc.data().work2_description)
+            }
+            new_dict["work2_duration"] = doc.data().work2_duration
+            new_dict["work2_location"] = doc.data().work2_location
+            new_dict["work2_title"] = doc.data().work2_title
+
+            new_dict["work3_company"] = doc.data().work3_company
+            if(doc.data().work3_description != null){
+                new_dict["work3_description"] = this.renderBulletList(doc.data().work3_description)
+            }
+            new_dict["work3_duration"] = doc.data().work3_duration
+            new_dict["work3_location"] = doc.data().work3_location
+            new_dict["work3_title"] = doc.data().work3_title
         })
 
         this.state.resumeList.push(new_dict)
@@ -327,57 +356,138 @@ class Resume extends React.Component {
         //return array;
     }
 
-    renderBulletList = () => {
-        if(this.state.bulletList.length > 0){
-            let viewBulletList = []
-            this.state.bulletList.forEach((item, index) => {
-                if(item != " " && item != "" && item != null){
-                    viewBulletList.push(
-                        <li>{item}</li>
-                    )
+    renderBulletList(workDescription){
+        let viewBulletList = []
+        let bulletList = workDescription.split(".")
+        bulletList.forEach((item, index) => {
+            if(item != " " && item != "" && item != null){
+                viewBulletList.push(
+                    <li>{item}</li>
+                )
+            }
+        })
+        return viewBulletList
+    }
+
+    submitUserID(){
+        if(this.state.enterID == null || this.state.enterID == ''){
+            this.setState({errorMessage: true})
+            return;
+        }
+
+        let userID = this.state.enterID.replace(/[.,\/#!$%\^&\*;:{}=\-_'`~()]/g,"");
+        userID = userID.replace(/\s{2,}/g," ");
+        userID = userID.replace(/\s/g,'');
+        userID = userID.toLowerCase();
+        //console.log("USER ID:" + userID + "hello")
+
+        //read database to see if this ID exists
+        const db = firebase.firestore();
+        const idRef = db.collection("userIDs").doc(userID)
+        idRef.get()
+            .then((docSnapshot) => {
+                if (docSnapshot.exists) {
+                    idRef.onSnapshot((doc) => {
+                        console.log("VALID: THIS DOES EXIST")
+                        this.setState({errorMessage: false})
+                        this.setState({currentUserID: userID}, () => {
+                            this.populateValues();
+                            this.setState({modalOpened: false})
+                        })
+                    });
+                } 
+                else {
+                    console.log("INVALID: DOES NOT EXIST")
+            
+                    //prompt them to re-enter
+                    this.setState({errorMessage: true})
                 }
-            })
-            return viewBulletList
-        }
-        else{
-            return null
-        }
+            });
+    }
+
+    populateValues(){
+        const db = firebase.firestore();
+
+        //get names
+        db.collection("userIDs").doc(this.state.currentUserID).get().then((doc) => {
+            for(let i = 1; i <= 5; i++){
+                let curr_name = doc.data()["candidate" + i + "_name"]
+                //let curr_gender = curr_name.substring(0, index)
+                //console.log("gender: " + curr_gender)
+                //this.state.genderOrder.push(curr_gender)
+                this.state.names.push(curr_name)
+            }
+            console.log("NAME ORDER")
+            console.log(this.state.names)
+        })
+
+        //get headshots
+        db.collection("userIDs").doc(this.state.currentUserID).get().then((doc) => {
+            for(let i = 1; i <= 5; i++){
+                let headshot = doc.data()["candidate" + i + "_headshot"]
+                this.state.headshotOrder.push(headshot)
+            }
+            console.log("HEADSHOT ORDER")
+            console.log(this.state.headshotOrder)
+        })
+
+        //get resume order
+        db.collection("userIDs").doc(this.state.currentUserID).get().then((doc) => {
+            for(let i = 1; i <= 5; i++){
+                let resume = doc.data()["candidate" + i + "_resume"]
+                this.state.resumes[i-1] = resume
+            }
+            console.log("RESUME ORDER")
+            console.log(this.state.resumes)
+            this.pullValues(0)
+        })
+    }
+
+    handleChange(event) {
+        this.setState({enterID: event.target.value})
     }
 
     collapsibleOpened(e){
-        const db = firebase.firestore();
+        //only tracking activity for page 1
+        if(this.state.page == 1){
+            const db = firebase.firestore();
 
-        this.activityCounter = this.activityCounter + 1;
-        let count = this.activityCounter.toString();
-        let description = '';
+            this.activityCounter = this.activityCounter + 1;
+            let count = this.activityCounter.toString();
+            let description = '';
 
-        var options = { hour12: false };
-        let time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
+            var options = { hour12: false };
+            let time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
 
-        console.log("OPENED OR CLOSED: " + this.state["section" + (e + 1) + "opened"])
-        if(!this.state["section" + (e + 1) + "opened"]){
-            description = "closed resume " + (e + 1);
+            console.log("OPENED OR CLOSED: " + this.state["section" + (e + 1) + "opened"])
+            if(!this.state["section" + (e + 1) + "opened"]){
+                description = "closed resume " + (e + 1);
+            }
+            else{
+                description = "opened resume " + (e + 1);
+            }
+        
+            const addDoc = db.collection("userIDs").doc(this.state.currentUserID).collection("activityData").doc(count).set({
+                "time": time,
+                "description": description,
+            });
         }
-        else{
-            description = "opened resume " + (e + 1);
-        }
-    
-        const addDoc = db.collection("userIDs").doc(this.state.currentUserID).collection("activityData").doc(count).set({
-            "time": time,
-            "description": description,
-        });
     }
 
     render() {
         console.log("list length: " + this.state.resumeList.length)
-        /*if(this.state.resumeList.length == 5){
-            console.log(this.state.resumeList[0]["edu_degree"])
-        }*/
         return (
             <div className="overall">
                 <div className="App">
-                    <div className="resume">
-                        {this.state.resumeList.length == 5 && 
+                    <div className="resume_master">
+                        <ModalReact className="modal_dtp"
+                            isOpen={this.state.modalOpened}>
+                            <div>enter code: </div>
+                            <input onChange={this.handleChange.bind(this)} value={this.state.enterID} />
+                            <button onClick={() => this.submitUserID()}> Submit </button>
+                            {this.state.errorMessage && <div id="red">Invalid ID. Please re-enter.</div>}
+                        </ModalReact>
+                        {this.state.resumeList.length == 5 && !this.state.modalOpened && 
                         <Accordion>
                             <Card>
                                 <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0}}>
@@ -398,24 +508,45 @@ class Resume extends React.Component {
                                 </Card.Header>
                                 <Accordion.Collapse eventKey="0">
                                 <Card.Body>
-                                <div className="resume">
-                                    <img className="profile_image" src={"http://drive.google.com/uc?export=view&id=" + this.state.headshotOrder[0]} alt="" />
-                                    <div className="header">Education</div>
-                                    <div id="subtext">{this.state.resumeList[0]["edu_university"]}
-                                        <div id="subinfo">{this.state.resumeList[0]["edu_degree"]}, {this.state.resumeList[0]["edu_major"]}</div>
-                                        <div id="subinfogray">{this.state.resumeList[0]["edu_duration"]}</div>
+                                <div className="resume" id="horizontal_master">
+                                    <div className="fit_content">
+                                        <img className="profile_image" src={"http://drive.google.com/uc?export=view&id=" + this.state.headshotOrder[0]} alt="" />
                                     </div>
-                                    <Divider />
-                                    <div className="header">Experience</div>
-                                    <div id="subtext"> {this.state.resumeList[0]["work1_title"]}
-                                        <div id="horizontal">
-                                            <div id="subinfo">{this.state.resumeList[0]["work1_company"]}</div>
-                                        </div>
-                                        <div id="subinfogray">{this.state.resumeList[0]["work1_duration"]}</div>
-                                        <div id="subinfo">{this.state.resumeList[0]["work1_description"]}</div>
-                                    </div>
-                                    <Divider />
+                                    <div className="header">{this.state.names[0]}</div>
                                 </div>
+                                    <div className="expand">
+                                        <div className="header">Work Experience</div>
+                                        <div id="subtext"> {this.state.resumeList[0]["work1_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[0]["work1_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[0]["work1_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[0]["work1_description"]}</div>
+                                        </div>
+                                        <div id="subtext"> {this.state.resumeList[0]["work2_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[0]["work2_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[0]["work2_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[0]["work2_description"]}</div>
+                                        </div>
+                                        <div id="subtext"> {this.state.resumeList[0]["work3_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[0]["work3_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[0]["work3_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[0]["work3_description"]}</div>
+                                        </div>
+                                        <div className="header">Education</div>
+                                        <div id="subtext">{this.state.resumeList[0]["edu_degree"]}, {this.state.resumeList[0]["edu_major"]}
+                                            <div id="subinfo">{this.state.resumeList[0]["edu_university"]}</div>
+                                            <div id="subinfogray">{this.state.resumeList[0]["edu_duration"]}</div>
+                                        </div>
+                                        <Button onClick={() => this.setState({section1opened: !this.state.section1opened}, () => {
+                                            console.log("closing section1")
+                                            this.collapsibleOpened(0);
+                                        })}>Close Resume</Button>
+                                    </div>
                                 </Card.Body>
                                 </Accordion.Collapse>
                             </Card>
@@ -438,22 +569,40 @@ class Resume extends React.Component {
                                 </Card.Header>
                                 <Accordion.Collapse eventKey="1">
                                 <Card.Body>
-                                <div className="resume">
-                                    <img className="profile_image" src={"http://drive.google.com/uc?export=view&id=" + this.state.headshotOrder[1]} alt="" />
-                                    <div className="header">{this.state.name}</div>
-
-                                    <div id="subtext">{this.state.resumeList[1]["edu_university"]}
-                                        <div id="subinfo">{this.state.resumeList[1]["edu_degree"]}, {this.state.resumeList[1]["edu_major"]}</div>
-                                        <div id="subinfogray">{this.state.resumeList[1]["edu_duration"]}</div>
-                                    </div>
-                                    <div id="subtext"> {this.state.resumeList[1]["work1_title"]}
-                                        <div id="horizontal">
-                                            <div id="subinfo">{this.state.resumeList[1]["work1_company"]}</div>
+                                <div className="resume" id="horizontal_master">
+                                    <div className="fit_content">
+                                        <img className="profile_image" src={"http://drive.google.com/uc?export=view&id=" + this.state.headshotOrder[1]} alt="" />
                                         </div>
-                                        <div id="subinfogray">{this.state.resumeList[1]["work1_duration"]}</div>
-                                        <div id="subinfo">{this.state.resumeList[1]["work1_description"]}</div>
-                                    </div>
-                                    <Divider />
+                                    <div className="header">{this.state.names[1]}</div>
+                                </div>
+                                    <div className="expand">
+                                        <div className="header">Work Experience</div>
+                                        <div id="subtext"> {this.state.resumeList[1]["work1_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[1]["work1_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[1]["work1_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[1]["work1_description"]}</div>
+                                        </div>
+                                        <div id="subtext"> {this.state.resumeList[1]["work2_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[1]["work2_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[1]["work2_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[1]["work2_description"]}</div>
+                                        </div>
+                                        <div id="subtext"> {this.state.resumeList[1]["work3_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[1]["work3_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[1]["work3_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[1]["work3_description"]}</div>
+                                        </div>
+                                        <div className="header">Education</div>
+                                        <div id="subtext">{this.state.resumeList[1]["edu_degree"]}, {this.state.resumeList[1]["edu_major"]}
+                                            <div id="subinfo">{this.state.resumeList[1]["edu_university"]}</div>
+                                            <div id="subinfogray">{this.state.resumeList[1]["edu_duration"]}</div>
+                                        </div>
                                 </div>
                                 </Card.Body>
                                 </Accordion.Collapse>
@@ -477,23 +626,40 @@ class Resume extends React.Component {
                                 </Card.Header>
                                 <Accordion.Collapse eventKey="2">
                                 <Card.Body>
-                                <div className="resume">
-                                    <img className="profile_image" src={"http://drive.google.com/uc?export=view&id=" + this.state.headshotOrder[2]} alt="" />
-                                    <div className="header">{this.state.name}</div>
-
-                                    <div id="subtext">{this.state.resumeList[2]["edu_university"]}
-                                        <div id="subinfo">{this.state.resumeList[2]["edu_degree"]}, {this.state.resumeList[2]["edu_major"]}</div>
-                                        <div id="subinfogray">{this.state.resumeList[2]["edu_duration"]}</div>
-                                    </div>
-
-                                    <div id="subtext"> {this.state.resumeList[2]["work1_title"]}
-                                        <div id="horizontal">
-                                            <div id="subinfo">{this.state.resumeList[2]["work1_company"]}</div>
+                                <div className="resume" id="horizontal_master">
+                                    <div className="fit_content">
+                                        <img className="profile_image" src={"http://drive.google.com/uc?export=view&id=" + this.state.headshotOrder[2]} alt="" />
                                         </div>
-                                        <div id="subinfogray">{this.state.resumeList[2]["work1_duration"]}</div>
-                                        <div id="subinfo">{this.state.resumeList[2]["work1_description"]}</div>
-                                    </div>
-                                    <Divider />
+                                    <div className="header">{this.state.names[2]}</div>
+                                </div>
+                                    <div className="expand">
+                                        <div className="header">Work Experience</div>
+                                        <div id="subtext"> {this.state.resumeList[2]["work1_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[2]["work1_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[2]["work1_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[2]["work1_description"]}</div>
+                                        </div>
+                                        <div id="subtext"> {this.state.resumeList[2]["work2_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[2]["work2_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[2]["work2_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[2]["work2_description"]}</div>
+                                        </div>
+                                        <div id="subtext"> {this.state.resumeList[2]["work3_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[2]["work3_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[2]["work3_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[2]["work3_description"]}</div>
+                                        </div>
+                                        <div className="header">Education</div>
+                                        <div id="subtext">{this.state.resumeList[2]["edu_degree"]}, {this.state.resumeList[2]["edu_major"]}
+                                            <div id="subinfo">{this.state.resumeList[2]["edu_university"]}</div>
+                                            <div id="subinfogray">{this.state.resumeList[2]["edu_duration"]}</div>
+                                        </div>
                                 </div>
                                 </Card.Body>
                                 </Accordion.Collapse>
@@ -517,22 +683,40 @@ class Resume extends React.Component {
                                 </Card.Header>
                                 <Accordion.Collapse eventKey="3">
                                 <Card.Body>
-                                <div className="resume">
-                                    <img className="profile_image" src={"http://drive.google.com/uc?export=view&id=" + this.state.headshotOrder[3]} alt="" />
-                                    <div className="header">{this.state.name}</div>
-
-                                    <div id="subtext">{this.state.resumeList[3]["edu_university"]}
-                                        <div id="subinfo">{this.state.resumeList[3]["edu_degree"]}, {this.state.resumeList[3]["edu_major"]}</div>
-                                        <div id="subinfogray">{this.state.resumeList[3]["edu_duration"]}</div>
-                                    </div>
-                                    <div id="subtext"> {this.state.resumeList[3]["work1_title"]}
-                                        <div id="horizontal">
-                                            <div id="subinfo">{this.state.resumeList[3]["work1_company"]}</div>
+                                <div className="resume" id="horizontal_master">
+                                    <div className="fit_content">
+                                        <img className="profile_image" src={"http://drive.google.com/uc?export=view&id=" + this.state.headshotOrder[3]} alt="" />
                                         </div>
-                                        <div id="subinfogray">{this.state.resumeList[3]["work1_duration"]}</div>
-                                        <div id="subinfo">{this.state.resumeList[3]["work1_description"]}</div>
-                                    </div>
-                                    <Divider />
+                                    <div className="header">{this.state.names[3]}</div>
+                                </div>
+                                    <div className="expand">
+                                        <div className="header">Work Experience</div>
+                                        <div id="subtext"> {this.state.resumeList[3]["work1_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[3]["work1_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[3]["work1_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[3]["work1_description"]}</div>
+                                        </div>
+                                        <div id="subtext"> {this.state.resumeList[3]["work2_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[3]["work2_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[3]["work2_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[3]["work2_description"]}</div>
+                                        </div>
+                                        <div id="subtext"> {this.state.resumeList[3]["work3_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[3]["work3_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[3]["work3_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[3]["work3_description"]}</div>
+                                        </div>
+                                        <div className="header">Education</div>
+                                        <div id="subtext">{this.state.resumeList[3]["edu_degree"]}, {this.state.resumeList[3]["edu_major"]}
+                                            <div id="subinfo">{this.state.resumeList[3]["edu_university"]}</div>
+                                            <div id="subinfogray">{this.state.resumeList[3]["edu_duration"]}</div>
+                                        </div>
                                 </div>
                                 </Card.Body>
                                 </Accordion.Collapse>
@@ -556,23 +740,41 @@ class Resume extends React.Component {
                                 </Card.Header>
                                 <Accordion.Collapse eventKey="4">
                                 <Card.Body>
-                                <div className="resume">
-                                    <img className="profile_image" src={"http://drive.google.com/uc?export=view&id=" + this.state.headshotOrder[4]} alt="" />
-                                    <div className="header">{this.state.name}</div>
-
-                                    <div id="subtext">{this.state.resumeList[4]["edu_university"]}
-                                        <div id="subinfo">{this.state.resumeList[4]["edu_degree"]}, {this.state.resumeList[4]["edu_major"]}</div>
-                                        <div id="subinfogray">{this.state.resumeList[4]["edu_duration"]}</div>
+                                <div className="resume" id="horizontal_master">
+                                    <div className="fit_content">
+                                        <img className="profile_image" src={"http://drive.google.com/uc?export=view&id=" + this.state.headshotOrder[4]} alt="" />
                                     </div>
-                                    <div id="subtext"> {this.state.resumeList[4]["work1_title"]}
-                                        <div id="horizontal">
-                                            <div id="subinfo">{this.state.resumeList[4]["work1_company"]}</div>
-                                        </div>
-                                        <div id="subinfogray">{this.state.resumeList[4]["work1_duration"]}</div>
-                                        <div id="subinfo">{this.state.resumeList[4]["work1_description"]}</div>
-                                    </div>
-                                    <Divider />
+                                    <div className="header">{this.state.names[4]}</div>
                                 </div>
+                                    <div className="expand">
+                                        <div className="header">Work Experience</div>
+                                        <div id="subtext"> {this.state.resumeList[4]["work1_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[4]["work1_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[4]["work1_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[4]["work1_description"]}</div>
+                                        </div>
+                                        <div id="subtext"> {this.state.resumeList[4]["work2_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[4]["work2_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[4]["work2_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[4]["work2_description"]}</div>
+                                        </div>
+                                        <div id="subtext"> {this.state.resumeList[4]["work3_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[4]["work3_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[4]["work3_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[4]["work3_description"]}</div>
+                                        </div>
+                                        <div className="header">Education</div>
+                                        <div id="subtext">{this.state.resumeList[4]["edu_degree"]}, {this.state.resumeList[4]["edu_major"]}
+                                            <div id="subinfo">{this.state.resumeList[4]["edu_university"]}</div>
+                                            <div id="subinfogray">{this.state.resumeList[4]["edu_duration"]}</div>
+                                        </div>
+                                    </div>
                                 </Card.Body>
                                 </Accordion.Collapse>
                             </Card>

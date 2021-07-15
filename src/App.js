@@ -20,25 +20,31 @@ class App extends React.Component {
                 <Route 
                     path='/1w4m'
                     render={(props) => (
-                        <Resume {...props} women={1} men={4}/>
+                        <Resume {...props}  page={1} women={1} men={4}/>
                     )}
                 />
                 <Route 
                     path='/2w3m'
                     render={(props) => (
-                        <Resume {...props} women={2} men={3}/>
+                        <Resume {...props}  page={1} women={2} men={3}/>
                     )}
                 />
                 <Route 
                     path='/3w2m'
                     render={(props) => (
-                        <Resume {...props} women={3} men={2}/>
+                        <Resume {...props}  page={1} women={3} men={2}/>
                     )}
                 />
                 <Route 
                     path='/4w1m'
                     render={(props) => (
-                        <Resume {...props} women={4} men={1}/>
+                        <Resume {...props}  page={1} women={4} men={1}/>
+                    )}
+                />
+                <Route 
+                    path='/page2'
+                    render={(props) => (
+                        <Resume {...props} page={2}/>
                     )}
                 />
             </HashRouter>
