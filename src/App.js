@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
 import Resume from './Resume';
 import PracticeResume from './PracticeResume';
-import ReadData from './ReadData';
 import './App.css';
 import { CSVLink, CSVDownload } from 'react-csv';
 import { HashRouter, Route, Link } from 'react-router-dom';
+import Admin from './Admin';
 
 class App extends React.Component {
     constructor(props) {
@@ -45,6 +45,12 @@ class App extends React.Component {
                     path='/page2'
                     render={(props) => (
                         <Resume {...props} page={2}/>
+                    )}
+                />
+                <Route 
+                    path='/admin'
+                    render={(props) => (
+                        <Admin {...props} />
                     )}
                 />
             </HashRouter>
