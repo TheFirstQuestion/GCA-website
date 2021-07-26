@@ -542,10 +542,6 @@ class Resume extends React.Component {
                                             <div id="subinfo">{this.state.resumeList[0]["edu_university"]}</div>
                                             <div id="subinfogray">{this.state.resumeList[0]["edu_duration"]}</div>
                                         </div>
-                                        <Button onClick={() => this.setState({section1opened: !this.state.section1opened}, () => {
-                                            console.log("closing section1")
-                                            this.collapsibleOpened(0);
-                                        })}>Close Resume</Button>
                                     </div>
                                 </Card.Body>
                                 </Accordion.Collapse>
