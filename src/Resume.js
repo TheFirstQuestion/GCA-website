@@ -22,6 +22,8 @@ import Card from 'react-bootstrap/Card';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { makeStyles } from '@material-ui/core';
 import { mockComponent } from 'react-dom/test-utils';
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import 'react-tabs/style/react-tabs.css';
 var moment = require('moment-timezone');
 
 class Resume extends React.Component {
@@ -448,6 +450,14 @@ class Resume extends React.Component {
     }
 
     collapsibleOpened(e){
+        let val = this.state["section" + (e + 1) + "opened"]
+        console.log(this.state["section" + (e + 1) + "opened"])
+        console.log(!val)
+        this.setState({["section" + (e+1) + "opened"] : !val})
+        console.log("section" + (e+1) + "opened")
+        console.log(this.state["section" + (e + 1) + "opened"])
+        //section5opened: !this.state.section5opened
+        this.setState({reload: true})
         //only tracking activity for page 1
         if(this.state.page == 1){
             const db = firebase.firestore();
@@ -460,11 +470,14 @@ class Resume extends React.Component {
             let time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
 
             console.log("OPENED OR CLOSED: " + this.state["section" + (e + 1) + "opened"])
-            if(!this.state["section" + (e + 1) + "opened"]){
+            /*if(!this.state["section" + (e + 1) + "opened"]){
                 description = "closed resume " + (e + 1);
             }
-            else{
+            else{*/
                 description = "opened resume " + (e + 1);
+            //}
+            if(e == 0){
+                description = "opened job description"
             }
         
             const addDoc = db.collection("userIDs").doc(this.state.currentUserID).collection("activityData").doc(count).set({
@@ -488,7 +501,218 @@ class Resume extends React.Component {
                             {this.state.errorMessage && <div id="red">Invalid ID. Please re-enter.</div>}
                         </ModalReact>
                         {this.state.resumeList.length == 5 && !this.state.modalOpened && 
-                        <Accordion>
+                        <div>
+                        <Tabs defaultIndex={0} onSelect={index => this.collapsibleOpened(index-1)}>
+                            <TabList>
+                                <Tab>Job Description</Tab>
+                                <Tab>{this.state.names[0]}</Tab>
+                                <Tab>{this.state.names[1]}</Tab>
+                                <Tab>{this.state.names[2]}</Tab>
+                                <Tab>{this.state.names[3]}</Tab>
+                                <Tab>{this.state.names[4]}</Tab>
+                            </TabList>
+                    
+                            <TabPanel>
+                                Job Description asdfghjkl;
+                            </TabPanel>
+                            <TabPanel>
+                                <Card.Body>
+                                    <div className="resume" id="horizontal_master">
+                                        <div className="fit_content">
+                                            <img className="profile_image" src={"http://drive.google.com/uc?export=view&id=" + this.state.headshotOrder[0]} alt="" />
+                                        </div>
+                                        <div className="header">{this.state.names[0]}</div>
+                                    </div>
+                                    <div className="expand">
+                                        <div className="header">Work Experience</div>
+                                        <div id="subtext"> {this.state.resumeList[0]["work1_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[0]["work1_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[0]["work1_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[0]["work1_description"]}</div>
+                                        </div>
+                                        <div id="subtext"> {this.state.resumeList[0]["work2_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[0]["work2_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[0]["work2_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[0]["work2_description"]}</div>
+                                        </div>
+                                        <div id="subtext"> {this.state.resumeList[0]["work3_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[0]["work3_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[0]["work3_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[0]["work3_description"]}</div>
+                                        </div>
+                                        <div className="header">Education</div>
+                                        <div id="subtext">{this.state.resumeList[0]["edu_degree"]}, {this.state.resumeList[0]["edu_major"]}
+                                            <div id="subinfo">{this.state.resumeList[0]["edu_university"]}</div>
+                                            <div id="subinfogray">{this.state.resumeList[0]["edu_duration"]}</div>
+                                        </div>
+                                    </div>
+                                </Card.Body>
+                            </TabPanel>
+                            <TabPanel>
+                                <Card.Body>
+                                    <div className="resume" id="horizontal_master">
+                                        <div className="fit_content">
+                                            <img className="profile_image" src={"http://drive.google.com/uc?export=view&id=" + this.state.headshotOrder[1]} alt="" />
+                                            </div>
+                                        <div className="header">{this.state.names[1]}</div>
+                                    </div>
+                                        <div className="expand">
+                                            <div className="header">Work Experience</div>
+                                            <div id="subtext"> {this.state.resumeList[1]["work1_title"]}
+                                                <div id="horizontal">
+                                                    <div id="subinfo">{this.state.resumeList[1]["work1_company"]}</div>
+                                                </div>
+                                                <div id="subinfogray">{this.state.resumeList[1]["work1_duration"]}</div>
+                                                <div id="subinfo">{this.state.resumeList[1]["work1_description"]}</div>
+                                            </div>
+                                            <div id="subtext"> {this.state.resumeList[1]["work2_title"]}
+                                                <div id="horizontal">
+                                                    <div id="subinfo">{this.state.resumeList[1]["work2_company"]}</div>
+                                                </div>
+                                                <div id="subinfogray">{this.state.resumeList[1]["work2_duration"]}</div>
+                                                <div id="subinfo">{this.state.resumeList[1]["work2_description"]}</div>
+                                            </div>
+                                            <div id="subtext"> {this.state.resumeList[1]["work3_title"]}
+                                                <div id="horizontal">
+                                                    <div id="subinfo">{this.state.resumeList[1]["work3_company"]}</div>
+                                                </div>
+                                                <div id="subinfogray">{this.state.resumeList[1]["work3_duration"]}</div>
+                                                <div id="subinfo">{this.state.resumeList[1]["work3_description"]}</div>
+                                            </div>
+                                            <div className="header">Education</div>
+                                            <div id="subtext">{this.state.resumeList[1]["edu_degree"]}, {this.state.resumeList[1]["edu_major"]}
+                                                <div id="subinfo">{this.state.resumeList[1]["edu_university"]}</div>
+                                                <div id="subinfogray">{this.state.resumeList[1]["edu_duration"]}</div>
+                                            </div>
+                                    </div>
+                                </Card.Body>
+                            </TabPanel>
+                            <TabPanel>
+                                <Card.Body>
+                                    <div className="resume" id="horizontal_master">
+                                        <div className="fit_content">
+                                            <img className="profile_image" src={"http://drive.google.com/uc?export=view&id=" + this.state.headshotOrder[2]} alt="" />
+                                            </div>
+                                        <div className="header">{this.state.names[2]}</div>
+                                    </div>
+                                        <div className="expand">
+                                            <div className="header">Work Experience</div>
+                                            <div id="subtext"> {this.state.resumeList[2]["work1_title"]}
+                                                <div id="horizontal">
+                                                    <div id="subinfo">{this.state.resumeList[2]["work1_company"]}</div>
+                                                </div>
+                                                <div id="subinfogray">{this.state.resumeList[2]["work1_duration"]}</div>
+                                                <div id="subinfo">{this.state.resumeList[2]["work1_description"]}</div>
+                                            </div>
+                                            <div id="subtext"> {this.state.resumeList[2]["work2_title"]}
+                                                <div id="horizontal">
+                                                    <div id="subinfo">{this.state.resumeList[2]["work2_company"]}</div>
+                                                </div>
+                                                <div id="subinfogray">{this.state.resumeList[2]["work2_duration"]}</div>
+                                                <div id="subinfo">{this.state.resumeList[2]["work2_description"]}</div>
+                                            </div>
+                                            <div id="subtext"> {this.state.resumeList[2]["work3_title"]}
+                                                <div id="horizontal">
+                                                    <div id="subinfo">{this.state.resumeList[2]["work3_company"]}</div>
+                                                </div>
+                                                <div id="subinfogray">{this.state.resumeList[2]["work3_duration"]}</div>
+                                                <div id="subinfo">{this.state.resumeList[2]["work3_description"]}</div>
+                                            </div>
+                                            <div className="header">Education</div>
+                                            <div id="subtext">{this.state.resumeList[2]["edu_degree"]}, {this.state.resumeList[2]["edu_major"]}
+                                                <div id="subinfo">{this.state.resumeList[2]["edu_university"]}</div>
+                                                <div id="subinfogray">{this.state.resumeList[2]["edu_duration"]}</div>
+                                            </div>
+                                    </div>
+                                </Card.Body>
+                            </TabPanel>
+                            <TabPanel>
+                                <Card.Body>
+                                    <div className="resume" id="horizontal_master">
+                                        <div className="fit_content">
+                                            <img className="profile_image" src={"http://drive.google.com/uc?export=view&id=" + this.state.headshotOrder[3]} alt="" />
+                                            </div>
+                                        <div className="header">{this.state.names[3]}</div>
+                                    </div>
+                                        <div className="expand">
+                                            <div className="header">Work Experience</div>
+                                            <div id="subtext"> {this.state.resumeList[3]["work1_title"]}
+                                                <div id="horizontal">
+                                                    <div id="subinfo">{this.state.resumeList[3]["work1_company"]}</div>
+                                                </div>
+                                                <div id="subinfogray">{this.state.resumeList[3]["work1_duration"]}</div>
+                                                <div id="subinfo">{this.state.resumeList[3]["work1_description"]}</div>
+                                            </div>
+                                            <div id="subtext"> {this.state.resumeList[3]["work2_title"]}
+                                                <div id="horizontal">
+                                                    <div id="subinfo">{this.state.resumeList[3]["work2_company"]}</div>
+                                                </div>
+                                                <div id="subinfogray">{this.state.resumeList[3]["work2_duration"]}</div>
+                                                <div id="subinfo">{this.state.resumeList[3]["work2_description"]}</div>
+                                            </div>
+                                            <div id="subtext"> {this.state.resumeList[3]["work3_title"]}
+                                                <div id="horizontal">
+                                                    <div id="subinfo">{this.state.resumeList[3]["work3_company"]}</div>
+                                                </div>
+                                                <div id="subinfogray">{this.state.resumeList[3]["work3_duration"]}</div>
+                                                <div id="subinfo">{this.state.resumeList[3]["work3_description"]}</div>
+                                            </div>
+                                            <div className="header">Education</div>
+                                            <div id="subtext">{this.state.resumeList[3]["edu_degree"]}, {this.state.resumeList[3]["edu_major"]}
+                                                <div id="subinfo">{this.state.resumeList[3]["edu_university"]}</div>
+                                                <div id="subinfogray">{this.state.resumeList[3]["edu_duration"]}</div>
+                                            </div>
+                                    </div>
+                                </Card.Body>
+                            </TabPanel>
+                            <TabPanel>
+                                <Card.Body>
+                                    <div className="resume" id="horizontal_master">
+                                        <div className="fit_content">
+                                            <img className="profile_image" src={"http://drive.google.com/uc?export=view&id=" + this.state.headshotOrder[4]} alt="" />
+                                        </div>
+                                        <div className="header">{this.state.names[4]}</div>
+                                    </div>
+                                    <div className="expand">
+                                        <div className="header">Work Experience</div>
+                                        <div id="subtext"> {this.state.resumeList[4]["work1_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[4]["work1_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[4]["work1_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[4]["work1_description"]}</div>
+                                        </div>
+                                        <div id="subtext"> {this.state.resumeList[4]["work2_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[4]["work2_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[4]["work2_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[4]["work2_description"]}</div>
+                                        </div>
+                                        <div id="subtext"> {this.state.resumeList[4]["work3_title"]}
+                                            <div id="horizontal">
+                                                <div id="subinfo">{this.state.resumeList[4]["work3_company"]}</div>
+                                            </div>
+                                            <div id="subinfogray">{this.state.resumeList[4]["work3_duration"]}</div>
+                                            <div id="subinfo">{this.state.resumeList[4]["work3_description"]}</div>
+                                        </div>
+                                        <div className="header">Education</div>
+                                        <div id="subtext">{this.state.resumeList[4]["edu_degree"]}, {this.state.resumeList[4]["edu_major"]}
+                                            <div id="subinfo">{this.state.resumeList[4]["edu_university"]}</div>
+                                            <div id="subinfogray">{this.state.resumeList[4]["edu_duration"]}</div>
+                                        </div>
+                                    </div>
+                                </Card.Body>
+                            </TabPanel>
+                        </Tabs>
+
+                        {/*<Accordion>
                             <Card>
                                 <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0}}>
                                 <Accordion.Toggle as={Button}  
@@ -774,7 +998,8 @@ class Resume extends React.Component {
                                 </Card.Body>
                                 </Accordion.Collapse>
                             </Card>
-                        </Accordion>
+                        </Accordion>*/}
+                        </div>
                         }               
                         </div>
                     </div>

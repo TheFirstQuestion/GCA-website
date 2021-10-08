@@ -25,6 +25,7 @@
     "react-pdf": "^5.1.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.0",
+    "react-tabs": "^3.2.2",
     "recompose": "^0.30.0",
     "scraperapi-sdk": "^1.0.6",
     "web-vitals": "^0.2.4"
