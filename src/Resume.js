@@ -183,11 +183,21 @@ class Resume extends React.Component {
                         console.log("set currentUserID to: " + this.state.currentUserID)
                         
                         this.setState({linkEnding: this.state.women + "w" + this.state.men + "m"}, () => {
+                            this.getJobDescription();
                             this.selectNames();
                         })
                     })
                 }
             });
+    }
+
+    getJobDescription(){
+        const db = firebase.firestore();
+        db.collection("job_description").doc("values").get().then((doc) => {
+            this.state.job_title = doc.data().job_title
+            this.state.main_tasks = this.renderBulletList(doc.data().main_tasks)
+            this.state.req_skills = this.renderBulletList(doc.data().req_skills)
+        })
     }
 
     selectNames(number_men, number_women){
@@ -513,7 +523,13 @@ class Resume extends React.Component {
                             </TabList>
                     
                             <TabPanel>
-                                Job Description asdfghjkl;
+                                <strong>{this.state.job_title} Job Description</strong>
+                                <br/>
+                                <br/><strong>Job Title: </strong>{this.state.job_title}
+                                <br/>
+                                <br/><strong>Main Tasks: </strong>{this.state.main_tasks}
+                                <br/>
+                                <br/><strong>Required Knowledge and Skills: </strong>{this.state.req_skills}
                             </TabPanel>
                             <TabPanel>
                                 <Card.Body>
