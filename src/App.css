@@ -14,6 +14,7 @@
     font-family: 'Rubik', sans-serif;
     display: flex;
     justify-content: center;
+    font-size: 1.1rem;
 }
 
 .resume_master{
@@ -241,4 +242,8 @@ ul{
 #toggle_icon{
     height: 100%;
      top: auto;
+}
+
+#bullets{
+    margin-left: 1%;
 }

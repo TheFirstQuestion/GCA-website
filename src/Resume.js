@@ -527,9 +527,11 @@ class Resume extends React.Component {
                                 <br/>
                                 <br/><strong>Job Title: </strong>{this.state.job_title}
                                 <br/>
-                                <br/><strong>Main Tasks: </strong>{this.state.main_tasks}
+                                <br/><strong>Main Tasks: </strong>
+                                <div id="bullets">{this.state.main_tasks}</div>
                                 <br/>
-                                <br/><strong>Required Knowledge and Skills: </strong>{this.state.req_skills}
+                                <br/><strong>Required Knowledge and Skills: </strong>
+                                <div id="bullets">{this.state.req_skills}</div>
                             </TabPanel>
                             <TabPanel>
                                 <Card.Body>
