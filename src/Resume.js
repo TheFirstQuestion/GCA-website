@@ -142,6 +142,7 @@ class Resume extends React.Component {
         this.setState({page: this.props.page}, () => {
             if(this.state.page == 2){
                 this.setState({modalOpened: true})
+                this.getJobDescription()
             }
             else{
                 this.setState({men: this.props.men});
@@ -484,7 +485,7 @@ class Resume extends React.Component {
                 description = "closed resume " + (e + 1);
             }
             else{*/
-                description = "opened resume " + (e + 1);
+                description = "opened resume " + e;
             //}
             if(e == 0){
                 description = "opened job description"
@@ -512,7 +513,7 @@ class Resume extends React.Component {
                         </ModalReact>
                         {this.state.resumeList.length == 5 && !this.state.modalOpened && 
                         <div>
-                        <Tabs defaultIndex={0} onSelect={index => this.collapsibleOpened(index-1)}>
+                        <Tabs defaultIndex={0} onSelect={index => this.collapsibleOpened(index)}>
                             <TabList>
                                 <Tab>Job Description</Tab>
                                 <Tab>{this.state.names[0]}</Tab>
