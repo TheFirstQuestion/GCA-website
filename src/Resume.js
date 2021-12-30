@@ -32,6 +32,7 @@ class Resume extends React.Component {
         this.state = {
             //women and men (pulled from props)
             page: 1, 
+            qualtricsUserId: '',
             women: 1,
             men: 1,
             linkEnding: "1w4m",
@@ -55,7 +56,7 @@ class Resume extends React.Component {
 
             //activityData: [],
  
-            modalOpened: false,
+            //modalOpened: false,
             enterID: '',
 
             section1opened: false,
@@ -125,35 +126,49 @@ class Resume extends React.Component {
         this.num = '';
         this.selectNames = this.selectNames.bind(this);
         this.shuffle = this.shuffle.bind(this)
-        this.generateUniqueID = this.generateUniqueID.bind(this)
+        //this.generateUniqueID = this.generateUniqueID.bind(this)
         this.selectHeadshots = this.selectHeadshots.bind(this);
         this.renderBulletList = this.renderBulletList.bind(this);
-        this.submitUserID = this.submitUserID.bind(this);
+        //this.submitUserID = this.submitUserID.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.populateValues = this.populateValues.bind(this);
     }
 
     componentDidMount(){
+        //get Qualtrics userID
+        console.log(this.props.match.params.qualtricsUserId)
+
         console.log("men: " + this.props.men)
         console.log("women: " + this.props.women)
 
         const db = firebase.firestore();
 
         this.setState({page: this.props.page}, () => {
-            if(this.state.page == 2){
-                this.setState({modalOpened: true})
-                this.getJobDescription()
-            }
-            else{
-                this.setState({men: this.props.men});
-                this.setState({women: this.props.women}, () => {
-                    this.generateUniqueID();
-                });
-            }
+            this.setState({qualtricsUserId: this.props.match.params.qualtricsUserId}, () => {
+                this.setState({currentUserID: this.state.qualtricsUserId}, () => {
+                    if(this.state.page == 2 || this.state.page == 3 || this.state.page == 4){
+                        this.getJobDescription()
+                        this.populateValues();
+    
+                        //this.setState({modalOpened: true})
+                    }
+                    else{   
+                        this.setState({men: this.props.men});
+                        this.setState({women: this.props.women}, () => {
+                            //this.generateUniqueID();
+                            
+                            this.setState({linkEnding: this.state.women + "w" + this.state.men + "m"}, () => {
+                                this.getJobDescription();
+                                this.selectNames();
+                            })
+                        });
+                    }
+                })
+            })
         });
     }
 
-    generateUniqueID = () => {
+    /*generateUniqueID = () => {
         const db = firebase.firestore();
         //TODO: not sure if it is worth it but maybe prevent concurrent reads 
 
@@ -190,7 +205,7 @@ class Resume extends React.Component {
                     })
                 }
             });
-    }
+    }*/
 
     getJobDescription(){
         const db = firebase.firestore();
@@ -241,10 +256,11 @@ class Resume extends React.Component {
                                     "candidate5_resume": this.state.resumes[4],
                                 }).then(() => {
                                     let count = this.activityCounter.toString();
-        
+                                    this.activityCounter = this.activityCounter + 1;
+
                                     let time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
         
-                                    const addDoc = db.collection("userIDs").doc(this.state.currentUserID).collection("activityData").doc(count).set({
+                                    const addDoc = db.collection("userIDs").doc(this.state.currentUserID).collection("activityData_page"+this.state.page).doc(count).set({
                                         "time": time,
                                         "description": "website information loaded",
                                     });
@@ -382,7 +398,7 @@ class Resume extends React.Component {
         return viewBulletList
     }
 
-    submitUserID(){
+    /*submitUserID(){
         if(this.state.enterID == null || this.state.enterID == ''){
             this.setState({errorMessage: true})
             return;
@@ -416,7 +432,7 @@ class Resume extends React.Component {
                     this.setState({errorMessage: true})
                 }
             });
-    }
+    }*/
 
     populateValues(){
         const db = firebase.firestore();
@@ -454,6 +470,16 @@ class Resume extends React.Component {
             console.log(this.state.resumes)
             this.pullValues(0)
         })
+
+        let count = this.activityCounter.toString();
+        this.activityCounter = this.activityCounter + 1;
+
+        let time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
+
+        const addDoc = db.collection("userIDs").doc(this.state.currentUserID).collection("activityData_page"+this.state.page).doc(count).set({
+            "time": time,
+            "description": "website information loaded",
+        });
     }
 
     handleChange(event) {
@@ -469,33 +495,30 @@ class Resume extends React.Component {
         console.log(this.state["section" + (e + 1) + "opened"])
         //section5opened: !this.state.section5opened
         this.setState({reload: true})
-        //only tracking activity for page 1
-        if(this.state.page == 1){
-            const db = firebase.firestore();
 
-            this.activityCounter = this.activityCounter + 1;
-            let count = this.activityCounter.toString();
-            let description = '';
+        const db = firebase.firestore();
+        let count = this.activityCounter.toString();
+        this.activityCounter = this.activityCounter + 1;
+        let description = '';
 
-            var options = { hour12: false };
-            let time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
+        var options = { hour12: false };
+        let time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
 
-            console.log("OPENED OR CLOSED: " + this.state["section" + (e + 1) + "opened"])
-            /*if(!this.state["section" + (e + 1) + "opened"]){
-                description = "closed resume " + (e + 1);
-            }
-            else{*/
-                description = "opened resume " + e;
-            //}
-            if(e == 0){
-                description = "opened job description"
-            }
-        
-            const addDoc = db.collection("userIDs").doc(this.state.currentUserID).collection("activityData").doc(count).set({
-                "time": time,
-                "description": description,
-            });
+        console.log("OPENED OR CLOSED: " + this.state["section" + (e + 1) + "opened"])
+        /*if(!this.state["section" + (e + 1) + "opened"]){
+            description = "closed resume " + (e + 1);
         }
+        else{*/
+            description = "opened resume " + e;
+        //}
+        if(e == 0){
+            description = "opened job description"
+        }
+    
+        const addDoc = db.collection("userIDs").doc(this.state.currentUserID).collection("activityData_page"+this.state.page).doc(count).set({
+            "time": time,
+            "description": description,
+        });
     }
 
     render() {
@@ -504,14 +527,14 @@ class Resume extends React.Component {
             <div className="overall">
                 <div className="App">
                     <div className="resume_master">
-                        <ModalReact className="modal_dtp"
+                        {/*<ModalReact className="modal_dtp"
                             isOpen={this.state.modalOpened}>
                             <div>enter code: </div>
                             <input onChange={this.handleChange.bind(this)} value={this.state.enterID} />
                             <button onClick={() => this.submitUserID()}> Submit </button>
                             {this.state.errorMessage && <div id="red">Invalid ID. Please re-enter.</div>}
-                        </ModalReact>
-                        {this.state.resumeList.length == 5 && !this.state.modalOpened && 
+                        </ModalReact>*/}
+                        {this.state.resumeList.length == 5 /*&& !this.state.modalOpened*/ && 
                         <div>
                         <Tabs defaultIndex={0} onSelect={index => this.collapsibleOpened(index)}>
                             <TabList>
