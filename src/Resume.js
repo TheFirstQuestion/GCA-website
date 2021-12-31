@@ -33,13 +33,14 @@ class Resume extends React.Component {
             //women and men (pulled from props)
             page: 1, 
             qualtricsUserId: '',
-            women: 1,
-            men: 1,
+            namesArray: [],
+            //women: 1,
+            //men: 1,
             linkEnding: "1w4m",
 
             //names
             names: [],
-            namesOrder: [1, 2, 3, 4, 5],
+            namesOrder: [0, 1, 2, 3, 4],
             headshotOrder: [],
             genderOrder: [],
             resumes: [1, 2, 3, 4, 5],
@@ -124,7 +125,8 @@ class Resume extends React.Component {
                     ];
         this.activityCounter = 1;
         this.num = '';
-        this.selectNames = this.selectNames.bind(this);
+        //this.selectNames = this.selectNames.bind(this);
+        this.getNames = this.getNames.bind(this);
         this.shuffle = this.shuffle.bind(this)
         //this.generateUniqueID = this.generateUniqueID.bind(this)
         this.selectHeadshots = this.selectHeadshots.bind(this);
@@ -138,8 +140,8 @@ class Resume extends React.Component {
         //get Qualtrics userID
         console.log(this.props.match.params.qualtricsUserId)
 
-        console.log("men: " + this.props.men)
-        console.log("women: " + this.props.women)
+        //console.log("men: " + this.props.men)
+        //console.log("women: " + this.props.women)
 
         const db = firebase.firestore();
 
@@ -153,14 +155,14 @@ class Resume extends React.Component {
                         //this.setState({modalOpened: true})
                     }
                     else{   
-                        this.setState({men: this.props.men});
-                        this.setState({women: this.props.women}, () => {
+                        //this.setState({men: this.props.men});
+                        //this.setState({women: this.props.women}, () => {
                             //this.generateUniqueID();
-                            
-                            this.setState({linkEnding: this.state.women + "w" + this.state.men + "m"}, () => {
+                        this.setState({namesArray: this.props.namesArray}, () => {
+                            //this.setState({linkEnding: this.state.women + "w" + this.state.men + "m"}, () => {
                                 this.getJobDescription();
-                                this.selectNames();
-                            })
+                                this.getNames();
+                            //})
                         });
                     }
                 })
@@ -216,7 +218,63 @@ class Resume extends React.Component {
         })
     }
 
-    selectNames(number_men, number_women){
+    getNames(){
+        this.shuffle(this.state.namesOrder, function() {
+            console.log("finished shuffling name order")
+            const db = firebase.firestore();
+            //console.log("link ending: " + this.state.linkEnding)
+
+
+            //EDIT HERE ON OUT
+            for(let i = 0; i < this.state.namesOrder.length; i++){
+                console.log("NAMES ORDER " + this.state.namesOrder[i])
+                let curr_name = this.state.namesArray[this.state.namesOrder[i]]
+                console.log("CURR NAME " + curr_name)
+                let index = curr_name.indexOf("_")
+                let curr_gender = curr_name.substring(0, index)
+                curr_name = curr_name.substring(index + 1)
+                console.log("gender: " + curr_gender)
+                this.state.genderOrder.push(curr_gender)
+                this.state.names.push(curr_name)
+            }
+
+                console.log("genderOrder: " + this.state.genderOrder)
+                this.selectHeadshots(0)
+                const addDoc = db.collection("userIDs").doc(this.state.currentUserID).set({
+                    "candidate1_name": this.state.names[0],
+                    "candidate2_name": this.state.names[1],
+                    "candidate3_name": this.state.names[2],
+                    "candidate4_name": this.state.names[3],
+                    "candidate5_name": this.state.names[4],
+                }).then(() => {
+                    console.log("about to start shuffling")
+                        //shuffle resume order
+                        this.shuffle(this.state.resumes, function() {
+                            console.log("finished shuffling resume order")
+                            const addDoc = db.collection("userIDs").doc(this.state.currentUserID).update({
+                                "candidate1_resume": this.state.resumes[0],
+                                "candidate2_resume": this.state.resumes[1],
+                                "candidate3_resume": this.state.resumes[2],
+                                "candidate4_resume": this.state.resumes[3],
+                                "candidate5_resume": this.state.resumes[4],
+                            }).then(() => {
+                                let count = this.activityCounter.toString();
+                                this.activityCounter = this.activityCounter + 1;
+
+                                let time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
+    
+                                const addDoc = db.collection("userIDs").doc(this.state.currentUserID).collection("activityData_page"+this.state.page).doc(count).set({
+                                    "time": time,
+                                    "description": "website information loaded",
+                                });
+                            })
+                        })
+                    })
+                })
+        //})
+    }
+
+    /*selectNames(number_men, number_women){
         this.shuffle(this.state.namesOrder, function() {
             console.log("finished shuffling name order")
             const db = firebase.firestore();
@@ -269,7 +327,7 @@ class Resume extends React.Component {
                     })
                 })
         })
-    }
+    }*/
 
     selectHeadshots(i){    
         const db = firebase.firestore();
@@ -527,14 +585,7 @@ class Resume extends React.Component {
             <div className="overall">
                 <div className="App">
                     <div className="resume_master">
-                        {/*<ModalReact className="modal_dtp"
-                            isOpen={this.state.modalOpened}>
-                            <div>enter code: </div>
-                            <input onChange={this.handleChange.bind(this)} value={this.state.enterID} />
-                            <button onClick={() => this.submitUserID()}> Submit </button>
-                            {this.state.errorMessage && <div id="red">Invalid ID. Please re-enter.</div>}
-                        </ModalReact>*/}
-                        {this.state.resumeList.length == 5 /*&& !this.state.modalOpened*/ && 
+                        {this.state.resumeList.length == 5 && 
                         <div>
                         <Tabs defaultIndex={0} onSelect={index => this.collapsibleOpened(index)}>
                             <TabList>
@@ -1045,7 +1096,6 @@ class Resume extends React.Component {
                         }               
                         </div>
                     </div>
-                    <div className="userID"><strong>{this.state.currentUserID}</strong></div>
                 </div>
         );
     }
