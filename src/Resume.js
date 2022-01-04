@@ -212,33 +212,37 @@ class Resume extends React.Component {
     getJobDescription(){
         const db = firebase.firestore();
         db.collection("job_description").doc("values").get().then((doc) => {
-            this.state.job_title = doc.data().job_title
-            this.state.main_tasks = this.renderBulletList(doc.data().main_tasks)
-            this.state.req_skills = this.renderBulletList(doc.data().req_skills)
+            console.log("have accessed values: " + doc.data().job_title)
+            this.setState({job_title: doc.data().job_title})
+            this.setState({main_tasks: doc.data().main_tasks})
+            this.setState({req_skills: doc.data().req_skills})
+            //this.state.job_title = doc.data().job_title
+            //this.state.main_tasks = this.renderBulletList(doc.data().main_tasks)
+            //this.state.req_skills = this.renderBulletList(doc.data().req_skills)
         })
     }
 
     getNames(){
         this.shuffle(this.state.namesOrder, function() {
-            console.log("finished shuffling name order")
+            //console.log("finished shuffling name order")
             const db = firebase.firestore();
             //console.log("link ending: " + this.state.linkEnding)
 
 
             //EDIT HERE ON OUT
             for(let i = 0; i < this.state.namesOrder.length; i++){
-                console.log("NAMES ORDER " + this.state.namesOrder[i])
+                //console.log("NAMES ORDER " + this.state.namesOrder[i])
                 let curr_name = this.state.namesArray[this.state.namesOrder[i]]
-                console.log("CURR NAME " + curr_name)
+                //console.log("CURR NAME " + curr_name)
                 let index = curr_name.indexOf("_")
                 let curr_gender = curr_name.substring(0, index)
                 curr_name = curr_name.substring(index + 1)
-                console.log("gender: " + curr_gender)
+                //console.log("gender: " + curr_gender)
                 this.state.genderOrder.push(curr_gender)
                 this.state.names.push(curr_name)
             }
 
-                console.log("genderOrder: " + this.state.genderOrder)
+                //: " + this.state.genderOrder)
                 this.selectHeadshots(0)
                 const addDoc = db.collection("userIDs").doc(this.state.currentUserID).set({
                     "candidate1_name": this.state.names[0],
@@ -247,10 +251,10 @@ class Resume extends React.Component {
                     "candidate4_name": this.state.names[3],
                     "candidate5_name": this.state.names[4],
                 }).then(() => {
-                    console.log("about to start shuffling")
+                    //console.log("about to start shuffling")
                         //shuffle resume order
                         this.shuffle(this.state.resumes, function() {
-                            console.log("finished shuffling resume order")
+                            //console.log("finished shuffling resume order")
                             const addDoc = db.collection("userIDs").doc(this.state.currentUserID).update({
                                 "candidate1_resume": this.state.resumes[0],
                                 "candidate2_resume": this.state.resumes[1],
@@ -337,7 +341,7 @@ class Resume extends React.Component {
             while(this.state.headshotOrder.length != 5){
                 //wait
             }
-            console.log("headshot order: " + this.state.headshotOrder)
+            //console.log("headshot order: " + this.state.headshotOrder)
             const addDoc = db.collection("userIDs").doc(this.state.currentUserID).update({
                 "candidate1_headshot": this.state.headshotOrder[0],
                 "candidate2_headshot": this.state.headshotOrder[1],
@@ -345,7 +349,7 @@ class Resume extends React.Component {
                 "candidate4_headshot": this.state.headshotOrder[3],
                 "candidate5_headshot": this.state.headshotOrder[4],
             }).then(() => {
-                console.log("exit headshots")
+                //console.log("exit headshots")
             })
             return
         }   
@@ -365,7 +369,7 @@ class Resume extends React.Component {
 
     //get values for this.state.resumes[resume_number]
     pullValues(resume_number){
-        console.log("pulling values for resume: " + resume_number)
+        //console.log("pulling values for resume: " + resume_number)
         if(resume_number == 5){
             return
         }
@@ -375,7 +379,7 @@ class Resume extends React.Component {
         let curr_resume = this.state.resumes[resume_number]   //TODO: change back to this once all resumes are in database
         //let curr_resume = 1
 
-        console.log("curr resume: " + curr_resume)
+        //console.log("curr resume: " + curr_resume)
         
         const db = firebase.firestore();
 
@@ -410,7 +414,7 @@ class Resume extends React.Component {
         })
 
         this.state.resumeList.push(new_dict)
-        console.log(this.state.resumeList.length)
+        //console.log(this.state.resumeList.length)
         this.setState({resumeList: this.state.resumeList})
         this.pullValues(resume_number + 1)
     }
@@ -439,7 +443,7 @@ class Resume extends React.Component {
         
         let boundCallback = callback.bind(this)
         boundCallback()
-        console.log("exit shuffle")
+        //console.log("exit shuffle")
         //return array;
     }
 
@@ -504,8 +508,8 @@ class Resume extends React.Component {
                 //this.state.genderOrder.push(curr_gender)
                 this.state.names.push(curr_name)
             }
-            console.log("NAME ORDER")
-            console.log(this.state.names)
+            //console.log("NAME ORDER")
+            //console.log(this.state.names)
         })
 
         //get headshots
@@ -514,8 +518,8 @@ class Resume extends React.Component {
                 let headshot = doc.data()["candidate" + i + "_headshot"]
                 this.state.headshotOrder.push(headshot)
             }
-            console.log("HEADSHOT ORDER")
-            console.log(this.state.headshotOrder)
+            //console.log("HEADSHOT ORDER")
+            //console.log(this.state.headshotOrder)
         })
 
         //get resume order
@@ -524,8 +528,8 @@ class Resume extends React.Component {
                 let resume = doc.data()["candidate" + i + "_resume"]
                 this.state.resumes[i-1] = resume
             }
-            console.log("RESUME ORDER")
-            console.log(this.state.resumes)
+            //console.log("RESUME ORDER")
+            //console.log(this.state.resumes)
             this.pullValues(0)
         })
 
@@ -580,7 +584,7 @@ class Resume extends React.Component {
     }
 
     render() {
-        console.log("list length: " + this.state.resumeList.length)
+        //console.log("list length: " + this.state.resumeList.length)
         return (
             <div className="overall">
                 <div className="App">
