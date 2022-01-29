@@ -216,9 +216,9 @@ class Resume extends React.Component {
             this.setState({job_title: doc.data().job_title})
             this.setState({main_tasks: doc.data().main_tasks})
             this.setState({req_skills: doc.data().req_skills})
-            //this.state.job_title = doc.data().job_title
-            //this.state.main_tasks = this.renderBulletList(doc.data().main_tasks)
-            //this.state.req_skills = this.renderBulletList(doc.data().req_skills)
+            this.state.job_title = doc.data().job_title
+            this.state.main_tasks = this.renderBulletList(doc.data().main_tasks)
+            this.state.req_skills = this.renderBulletList(doc.data().req_skills)
         })
     }
 
