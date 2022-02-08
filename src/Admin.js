@@ -82,15 +82,53 @@ class Admin extends React.Component {
 
         let singleText = "singleActivity" + studyVersion
         let newObjSingle = [];
-        var snapshot1 = firebase.firestore().collection('userIDs').doc(itemID).collection("activityData").onSnapshot((snapshot) => {
+
+        //get activity data - page 1
+        var snapshot1 = firebase.firestore().collection('userIDs').doc(itemID).collection("activityData_page1").onSnapshot((snapshot) => {
             snapshot.forEach((doc) => {
-                newObj = [doc.data().time, doc.data().description]
+                newObj = ["page 1", doc.data().time, doc.data().description]
                 csvList = [...csvList, newObj]
 
-                newObjSingle = [itemID, doc.data().time, doc.data().description]
+                newObjSingle = [itemID, "page 1", doc.data().time, doc.data().description]
                 this[singleText] = [...this[singleText], newObjSingle]
             })
             snapshot1();
+        })
+
+        //get activity data - page 2
+        var snapshot2 = firebase.firestore().collection('userIDs').doc(itemID).collection("activityData_page2").onSnapshot((snapshot) => {
+            snapshot.forEach((doc) => {
+                newObj = ["page 2", doc.data().time, doc.data().description]
+                csvList = [...csvList, newObj]
+
+                newObjSingle = [itemID, "page 2", doc.data().time, doc.data().description]
+                this[singleText] = [...this[singleText], newObjSingle]
+            })
+            snapshot2();
+        })
+
+        //get activity data - page 3
+        var snapshot3 = firebase.firestore().collection('userIDs').doc(itemID).collection("activityData_page3").onSnapshot((snapshot) => {
+            snapshot.forEach((doc) => {
+                newObj = ["page 3", doc.data().time, doc.data().description]
+                csvList = [...csvList, newObj]
+
+                newObjSingle = [itemID, "page 3", doc.data().time, doc.data().description]
+                this[singleText] = [...this[singleText], newObjSingle]
+            })
+            snapshot3();
+        })
+
+        //get activity data - page 4
+        var snapshot4 = firebase.firestore().collection('userIDs').doc(itemID).collection("activityData_page4").onSnapshot((snapshot) => {
+            snapshot.forEach((doc) => {
+                newObj = ["page 4", doc.data().time, doc.data().description]
+                csvList = [...csvList, newObj]
+
+                newObjSingle = [itemID, "page 4", doc.data().time, doc.data().description]
+                this[singleText] = [...this[singleText], newObjSingle]
+            })
+            snapshot4();
         })
     }
 
