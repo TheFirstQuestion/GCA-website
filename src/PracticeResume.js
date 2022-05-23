@@ -1,20 +1,20 @@
 import React, {useState} from 'react';
 import './App.css';
-import woman from './female_user.png';
-import man from './male_user.png';
-import upvote from './upvote.png';
-import upvote_selected from './upvote_selected.png';
-import downvote from './downvote.png';
-import downvote_selected from './downvote_selected.png';
-import question from './question.png';
-import question_selected from './question_selected.png';
-import circle from './circle.png';
-import circle_selected from './circle_selected.png';
+import woman from './images/female_user.png';
+import man from './images/male_user.png';
+import upvote from './images/upvote.png';
+import upvote_selected from './images/upvote_selected.png';
+import downvote from './images/downvote.png';
+import downvote_selected from './images/downvote_selected.png';
+import question from './images/question.png';
+import question_selected from './images/question_selected.png';
+import circle from './images/circle.png';
+import circle_selected from './images/circle_selected.png';
 import Collapsible from 'react-collapsible';
 import Divider from '@material-ui/core/Divider';
 import ModalReact from 'react-modal';
-import plus from './plus_icon.png';
-import minus from './minus_icon.png';
+import plus from './images/plus_icon.png';
+import minus from './images/minus_icon.png';
 import firebase from './firebase';
 import Accordion from 'react-bootstrap/Accordion';
 import Button from 'react-bootstrap/Button';
@@ -66,7 +66,7 @@ class PracticeResume extends React.Component {
             gender_icon: man,
             parenthood: true,
             education: 0,
-            work1: 0, 
+            work1: 0,
             work2: 0,
             remote: true,
             name: '',
@@ -112,7 +112,7 @@ class PracticeResume extends React.Component {
         if (this.timer) {
             clearInterval(this.timer)
         }
-      }    
+      }
 
     selectValues(){
         const db = firebase.firestore();
@@ -145,7 +145,7 @@ class PracticeResume extends React.Component {
             var split = temp.split(".")
             this.setState({bulletList: split})
 
-            this.setState({currentUserID: doc.data().practice_userID}) 
+            this.setState({currentUserID: doc.data().practice_userID})
         })
 
         //get misc
@@ -301,7 +301,7 @@ class PracticeResume extends React.Component {
                 <div className="App">
                     <div className="resume">
 
-                        {!this.state.modalOpened && 
+                        {!this.state.modalOpened &&
                         <div>
                         <img className="profile_image" src={this.state.gender_icon} alt="" />
                         <div className="header">{this.state.name}</div>
@@ -312,7 +312,7 @@ class PracticeResume extends React.Component {
                                 <img name="notes_q" src={this.state.notes_q ? circle_selected : circle} onClick={this.voteClick}/>
                                 <img name="notes_down" src={this.state.notes_down ? downvote_selected : downvote} onClick={this.voteClick}/>
                             </div>
-                            <div class="notes">Notes from Initial Phone Screen:  
+                            <div class="notes">Notes from Initial Phone Screen:
                                 <span id="subtext_bullet">
                                     <ul>
                                         {this.state.studyVersion == 2 && this.state.remote && <li>{this.state.remoteNotesText}</li>}
@@ -326,9 +326,9 @@ class PracticeResume extends React.Component {
                         <Accordion>
                             <Card>
                                 <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0}}>
-                                <Accordion.Toggle as={Button}  
-                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}} 
-                                    variant="link" 
+                                <Accordion.Toggle as={Button}
+                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}}
+                                    variant="link"
                                     eventKey="0"
                                     onClick={() => this.setState({educationSectionOpened: !this.state.educationSectionOpened}, () => {
                                         if(this.state.educationSectionOpened){
@@ -355,9 +355,9 @@ class PracticeResume extends React.Component {
                             </Card>
                             <Card>
                                 <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0, borderTop: "1px solid black"}}>
-                                <Accordion.Toggle as={Button} 
-                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}} 
-                                    variant="link" 
+                                <Accordion.Toggle as={Button}
+                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}}
+                                    variant="link"
                                     eventKey="1"
                                     onClick={() => this.setState({workSectionOpened: !this.state.workSectionOpened}, () => {
                                         if(this.state.workSectionOpened){
@@ -374,9 +374,9 @@ class PracticeResume extends React.Component {
                             </Card>
                             <Card>
                                 <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0, borderTop: "1px solid black"}}>
-                                <Accordion.Toggle as={Button} 
-                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}} 
-                                    variant="link" 
+                                <Accordion.Toggle as={Button}
+                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}}
+                                    variant="link"
                                     eventKey="2"
                                     onClick={() => this.setState({miscellaneousSectionOpened: !this.state.miscellaneousSectionOpened}, () => {
                                         if(this.state.miscellaneousSectionOpened){

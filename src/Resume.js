@@ -1,29 +1,10 @@
-import React, {useState} from 'react';
-import './App.css';
-import woman from './female_user.png';
-import man from './male_user.png';
-import upvote from './upvote.png';
-import upvote_selected from './upvote_selected.png';
-import downvote from './downvote.png';
-import downvote_selected from './downvote_selected.png';
-import question from './question.png';
-import question_selected from './question_selected.png';
-import circle from './circle.png';
-import circle_selected from './circle_selected.png';
-import Collapsible from 'react-collapsible';
-import Divider from '@material-ui/core/Divider';
-import ModalReact from 'react-modal';
-import plus from './plus_icon.png';
-import minus from './minus_icon.png';
-import firebase from './firebase';
-import Accordion from 'react-bootstrap/Accordion';
-import Button from 'react-bootstrap/Button';
+import React from 'react';
 import Card from 'react-bootstrap/Card';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { makeStyles } from '@material-ui/core';
-import { mockComponent } from 'react-dom/test-utils';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-tabs/style/react-tabs.css';
+import './App.css';
+import firebase from './firebase';
 var moment = require('moment-timezone');
 
 class Resume extends React.Component {
@@ -31,7 +12,7 @@ class Resume extends React.Component {
         super(props);
         this.state = {
             //women and men (pulled from props)
-            page: 1, 
+            page: 1,
             qualtricsUserId: '',
             namesArray: [],
             //women: 1,
@@ -56,7 +37,7 @@ class Resume extends React.Component {
             notesOpenedCount: 0,
 
             //activityData: [],
- 
+
             //modalOpened: false,
             enterID: '',
 
@@ -75,11 +56,11 @@ class Resume extends React.Component {
             major: 'Computer Science',
             university: 'Stanford University',
 
-            gender_icon: man,
+            // gender_icon: man,
             name: '',
             parenthood: true,
             education: 0,
-            work1: 0, 
+            work1: 0,
             work2: 0,
             remote: true,
 
@@ -111,16 +92,16 @@ class Resume extends React.Component {
             bulletList: [],
             remoteNotesText: '',
         };
-        this.IDlist = ["sheep", "koala", "whale", "dolphin", "panda", "snake", "bear", "lion", "tiger", "celery", 
-                        "carrot", "pizza", "salad", "chicken", "burger", "rice", "eggs", "soup", "green", "blue", 
-                        "purple", "red", "orange", "yellow", "silver", "olive", "pink", "gold", "shirt", "pants", 
+        this.IDlist = ["sheep", "koala", "whale", "dolphin", "panda", "snake", "bear", "lion", "tiger", "celery",
+                        "carrot", "pizza", "salad", "chicken", "burger", "rice", "eggs", "soup", "green", "blue",
+                        "purple", "red", "orange", "yellow", "silver", "olive", "pink", "gold", "shirt", "pants",
                         "tree", "smoke", "planet", "pencil", "pen", "cookie", "cake", "tire", "phone", "plant",
-                        "north", "east", "south", "west", "right", "left", "canyon", "mountain", "park", "field", 
-                        "snow", "rain", "beach", "ocean", "wind", "storm", "thunder", "hill", "road", "traffic", 
-                        "cliff", "waves", "shell", "island", "sand", "umbrella", "swim", "climb", "dive", "surf", 
+                        "north", "east", "south", "west", "right", "left", "canyon", "mountain", "park", "field",
+                        "snow", "rain", "beach", "ocean", "wind", "storm", "thunder", "hill", "road", "traffic",
+                        "cliff", "waves", "shell", "island", "sand", "umbrella", "swim", "climb", "dive", "surf",
 
-                        "hike", "run", "walk", "bike", "canoe", "boat", "ice", "air", "river", "pond", 
-                        "lake", "stream", "canal", "street", "coffee", "tea", "soda", "lunch", "dinner", "snack", 
+                        "hike", "run", "walk", "bike", "canoe", "boat", "ice", "air", "river", "pond",
+                        "lake", "stream", "canal", "street", "coffee", "tea", "soda", "lunch", "dinner", "snack",
                         "eat", "drink", "sleep", "wake", "jump", "fall", "alaska", "florida", "idaho", "ohio",
                     ];
         this.activityCounter = 1;
@@ -129,7 +110,7 @@ class Resume extends React.Component {
         this.getNames = this.getNames.bind(this);
         this.shuffle = this.shuffle.bind(this)
         //this.generateUniqueID = this.generateUniqueID.bind(this)
-        this.selectHeadshots = this.selectHeadshots.bind(this);
+        // this.selectHeadshots = this.selectHeadshots.bind(this);
         this.renderBulletList = this.renderBulletList.bind(this);
         //this.submitUserID = this.submitUserID.bind(this);
         this.handleChange = this.handleChange.bind(this);
@@ -151,10 +132,10 @@ class Resume extends React.Component {
                     if(this.state.page == 2 || this.state.page == 3 || this.state.page == 4){
                         this.getJobDescription()
                         this.populateValues();
-    
+
                         //this.setState({modalOpened: true})
                     }
-                    else{   
+                    else{
                         //this.setState({men: this.props.men});
                         //this.setState({women: this.props.women}, () => {
                             //this.generateUniqueID();
@@ -172,7 +153,7 @@ class Resume extends React.Component {
 
     /*generateUniqueID = () => {
         const db = firebase.firestore();
-        //TODO: not sure if it is worth it but maybe prevent concurrent reads 
+        //TODO: not sure if it is worth it but maybe prevent concurrent reads
 
         //console.log(this.IDlist.length)
         var rand = Math.floor(Math.random() * 100) + 1;
@@ -192,14 +173,14 @@ class Resume extends React.Component {
                         console.log("ALREADY EXISTS")
                         this.generateUniqueID();
                     });
-                } 
+                }
                 else {
-                    console.log("DOES NOT EXIST")                    
-                    
+                    console.log("DOES NOT EXIST")
+
                     //display ID to user
                     this.setState({currentUserID: userID}, () => {
                         console.log("set currentUserID to: " + this.state.currentUserID)
-                        
+
                         this.setState({linkEnding: this.state.women + "w" + this.state.men + "m"}, () => {
                             this.getJobDescription();
                             this.selectNames();
@@ -243,7 +224,7 @@ class Resume extends React.Component {
             }
 
                 //: " + this.state.genderOrder)
-                this.selectHeadshots(0)
+                // this.selectHeadshots(0)
                 const addDoc = db.collection("userIDs").doc(this.state.currentUserID).set({
                     "candidate1_name": this.state.names[0],
                     "candidate2_name": this.state.names[1],
@@ -266,7 +247,7 @@ class Resume extends React.Component {
                                 this.activityCounter = this.activityCounter + 1;
 
                                 let time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
-    
+
                                 const addDoc = db.collection("userIDs").doc(this.state.currentUserID).collection("activityData_page"+this.state.page).doc(count).set({
                                     "time": time,
                                     "description": "website information loaded",
@@ -321,7 +302,7 @@ class Resume extends React.Component {
                                     this.activityCounter = this.activityCounter + 1;
 
                                     let time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
-        
+
                                     const addDoc = db.collection("userIDs").doc(this.state.currentUserID).collection("activityData_page"+this.state.page).doc(count).set({
                                         "time": time,
                                         "description": "website information loaded",
@@ -333,7 +314,7 @@ class Resume extends React.Component {
         })
     }*/
 
-    selectHeadshots(i){    
+    /*selectHeadshots(i){
         const db = firebase.firestore();
 
         if(i >= 5){
@@ -352,20 +333,20 @@ class Resume extends React.Component {
                 //console.log("exit headshots")
             })
             return
-        }   
+        }
         let gender = this.state.genderOrder[i];
         let headshotProb = Math.floor(Math.random() * 4);
         db.collection("names").doc(gender).get().then((doc) => {
             let headshot = doc.data()[gender + "_" + (headshotProb + 1)]
-            if(!this.state.headshotOrder.includes(headshot)){
-                this.state.headshotOrder.push(headshot)
-                this.selectHeadshots(i + 1)
-            }
-            else{
-                this.selectHeadshots(i)
-            }
+            // if(!this.state.headshotOrder.includes(headshot)){
+            //     this.state.headshotOrder.push(headshot)
+            //     this.selectHeadshots(i + 1)
+            // }
+            // else{
+            //     this.selectHeadshots(i)
+            // }
         })
-    }
+    }*/
 
     //get values for this.state.resumes[resume_number]
     pullValues(resume_number){
@@ -380,7 +361,7 @@ class Resume extends React.Component {
         //let curr_resume = 1
 
         //console.log("curr resume: " + curr_resume)
-        
+
         const db = firebase.firestore();
 
         db.collection("resumes").doc("resume_" + curr_resume).get().then((doc) => {
@@ -421,26 +402,26 @@ class Resume extends React.Component {
 
     shuffle(array, callback) {
         var currentIndex = array.length, temporaryValue, randomIndex;
-        
+
         // While there remain elements to shuffle...
         while (0 !== currentIndex) {
-        
+
             // Pick a remaining element...
             randomIndex = Math.floor(Math.random() * currentIndex);
             currentIndex -= 1;
-        
+
             // And swap it with the current element.
             temporaryValue = array[currentIndex];
             array[currentIndex] = array[randomIndex];
             array[randomIndex] = temporaryValue;
         }
-        
+
         this.setState({[array] : array}, () => {
             if(array == this.state.resumes){
                 this.pullValues(0)
             }
         })
-        
+
         let boundCallback = callback.bind(this)
         boundCallback()
         //console.log("exit shuffle")
@@ -486,10 +467,10 @@ class Resume extends React.Component {
                             this.setState({modalOpened: false})
                         })
                     });
-                } 
+                }
                 else {
                     console.log("INVALID: DOES NOT EXIST")
-            
+
                     //prompt them to re-enter
                     this.setState({errorMessage: true})
                 }
@@ -576,7 +557,7 @@ class Resume extends React.Component {
         if(e == 0){
             description = "opened job description"
         }
-    
+
         const addDoc = db.collection("userIDs").doc(this.state.currentUserID).collection("activityData_page"+this.state.page).doc(count).set({
             "time": time,
             "description": description,
@@ -589,7 +570,7 @@ class Resume extends React.Component {
             <div className="overall">
                 <div className="App">
                     <div className="resume_master">
-                        {this.state.resumeList.length == 5 && 
+                        {this.state.resumeList.length == 5 &&
                         <div>
                         <Tabs defaultIndex={0} onSelect={index => this.collapsibleOpened(index)}>
                             <TabList>
@@ -600,7 +581,7 @@ class Resume extends React.Component {
                                 <Tab>{this.state.names[3]}</Tab>
                                 <Tab>{this.state.names[4]}</Tab>
                             </TabList>
-                    
+
                             <TabPanel>
                                 <strong>{this.state.job_title} Job Description</strong>
                                 <br/>
@@ -812,9 +793,9 @@ class Resume extends React.Component {
                         {/*<Accordion>
                             <Card>
                                 <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0}}>
-                                <Accordion.Toggle as={Button}  
-                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}} 
-                                    variant="link" 
+                                <Accordion.Toggle as={Button}
+                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}}
+                                    variant="link"
                                     eventKey="0"
                                     onClick={() => this.setState({section1opened: !this.state.section1opened}, () => {
                                         this.collapsibleOpened(0);
@@ -869,9 +850,9 @@ class Resume extends React.Component {
                             </Card>
                             <Card>
                                 <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0, borderTop: "1px solid black"}}>
-                                <Accordion.Toggle as={Button} 
-                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}} 
-                                    variant="link" 
+                                <Accordion.Toggle as={Button}
+                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}}
+                                    variant="link"
                                     eventKey="1"
                                     onClick={() => this.setState({section2opened: !this.state.section2opened}, () => {
                                         this.collapsibleOpened(1);
@@ -926,9 +907,9 @@ class Resume extends React.Component {
                             </Card>
                             <Card>
                                 <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0, borderTop: "1px solid black"}}>
-                                <Accordion.Toggle as={Button} 
-                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}} 
-                                    variant="link" 
+                                <Accordion.Toggle as={Button}
+                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}}
+                                    variant="link"
                                     eventKey="2"
                                     onClick={() => this.setState({section3opened: !this.state.section3opened}, () => {
                                         this.collapsibleOpened(2);
@@ -983,9 +964,9 @@ class Resume extends React.Component {
                             </Card>
                             <Card>
                                 <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0, borderTop: "1px solid black"}}>
-                                <Accordion.Toggle as={Button} 
-                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}} 
-                                    variant="link" 
+                                <Accordion.Toggle as={Button}
+                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}}
+                                    variant="link"
                                     eventKey="3"
                                     onClick={() => this.setState({section4opened: !this.state.section4opened}, () => {
                                         this.collapsibleOpened(3);
@@ -1040,9 +1021,9 @@ class Resume extends React.Component {
                             </Card>
                             <Card>
                                 <Card.Header style={{background:"white", paddingLeft: 0, paddingRight: 0, borderTop: "1px solid black"}}>
-                                <Accordion.Toggle as={Button} 
-                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}} 
-                                    variant="link" 
+                                <Accordion.Toggle as={Button}
+                                    style={{color:"black", width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: "18px", alignItems: "center"}}
+                                    variant="link"
                                     eventKey="4"
                                     onClick={() => this.setState({section5opened: !this.state.section5opened}, () => {
                                         this.collapsibleOpened(4);
@@ -1097,7 +1078,7 @@ class Resume extends React.Component {
                             </Card>
                         </Accordion>*/}
                         </div>
-                        }               
+                        }
                         </div>
                     </div>
                 </div>
