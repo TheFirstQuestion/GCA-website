@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import './App.css';
+import './GlobalStyles.css';
 import woman from './images/female_user.png';
 import man from './images/male_user.png';
 import upvote from './images/upvote.png';

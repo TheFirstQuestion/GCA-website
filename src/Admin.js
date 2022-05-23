@@ -1,12 +1,12 @@
 import React, {useState} from 'react';
-import './App.css';
+import './GlobalStyles.css';
 import firebase from './firebase';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { CSVLink, CSVDownload } from 'react-csv';
 import ModalReact from 'react-modal';
 import { Button } from 'bootstrap';
 
-class Admin extends React.Component {
+export default class Admin extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -14,7 +14,7 @@ class Admin extends React.Component {
             displayingMouse: false,
             displayingResume: false,
             displayingActivity: false,
-        
+
             generatedID: '',
             errorMessage: false,
 
@@ -354,12 +354,12 @@ class Admin extends React.Component {
                 </ModalReact>
 
                 <div className="title">Download Data</div>
-                {this.state.displayingActivity && 
+                {this.state.displayingActivity &&
                     <div className="horizontal" id="big">
                             <div>Activity Data</div>
                     </div>
                 }
-                {this.state.displayingResume && 
+                {this.state.displayingResume &&
                     <div className="horizontal" id="big">
                             <div>Resume Data</div>
                     </div>
@@ -370,7 +370,7 @@ class Admin extends React.Component {
                     {this.state.adminVersion == "singleCSV"  &&
                         <div className="horizontal">
                             <div>Activity Data Processed {this.state.completedActivity}/{this.state.totalActivity}</div>
-                            <div>{this.renderActivitySingle(1)}</div> 
+                            <div>{this.renderActivitySingle(1)}</div>
                         </div>
                     }
                     {this.state.adminVersion == "singleCSV" &&
@@ -384,5 +384,3 @@ class Admin extends React.Component {
         );
     }
 }
-
-export default Admin;
