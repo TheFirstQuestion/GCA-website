@@ -7,18 +7,16 @@ import './GlobalStyles.css';
 import firebase from './firebase';
 var moment = require('moment-timezone');
 
-export default class TabFrame extends React.Component {
+export default class Pool extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            page: 1,
-            // TODO: what is the difference here?
+            pageNum: 0,
             qualtricsUserId: '',
-            currentUserID: '',
             namesArray: [],
 
             names: [],
-            namesOrder: [0, 1, 2, 3, 4],
+            namesOrder: [0, 1, 2, 3, 4, 5],
             resumes: [1, 2, 3, 4, 5],
             resumeList: [],
 
@@ -31,7 +29,10 @@ export default class TabFrame extends React.Component {
             section5opened: false,
         };
 
+        this.DATABASE = firebase.firestore();
+
         this.activityCounter = 1;
+        this.numNames = 0;
 
         this.getNames = this.getNames.bind(this);
         this.shuffle = this.shuffle.bind(this)
@@ -39,19 +40,31 @@ export default class TabFrame extends React.Component {
         this.populateValues = this.populateValues.bind(this);
     }
 
-    componentDidMount() {
-        // get Qualtrics userID
-        console.log(this.props.match.params.qualtricsUserId)
+    async componentDidMount() {
+        // Get parameters from URL and store in state
+        this.setState({qualtricsUserId: this.props.match.params.qualtricsUserId});
+        await this.setState({pageNum: parseInt(this.props.match.params.pageNum)});
+        await this.setState({
+            namesArray: new URLSearchParams(this.props.location.search).getAll('name')
+        });
+        this.numNames = this.state.namesArray.length;
 
-        this.setState({page: this.props.page}, () => {
+        // Pull stuff from the database
+        this.getJobDescription();
+        if (this.state.pageNum === 1) {
+            this.getNames();
+        } else {
+            this.populateValues();
+        }
+
+        /*this.setState({page: this.props.page}, () => {
             this.setState({qualtricsUserId: this.props.match.params.qualtricsUserId}, () => {
-                this.setState({currentUserID: this.state.qualtricsUserId}, () => {
-                    if(this.state.page === 2 || this.state.page === 3 || this.state.page === 4) {
+                this.setState({qualtricsUserId: this.state.qualtricsUserId}, () => {
+                    if (this.state.page === 2 || this.state.page === 3 || this.state.page === 4) {
                         this.getJobDescription()
                         this.populateValues();
                         //this.setState({modalOpened: true})
-                    }
-                    else{
+                    } else {
                         //this.setState({men: this.props.men});
                         //this.setState({women: this.props.women}, () => {
                             //this.generateUniqueID();
@@ -64,80 +77,52 @@ export default class TabFrame extends React.Component {
                     }
                 })
             })
-        });
+        });*/
     }
 
     getJobDescription() {
-        const db = firebase.firestore();
-        db.collection("job_description").doc("values").get().then((doc) => {
-            console.log("have accessed values: " + doc.data().job_title)
-            this.setState({job_title: doc.data().job_title})
-            this.setState({main_tasks: doc.data().main_tasks})
-            this.setState({req_skills: doc.data().req_skills})
-            this.state.job_title = doc.data().job_title
-            this.state.main_tasks = this.renderBulletList(doc.data().main_tasks)
-            this.state.req_skills = this.renderBulletList(doc.data().req_skills)
-        })
+        this.DATABASE.collection("job_description").doc("values").get().then((doc) => {
+            this.setState({job_title: doc.data().job_title});
+            this.setState({main_tasks: doc.data().main_tasks});
+            this.setState({req_skills: doc.data().req_skills});
+            console.log("got job description from database!");
+        });
     }
 
-    getNames() {
-        this.shuffle(this.state.namesOrder, function() {
-            //console.log("finished shuffling name order")
-            const db = firebase.firestore();
-            //console.log("link ending: " + this.state.linkEnding)
+    async getNames() {
+        // Randomize the name order and store in the database
+        this.shuffle(this.state.namesArray);
+        let namesDBKV = {};
+        for (let i = 0; i < this.numNames; i++) {
+            namesDBKV["candidate" + (i+1) + "_name"] = this.state.namesArray[i];
+        }
+        await this.DATABASE.collection("userIDs").doc(this.state.qualtricsUserId).set(namesDBKV);
+        console.log("randomized name order and stored in database!");
+
+        // Randomize the resume order and store in the database
+        this.shuffle(this.state.resumes);
+        let resumesDBKV = {};
+        for (let i = 0; i < this.numNames; i++) {
+            resumesDBKV["candidate" + (i+1) + "_resume"] = this.state.resumes[i];
+        }
+        await this.DATABASE.collection("userIDs").doc(this.state.qualtricsUserId).set(resumesDBKV);
+        console.log("randomized resume order and stored in database!");
 
 
-            //EDIT HERE ON OUT
-            for(let i = 0; i < this.state.namesOrder.length; i++){
-                //console.log("NAMES ORDER " + this.state.namesOrder[i])
-                let curr_name = this.state.namesArray[this.state.namesOrder[i]]
-                //console.log("CURR NAME " + curr_name)
-                let index = curr_name.indexOf("_")
-                // let curr_gender = curr_name.substring(0, index)
-                curr_name = curr_name.substring(index + 1)
-                //console.log("gender: " + curr_gender)
-                // this.state.genderOrder.push(curr_gender)
-                this.state.names.push(curr_name)
-            }
 
-                //: " + this.state.genderOrder)
-                // this.selectHeadshots(0)
-                db.collection("userIDs").doc(this.state.currentUserID).set({
-                    "candidate1_name": this.state.names[0],
-                    "candidate2_name": this.state.names[1],
-                    "candidate3_name": this.state.names[2],
-                    "candidate4_name": this.state.names[3],
-                    "candidate5_name": this.state.names[4],
-                }).then(() => {
-                    //console.log("about to start shuffling")
-                        //shuffle resume order
-                        this.shuffle(this.state.resumes, function() {
-                            //console.log("finished shuffling resume order")
-                            db.collection("userIDs").doc(this.state.currentUserID).update({
-                                "candidate1_resume": this.state.resumes[0],
-                                "candidate2_resume": this.state.resumes[1],
-                                "candidate3_resume": this.state.resumes[2],
-                                "candidate4_resume": this.state.resumes[3],
-                                "candidate5_resume": this.state.resumes[4],
-                            }).then(() => {
-                                let count = this.activityCounter.toString();
-                                this.activityCounter = this.activityCounter + 1;
+        // TODO: make this a function
+        let count = this.activityCounter.toString();
+        this.activityCounter = this.activityCounter + 1;
 
-                                let time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
-
-                                db.collection("userIDs").doc(this.state.currentUserID).collection("activityData_page"+this.state.page).doc(count).set({
-                                    "time": time,
-                                    "description": "website information loaded",
-                                });
-                            })
-                        })
-                    })
-                })
-        //})
+        const time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
+        this.DATABASE.collection("userIDs").doc(this.state.qualtricsUserId).collection("activityData_page" + this.state.pageNum).doc(count).set({
+            "time": time,
+            "description": "website information loaded",
+        });
     }
 
     // get values for this.state.resumes[resume_number]
-    pullValues(resume_number){
+    pullValues(resume_number) {
         //console.log("pulling values for resume: " + resume_number)
         if(resume_number === 5){
             return
@@ -150,9 +135,8 @@ export default class TabFrame extends React.Component {
 
         //console.log("curr resume: " + curr_resume)
 
-        const db = firebase.firestore();
 
-        db.collection("resumes").doc("resume_" + curr_resume).get().then((doc) => {
+        this.DATABASE.collection("resumes").doc("resume_" + curr_resume).get().then((doc) => {
             new_dict["edu_degree"] = doc.data().edu_degree
             new_dict["edu_distinction"] = doc.data().edu_distinction
             new_dict["edu_duration"] = doc.data().edu_duration
@@ -188,32 +172,13 @@ export default class TabFrame extends React.Component {
         this.pullValues(resume_number + 1)
     }
 
-    shuffle(array, callback) {
-        var currentIndex = array.length, temporaryValue, randomIndex;
-
-        // While there remain elements to shuffle...
-        while (0 !== currentIndex) {
-
-            // Pick a remaining element...
-            randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex -= 1;
-
-            // And swap it with the current element.
-            temporaryValue = array[currentIndex];
-            array[currentIndex] = array[randomIndex];
-            array[randomIndex] = temporaryValue;
+    // Shuffle an array
+    shuffle(array) {
+        // via https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array/12646864#12646864
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
         }
-
-        this.setState({[array] : array}, () => {
-            if(array === this.state.resumes){
-                this.pullValues(0)
-            }
-        })
-
-        let boundCallback = callback.bind(this)
-        boundCallback()
-        //console.log("exit shuffle")
-        //return array;
     }
 
     renderBulletList(workDescription) {
@@ -230,38 +195,22 @@ export default class TabFrame extends React.Component {
     }
 
     populateValues() {
-        const db = firebase.firestore();
-
-        // get names
-        db.collection("userIDs").doc(this.state.currentUserID).get().then((doc) => {
-            for (let i = 1; i <= 5; i++){
-                let curr_name = doc.data()["candidate" + i + "_name"]
-                //let curr_gender = curr_name.substring(0, index)
-                //console.log("gender: " + curr_gender)
-                //this.state.genderOrder.push(curr_gender)
-                this.state.names.push(curr_name)
-            }
-            //console.log("NAME ORDER")
-            //console.log(this.state.names)
-        })
-
         // get resume order
-        db.collection("userIDs").doc(this.state.currentUserID).get().then((doc) => {
+        this.DATABASE.collection("userIDs").doc(this.state.qualtricsUserId).get().then((doc) => {
+            console.log(doc);
             for (let i = 1; i <= 5; i++){
                 let resume = doc.data()["candidate" + i + "_resume"]
                 this.state.resumes[i-1] = resume
             }
-            //console.log("RESUME ORDER")
-            //console.log(this.state.resumes)
             this.pullValues(0)
-        })
+        });
 
         let count = this.activityCounter.toString();
         this.activityCounter = this.activityCounter + 1;
 
         let time = moment().tz("America/Los_Angeles").format('MM-DD-YYYY HH:mm:ss');
 
-        db.collection("userIDs").doc(this.state.currentUserID).collection("activityData_page"+this.state.page).doc(count).set({
+        this.DATABASE.collection("userIDs").doc(this.state.qualtricsUserId).collection("activityData_page"+this.state.pageNum).doc(count).set({
             "time": time,
             "description": "website information loaded",
         });
@@ -275,7 +224,6 @@ export default class TabFrame extends React.Component {
         console.log(this.state["section" + tabNum + "opened"])
         this.setState({reload: true})
 
-        const db = firebase.firestore();
         let count = this.activityCounter.toString();
         this.activityCounter = this.activityCounter + 1;
         let description = '';
@@ -288,7 +236,7 @@ export default class TabFrame extends React.Component {
             description = "opened job description"
         }
 
-        db.collection("userIDs").doc(this.state.currentUserID).collection("activityData_page"+this.state.page).doc(count).set({
+        this.DATABASE.collection("userIDs").doc(this.state.qualtricsUserId).collection("activityData_page"+this.state.pageNum).doc(count).set({
             "time": time,
             "description": description,
         });
