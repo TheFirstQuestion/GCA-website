@@ -11,15 +11,8 @@
 # production
 /build
 
-
-########################## CS 142 ##########################
-# Node
-node_modules/
-# React
-compiled/
-
-
 ########################### Node ###########################
+node_modules/
 # Optional npm cache directory
 .npm
 # Optional eslint cache
