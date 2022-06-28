@@ -2,12 +2,12 @@ import React from "react";
 import { HashRouter, Route } from "react-router-dom";
 import Admin from "./Admin";
 import Pool from "./Pool";
-import "./GlobalStyles.css";
+import "./styles/GlobalStyles.css";
 
 export default class App extends React.Component {
   render() {
     return (
-      <div>
+      <div className="App">
         <HashRouter>
           {/* my new format */}
           <Route

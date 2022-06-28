@@ -12,43 +12,43 @@ export default class Candidate extends React.Component {
   render() {
     return (
       <Card.Body>
-        <div className="resume" id="horizontal_master">
-          <div className="header">{this.name}</div>
-        </div>
-        <div className="expand">
-          <div className="header">Work Experience</div>
-          <div id="subtext">
-            {" "}
-            {this.resume["work1_title"]}
-            <div id="horizontal">
-              <div id="subinfo">{this.resume["work1_company"]}</div>
+        <div className="candidate">
+          <h1 className="name">{this.name}</h1>
+          <hr />
+          <h2 className="sectionHeader">Work Experience</h2>
+          <div>
+            <h3>{this.resume["work1_title"]}</h3>
+            <h4>{this.resume["work1_company"]}</h4>
+            <h5>{this.resume["work1_duration"]}</h5>
+            <div className="workDescription">
+              {this.resume["work1_description"]}
             </div>
-            <div id="subinfogray">{this.resume["work1_duration"]}</div>
-            <div id="subinfo">{this.resume["work1_description"]}</div>
           </div>
-          <div id="subtext">
-            {" "}
-            {this.resume["work2_title"]}
-            <div id="horizontal">
-              <div id="subinfo">{this.resume["work2_company"]}</div>
+          <div>
+            <h3>{this.resume["work2_title"]}</h3>
+            <h4>{this.resume["work2_company"]}</h4>
+            <h5>{this.resume["work2_duration"]}</h5>
+            <div className="workDescription">
+              {this.resume["work2_description"]}
             </div>
-            <div id="subinfogray">{this.resume["work2_duration"]}</div>
-            <div id="subinfo">{this.resume["work2_description"]}</div>
           </div>
-          <div id="subtext">
-            {" "}
-            {this.resume["work3_title"]}
-            <div id="horizontal">
-              <div id="subinfo">{this.resume["work3_company"]}</div>
+          <div>
+            <h3>{this.resume["work3_title"]}</h3>
+            <h4>{this.resume["work3_company"]}</h4>
+            <h5>{this.resume["work3_duration"]}</h5>
+            <div className="workDescription">
+              {this.resume["work3_description"]}
             </div>
-            <div id="subinfogray">{this.resume["work3_duration"]}</div>
-            <div id="subinfo">{this.resume["work3_description"]}</div>
           </div>
-          <div className="header">Education</div>
-          <div id="subtext">
-            {this.resume["edu_degree"]}, {this.resume["edu_major"]}
-            <div id="subinfo">{this.resume["edu_university"]}</div>
-            <div id="subinfogray">{this.resume["edu_duration"]}</div>
+          <hr />
+          <h2 className="sectionHeader">Education</h2>
+          <div>
+            <p className="eduBasics">
+              {this.resume["edu_degree"]}, {this.resume["edu_major"]}
+            </p>
+            <p className="eduInfo">
+              {this.resume["edu_university"]}, {this.resume["edu_duration"]}
+            </p>
           </div>
         </div>
       </Card.Body>

@@ -19,4 +19,4 @@ Any number of names can be passed as parameters.
 ## Run Project
 
 - `npm start`
-- In your browser, visit a valid URL, such as http://localhost:3000/#/page/2/:qualtricsUserId/?name=Brittany%20L.&name=Sarah%20S.&name=Christopher%20P.&name=Emily%20R.&name=Ashley%20G.&name=Daniel%20R.
+- In your browser, visit a valid URL, such as http://localhost:3000/#/page/2/:qualtricsUserId/?name=Brittany%20Lawrence&name=Sarah%20Smith&name=Christopher%20Piech&name=Emily%20Rodriguez&name=Ashley%20Gneiss&name=Daniel%20Reid

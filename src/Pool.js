@@ -1,8 +1,6 @@
 import React from "react";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "react-tabs/style/react-tabs.css";
-import "./GlobalStyles.css";
+import "./styles/react-tabs.css";
 import firebase from "./firebase";
 import Candidate from "./Candidate";
 import JobDescription from "./JobDescription";
@@ -66,8 +64,8 @@ export default class Pool extends React.Component {
       .then((doc) => {
         this.setState({
           job_title: doc.data().job_title,
-          main_tasks: doc.data().main_tasks,
-          req_skills: doc.data().req_skills,
+          main_tasks: this.renderBulletList(doc.data().main_tasks),
+          req_skills: this.renderBulletList(doc.data().req_skills),
         });
         console.log("got job description from database!");
       });
@@ -228,52 +226,46 @@ export default class Pool extends React.Component {
 
   render() {
     return (
-      <div className="overall">
-        <div className="App">
-          <div className="resume_master">
-            <div>
-              {this.state.main_tasks &&
-                this.state.resumeList.length === this.numNames && (
-                  <Tabs
-                    defaultIndex={0}
-                    onSelect={(index) => this.collapsibleOpened(index)}
-                  >
-                    <TabList>
-                      <Tab>Job Description</Tab>
-                      {
-                        // Create the resume tabs
-                        this.state.names.map((val, index) => (
-                          <Tab key={index}>{val}</Tab>
-                        ))
-                      }
-                    </TabList>
+      <div className="pool">
+        {this.state.main_tasks &&
+          this.state.resumeList.length === this.numNames && (
+            <Tabs
+              defaultIndex={0}
+              onSelect={(index) => this.collapsibleOpened(index)}
+            >
+              <TabList>
+                <Tab>Job Description</Tab>
+                {
+                  // Create the resume tabs
+                  this.state.names.map((val, index) => (
+                    <Tab key={index}>{val}</Tab>
+                  ))
+                }
+              </TabList>
 
-                    <TabPanel>
-                      {
-                        <JobDescription
-                          job_title={this.state.job_title}
-                          main_tasks={this.state.main_tasks}
-                          req_skills={this.state.req_skills}
-                        />
-                      }
-                    </TabPanel>
-                    {
-                      // Create the resume tabs
-                      this.resumesOrder.map((num, i) => (
-                        <TabPanel key={i}>
-                          <Candidate
-                            key={i}
-                            name={this.state.names[i]}
-                            resume={this.state.resumeList[i]}
-                          />
-                        </TabPanel>
-                      ))
-                    }
-                  </Tabs>
-                )}
-            </div>
-          </div>
-        </div>
+              <TabPanel>
+                {
+                  <JobDescription
+                    job_title={this.state.job_title}
+                    main_tasks={this.state.main_tasks}
+                    req_skills={this.state.req_skills}
+                  />
+                }
+              </TabPanel>
+              {
+                // Create the resume tabs
+                this.resumesOrder.map((num, i) => (
+                  <TabPanel key={i}>
+                    <Candidate
+                      key={i}
+                      name={this.state.names[i]}
+                      resume={this.state.resumeList[i]}
+                    />
+                  </TabPanel>
+                ))
+              }
+            </Tabs>
+          )}
       </div>
     );
   }
