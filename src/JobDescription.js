@@ -1,4 +1,5 @@
 import React from "react";
+import Card from "react-bootstrap/Card";
 
 export default class JobDescription extends React.Component {
   constructor(props) {
@@ -13,21 +14,16 @@ export default class JobDescription extends React.Component {
 
   render() {
     return (
-      <>
-        <strong>{this.state.job_title} Job Description</strong>
-        <br />
-        <br />
-        <strong>Job Title: </strong>
-        {this.state.job_title}
-        <br />
-        <br />
-        <strong>Main Tasks: </strong>
-        <div id="bullets">{this.state.main_tasks}</div>
-        <br />
-        <br />
-        <strong>Required Knowledge and Skills: </strong>
-        <div id="bullets">{this.state.req_skills}</div>
-      </>
+      <Card.Body>
+        <div className="jobDescription">
+          <h1>Job Description: {this.state.job_title}</h1>
+          <hr />
+          <h2>Main Tasks: </h2>
+          <div>{this.state.main_tasks}</div>
+          <h2>Required Knowledge and Skills: </h2>
+          <div>{this.state.req_skills}</div>
+        </div>
+      </Card.Body>
     );
   }
 }
