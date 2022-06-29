@@ -22,10 +22,10 @@
 }
 
 .card-body {
-  margin-left: 15%;
+  margin-left: max(18%, 230px);
 }
 
-/* ############################## A Tab ############################# */
+/* ############################## Content of a Tab ############################# */
 .candidate,
 .jobDescription {
   width: 100%;

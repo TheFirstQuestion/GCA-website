@@ -11,9 +11,14 @@ export default class Pool extends React.Component {
     super(props);
 
     this.state = {
-      names: shuffle(
-        new URLSearchParams(this.props.location.search).getAll("name")
-      ),
+      names: [
+        new URLSearchParams(this.props.location.search).get("name1"),
+        new URLSearchParams(this.props.location.search).get("name2"),
+        new URLSearchParams(this.props.location.search).get("name3"),
+        new URLSearchParams(this.props.location.search).get("name4"),
+        new URLSearchParams(this.props.location.search).get("name5"),
+        new URLSearchParams(this.props.location.search).get("name6"),
+      ],
       resumeList: [],
 
       job_title: null,
