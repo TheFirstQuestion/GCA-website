@@ -1,6 +1,6 @@
 # GCA Website
 
-Website build to collect digital trace data for the Gender Composition of Hiring Pools Study at Stanford University.
+Website to collect digital trace data for the Gender Composition of Hiring Pools Study at Stanford University.
 
 ## Creating URLs
 
