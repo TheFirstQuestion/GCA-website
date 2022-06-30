@@ -1,6 +1,6 @@
 # GCA Website
 
-Gender Composition of Hiring Pools Study at Stanford University.
+Website build to collect digital trace data for the Gender Composition of Hiring Pools Study at Stanford University.
 
 ## Creating URLs
 
@@ -20,3 +20,9 @@ https://www.gcaproject.com/#/page/:pageNum/:qualtricsUserId/?name1=a&name2=b&nam
 
 - `npm start`
 - In your browser, visit a valid URL, such as http://localhost:3000/#/page/2/TESTING/?name1=Stephanie%20Lawrence&name2=Guadalupe%20Hernandez&name3=Tremayne%20Washington&name4=Emily%20Rodriguez&name5=Ashley%20Gneiss&name6=Daniel%20Reid
+
+## Embed in Qualtrics
+
+```HTML
+<iframe height="830px" width="100%" src="https://www.gcaproject.com/#/page/:pageNum/:qualtricsUserId/?name1=${e://Field/name1}&name2=${e://Field/name2}&name3=${e://Field/name3}&name4=${e://Field/name4}&name5=${e://Field/name5}&name6=${e://Field/name6}" ></iframe>
+```
