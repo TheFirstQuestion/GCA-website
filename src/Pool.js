@@ -4,7 +4,6 @@ import "./styles/react-tabs.css";
 import firebase from "./firebase";
 import Candidate from "./Candidate";
 import JobDescription from "./JobDescription";
-var moment = require("moment-timezone");
 
 export default class Pool extends React.Component {
   constructor(props) {
@@ -25,30 +24,24 @@ export default class Pool extends React.Component {
       job_title: null,
       main_tasks: null,
       req_skills: null,
-
-      // TODO: make this array
-      // TODO: fix this logic (if focused and click, still switches)
-      section1opened: false,
-      section2opened: false,
-      section3opened: false,
-      section4opened: false,
-      section5opened: false,
     };
 
     // Get from the URL
     this.qualtricsUserId = this.props.match.params.qualtricsUserId;
     this.pageNum = parseInt(this.props.match.params.pageNum);
 
+    // Get from App
+    this.recordActivity = this.props.recordActivity.bind(this);
+
     // These will help us later
     this.DATABASE = firebase.firestore();
     this.numNames = this.state.names.length;
-    this.activityCounter = 1;
 
     // Bind methods
     this.getJobDescription = this.getJobDescription.bind(this);
     this.recordOrder = this.recordOrder.bind(this);
     this.populateValues = this.populateValues.bind(this);
-    this.recordActivity = this.recordActivity.bind(this);
+    this.componentWillUnmount = this.componentWillUnmount.bind(this);
   }
 
   // Get data from the database
@@ -58,6 +51,12 @@ export default class Pool extends React.Component {
     }
     await this.populateValues();
     await this.getJobDescription();
+    this._isMounted = true;
+    this.recordActivity("component mounted", "site_loaded");
+  }
+
+  componentWillUnmount() {
+    this.recordActivity("component unmounted", "move_away");
   }
 
   async recordOrder() {
@@ -69,8 +68,10 @@ export default class Pool extends React.Component {
 
     await this.DATABASE.collection("userIDs")
       .doc(this.qualtricsUserId)
-      .set(namesDBKV);
-    console.log("name order stored in database!");
+      .set(namesDBKV)
+      .then(() => {
+        this.recordActivity("name order stored", "order_stored");
+      });
 
     // Store resume order in the database
     let resumesDBKV = {};
@@ -81,11 +82,10 @@ export default class Pool extends React.Component {
     }
     await this.DATABASE.collection("userIDs")
       .doc(this.qualtricsUserId)
-      .set(resumesDBKV);
-    console.log(resumesDBKV);
-    console.log("resume order stored in database!");
-
-    this.recordActivity("name and resume order stored");
+      .set(resumesDBKV)
+      .then(() => {
+        this.recordActivity("resume order stored", "order_stored");
+      });
   }
 
   async getJobDescription() {
@@ -99,7 +99,6 @@ export default class Pool extends React.Component {
           main_tasks: renderBulletList(doc.data().main_tasks),
           req_skills: renderBulletList(doc.data().req_skills),
         });
-        console.log("got job description from database!");
       });
   }
 
@@ -115,8 +114,10 @@ export default class Pool extends React.Component {
           this.state.resumesOrder[i] = kvp["candidate" + (i + 1) + "_resume"];
           this.getCandidateResume(i);
         }
+      })
+      .then(() => {
+        this.recordActivity("website information loaded", "site_loaded");
       });
-    this.recordActivity("website information loaded");
   }
 
   // For a given candidate index, get their resume from the database
@@ -164,43 +165,15 @@ export default class Pool extends React.Component {
     this.state.resumeList[candidateNum] = new_dict;
   }
 
-  // Send the digital trace data to firebase
-  async recordActivity(msg) {
-    const count = this.activityCounter.toString();
-    this.activityCounter = this.activityCounter + 1;
-
-    const time = moment()
-      .tz("America/Los_Angeles")
-      .format("MM-DD-YYYY HH:mm:ss");
-
-    this.DATABASE.collection("userIDs")
-      .doc(this.qualtricsUserId)
-      .collection("activityData_page" + this.pageNum)
-      .doc(count)
-      .set({
-        time: time,
-        description: msg,
-      });
-  }
-
-  collapsibleOpened(tabNum) {
-    let val = this.state["section" + tabNum + "opened"];
-    console.log(this.state["section" + tabNum + "opened"]);
-    this.setState({ ["section" + tabNum + "opened"]: !val });
-    console.log("section" + tabNum + "opened");
-    console.log(this.state["section" + tabNum + "opened"]);
-    this.setState({ reload: true });
-
-    console.log(
-      "OPENED OR CLOSED: " + this.state["section" + tabNum + "opened"]
-    );
-
-    let description = "opened resume " + tabNum;
+  onClick(tabNum) {
     if (tabNum === 0) {
-      description = "opened job description";
+      this.recordActivity("clicked job description", "job_description");
+    } else {
+      this.recordActivity(
+        "clicked resume " + tabNum,
+        "click_candidate" + tabNum
+      );
     }
-
-    this.recordActivity(description);
   }
 
   render() {
@@ -208,10 +181,7 @@ export default class Pool extends React.Component {
       <div className="pool">
         {this.state.main_tasks &&
           this.state.resumeList.length === this.numNames && (
-            <Tabs
-              defaultIndex={0}
-              onSelect={(index) => this.collapsibleOpened(index)}
-            >
+            <Tabs defaultIndex={0} onSelect={(index) => this.onClick(index)}>
               <TabList>
                 <Tab>Job Description</Tab>
                 {
