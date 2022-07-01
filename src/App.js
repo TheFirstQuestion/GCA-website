@@ -22,17 +22,40 @@ export default class App extends React.Component {
     window.addEventListener("DOMContentLoaded", () => {
       this.recordActivity("DOMContentLoaded", "site_loaded");
     });
+    window.addEventListener("onload", () => {
+      this.recordActivity("onload", "site_loaded");
+    });
+
     window.addEventListener("beforeunload", () => {
       this.recordActivity("beforeunload", "move_away");
     });
     window.addEventListener("pagehide", () => {
       this.recordActivity("pagehide", "move_away");
     });
+
     document.onvisibilitychange = () => {
       if (document.visibilityState === "hidden") {
         this.recordActivity("visibility hidden", "move_away");
+      } else {
+        if (document.visibilityState === "hidden") {
+          this.recordActivity("unhidden", "site_loaded");
+        }
       }
     };
+
+    let prevPosition = 0;
+
+    window.addEventListener("scroll", function (event) {
+      // use the time since the previous value was stored to "debounce"
+      // compare to a ratio of the total height? or to boundaries defined by content?
+      const windowHeight = document.documentElement.getBoundingClientRect()
+        .height;
+      const scrollPosition = this.scrollY;
+      if (scrollPosition - prevPosition >= 100) {
+        console.log(scrollPosition);
+        prevPosition = scrollPosition;
+      }
+    });
   }
 
   // Send the digital trace data to firebase

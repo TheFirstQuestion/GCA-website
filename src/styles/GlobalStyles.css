@@ -17,8 +17,9 @@
   width: 100%;
 }
 
+/* Match react-tabs */
 .card-body {
-  margin-left: max(19%, 240px);
+  margin-left: max(17%, 220px);
 }
 
 /* ############################## Content of a Tab ############################# */
