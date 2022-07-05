@@ -34,28 +34,17 @@ export default class App extends React.Component {
     });
 
     document.onvisibilitychange = () => {
+      // as per https://developer.mozilla.org/en-US/docs/Web/API/Document/visibilityState
       if (document.visibilityState === "hidden") {
+        // The page content is not visible to the user. In practice this means that the document is either a background tab or part of a minimized window, or the OS screen lock is active.
         this.recordActivity("visibility hidden", "move_away");
       } else {
-        if (document.visibilityState === "hidden") {
-          this.recordActivity("unhidden", "site_loaded");
+        // The page content may be at least partially visible. In practice this means that the page is the foreground tab of a non-minimized window.
+        if (document.visibilityState === "visible") {
+          this.recordActivity("visibility visible", "site_loaded");
         }
       }
     };
-
-    let prevPosition = 0;
-
-    window.addEventListener("scroll", function (event) {
-      // use the time since the previous value was stored to "debounce"
-      // compare to a ratio of the total height? or to boundaries defined by content?
-      const windowHeight = document.documentElement.getBoundingClientRect()
-        .height;
-      const scrollPosition = this.scrollY;
-      if (scrollPosition - prevPosition >= 100) {
-        console.log(scrollPosition);
-        prevPosition = scrollPosition;
-      }
-    });
   }
 
   // Send the digital trace data to firebase
@@ -73,7 +62,7 @@ export default class App extends React.Component {
       .set({
         timestamp: new Date(now),
         timeEpoch: Number(now.format("x")),
-        timeReadable: now.tz("America/Los_Angeles").format("M-D-YYYY h:mm:ssa"),
+        timeReadable: now.tz("America/Los_Angeles").format("M-D-YY h:mm:ssa"),
         description: msg,
         type: type,
       });

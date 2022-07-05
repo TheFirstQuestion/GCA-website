@@ -36,6 +36,8 @@ export default class Pool extends React.Component {
     // These will help us later
     this.DATABASE = firebase.firestore();
     this.numNames = this.state.names.length;
+    // used for scroll tracking
+    this.prevPercent = 0;
 
     // Bind methods
     this.getJobDescription = this.getJobDescription.bind(this);
@@ -51,8 +53,25 @@ export default class Pool extends React.Component {
     }
     await this.populateValues();
     await this.getJobDescription();
-    this._isMounted = true;
-    this.recordActivity("component mounted", "site_loaded");
+    this.recordActivity("website loaded", "site_loaded");
+
+    // Scroll tracking
+    setInterval(() => {
+      const docRect = document
+        .getElementsByClassName("card-body")[0]
+        .getBoundingClientRect();
+      const contentHeight = docRect.height;
+      const viewHeight = window.innerHeight;
+      const maxPosition = contentHeight - viewHeight;
+
+      const scrollPosition = Math.abs(contentHeight - docRect.bottom);
+      const scrollPercent = Math.round((scrollPosition / maxPosition) * 100);
+
+      if (Math.abs(scrollPercent - this.prevPercent) > 5) {
+        this.recordActivity("scrolled to " + scrollPercent + "%", "scroll");
+        this.prevPercent = scrollPercent;
+      }
+    }, 1000);
   }
 
   componentWillUnmount() {
@@ -114,9 +133,6 @@ export default class Pool extends React.Component {
           this.state.resumesOrder[i] = kvp["candidate" + (i + 1) + "_resume"];
           this.getCandidateResume(i);
         }
-      })
-      .then(() => {
-        this.recordActivity("website information loaded", "site_loaded");
       });
   }
 
@@ -209,6 +225,7 @@ export default class Pool extends React.Component {
                       key={i}
                       name={this.state.names[i]}
                       resume={this.state.resumeList[i]}
+                      recordActivity={this.recordActivity}
                     />
                   </TabPanel>
                 ))
