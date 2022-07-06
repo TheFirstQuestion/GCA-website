@@ -1,4 +1,5 @@
-import firebase from 'firebase';
+import firebase from "firebase/app";
+import "firebase/firestore";
 
 var config = {
   apiKey: "AIzaSyBARurBcuPfg3SWhuI1Ry1WqPFn7IgORN0",
@@ -7,11 +8,8 @@ var config = {
   storageBucket: "claire-dtp-project.appspot.com",
   messagingSenderId: "348955792385",
   appId: "1:348955792385:web:18c5d1981ab2e4b7b85c00",
-  measurementId: "G-SLLS5K68LD"
+  measurementId: "G-SLLS5K68LD",
 };
 
 firebase.initializeApp(config);
-firebase.analytics();
-//firebase.firestore().enablePersistence();
 export default firebase;
-

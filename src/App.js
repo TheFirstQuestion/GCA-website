@@ -17,38 +17,17 @@ export default class App extends React.Component {
     const loc = document.location.hash;
     this.pageNum = loc.split("/")[2];
     this.qualtricsUserId = loc.split("/")[3];
+    // Print for debugging purposes within Qualtrics
+    console.log("qualtricsUserId: " + this.qualtricsUserId);
+    console.log("pageNum: " + this.pageNum);
+  }
 
-    // Add event listeners for DTD
-    window.addEventListener("DOMContentLoaded", () => {
-      this.recordActivity("DOMContentLoaded", "site_loaded");
-    });
-    window.addEventListener("onload", () => {
-      this.recordActivity("onload", "site_loaded");
-    });
-
-    window.addEventListener("beforeunload", () => {
-      this.recordActivity("beforeunload", "move_away");
-    });
-    window.addEventListener("pagehide", () => {
-      this.recordActivity("pagehide", "move_away");
-    });
-
-    document.onvisibilitychange = () => {
-      // as per https://developer.mozilla.org/en-US/docs/Web/API/Document/visibilityState
-      if (document.visibilityState === "hidden") {
-        // The page content is not visible to the user. In practice this means that the document is either a background tab or part of a minimized window, or the OS screen lock is active.
-        this.recordActivity("visibility hidden", "move_away");
-      } else {
-        // The page content may be at least partially visible. In practice this means that the page is the foreground tab of a non-minimized window.
-        if (document.visibilityState === "visible") {
-          this.recordActivity("visibility visible", "site_loaded");
-        }
-      }
-    };
+  componentDidMount() {
+    this.recordActivity("loading", "accessed", "App mounted");
   }
 
   // Send the digital trace data to firebase
-  async recordActivity(msg, type) {
+  async recordActivity(cat, val, desc) {
     // This will be the ID of the activity in firebase -- a string, padded to 5 digits
     const id = this.activityCounter.toString().padStart(5, "0");
     this.activityCounter = this.activityCounter + 1;
@@ -60,13 +39,14 @@ export default class App extends React.Component {
       .collection("activityData_page" + this.pageNum)
       .doc(id)
       .set({
+        category: cat,
+        description: desc,
+        value: val,
         timestamp: new Date(now),
         timeEpoch: Number(now.format("x")),
         timeReadable: now.tz("America/Los_Angeles").format("M-D-YY h:mm:ssa"),
-        description: msg,
-        type: type,
       });
-    console.log(id + " " + type + ": " + msg);
+    console.log(id + " " + cat + ": " + val + " -- " + desc);
   }
 
   render() {

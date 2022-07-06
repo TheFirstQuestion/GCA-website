@@ -19,7 +19,7 @@
 
 /* Match react-tabs */
 .card-body {
-  margin-left: max(17%, 220px);
+  margin-left: calc(max(17%, 220px) + 20px);
 }
 
 /* ############################## Content of a Tab ############################# */

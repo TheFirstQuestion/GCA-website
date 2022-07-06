@@ -43,17 +43,25 @@ export default class Pool extends React.Component {
     this.getJobDescription = this.getJobDescription.bind(this);
     this.recordOrder = this.recordOrder.bind(this);
     this.populateValues = this.populateValues.bind(this);
-    this.componentWillUnmount = this.componentWillUnmount.bind(this);
   }
 
-  // Get data from the database
   async componentDidMount() {
+    // Start fetching the data
+    let promises = [];
+    promises.push(this.getJobDescription());
+    // Order is assigned when visiting page 1, and followed on subsequent pages
     if (this.pageNum === 1) {
-      await this.recordOrder();
+      this.recordOrder().then(() => {
+        promises.push(this.populateValues());
+      });
+    } else {
+      promises.push(this.populateValues());
     }
-    await this.populateValues();
-    await this.getJobDescription();
-    this.recordActivity("website loaded", "site_loaded");
+
+    // DTD
+    Promise.all(promises).then(() => {
+      this.recordActivity("loading", "ready", "data loaded");
+    });
 
     // Scroll tracking
     setInterval(() => {
@@ -68,29 +76,33 @@ export default class Pool extends React.Component {
       const scrollPercent = Math.round((scrollPosition / maxPosition) * 100);
 
       if (Math.abs(scrollPercent - this.prevPercent) > 5) {
-        this.recordActivity("scrolled to " + scrollPercent + "%", "scroll");
+        this.recordActivity(
+          "scroll",
+          scrollPercent,
+          "scrolled to " + scrollPercent + "%"
+        );
         this.prevPercent = scrollPercent;
       }
     }, 1000);
   }
 
-  componentWillUnmount() {
-    this.recordActivity("component unmounted", "move_away");
-  }
-
   async recordOrder() {
+    let promises = [];
+
     // Store name order in the database
     let namesDBKV = {};
     for (let i = 0; i < this.numNames; i++) {
       namesDBKV["candidate" + (i + 1) + "_name"] = this.state.names[i];
     }
 
-    await this.DATABASE.collection("userIDs")
-      .doc(this.qualtricsUserId)
-      .set(namesDBKV)
-      .then(() => {
-        this.recordActivity("name order stored", "order_stored");
-      });
+    promises.push(
+      this.DATABASE.collection("userIDs")
+        .doc(this.qualtricsUserId)
+        .set(namesDBKV)
+        .then(() => {
+          this.recordActivity("log", "name_order_stored", "name order stored");
+        })
+    );
 
     // Store resume order in the database
     let resumesDBKV = {};
@@ -99,17 +111,26 @@ export default class Pool extends React.Component {
       resumesDBKV["candidate" + (i + 1) + "_resume"] =
         this.state.resumesOrder[i] + 1;
     }
-    await this.DATABASE.collection("userIDs")
-      .doc(this.qualtricsUserId)
-      .set(resumesDBKV)
-      .then(() => {
-        this.recordActivity("resume order stored", "order_stored");
-      });
+
+    promises.push(
+      this.DATABASE.collection("userIDs")
+        .doc(this.qualtricsUserId)
+        .set(resumesDBKV)
+        .then(() => {
+          this.recordActivity(
+            "log",
+            "resume_order_stored",
+            "resume order stored"
+          );
+        })
+    );
+
+    return Promise.all(promises);
   }
 
+  // Get job description from the database
   async getJobDescription() {
-    // Get job description from the database
-    await this.DATABASE.collection("job_description")
+    return this.DATABASE.collection("job_description")
       .doc("values")
       .get()
       .then((doc) => {
@@ -118,29 +139,39 @@ export default class Pool extends React.Component {
           main_tasks: renderBulletList(doc.data().main_tasks),
           req_skills: renderBulletList(doc.data().req_skills),
         });
+        this.recordActivity(
+          "log",
+          "job_description_fetched",
+          "job description loaded"
+        );
       });
   }
 
   async populateValues() {
     // Get resume order from the database
-    await this.DATABASE.collection("userIDs")
+    let newOrder = [...this.state.resumesOrder];
+    this.DATABASE.collection("userIDs")
       .doc(this.qualtricsUserId)
       .get()
       .then((doc2) => {
         let kvp = doc2.data();
         for (let i = 0; i < this.numNames; i++) {
-          // Save the resume order, and get the resume info
-          this.state.resumesOrder[i] = kvp["candidate" + (i + 1) + "_resume"];
+          // Save the resume order
+          newOrder[i] = kvp["candidate" + (i + 1) + "_resume"];
+          // Get the resume info from the database
           this.getCandidateResume(i);
         }
+        this.setState({
+          resumesOrder: [...newOrder],
+        });
       });
   }
 
   // For a given candidate index, get their resume from the database
   async getCandidateResume(candidateNum) {
     let new_dict = {};
-    await this.DATABASE.collection("resumes")
-      .doc("resume_" + this.state.resumesOrder[candidateNum])
+    this.DATABASE.collection("resumes")
+      .doc("resume_" + (this.state.resumesOrder[candidateNum] + 1))
       .get()
       .then((doc) => {
         new_dict["edu_degree"] = doc.data().edu_degree;
@@ -176,62 +207,58 @@ export default class Pool extends React.Component {
         new_dict["work3_duration"] = doc.data().work3_duration;
         new_dict["work3_location"] = doc.data().work3_location;
         new_dict["work3_title"] = doc.data().work3_title;
-      });
 
-    this.state.resumeList[candidateNum] = new_dict;
+        let newOrder = [...this.state.resumeList];
+        newOrder[candidateNum] = new_dict;
+        this.setState({ resumeList: [...newOrder] });
+      });
   }
 
   onClick(tabNum) {
-    if (tabNum === 0) {
-      this.recordActivity("clicked job description", "job_description");
-    } else {
-      this.recordActivity(
-        "clicked resume " + tabNum,
-        "click_candidate" + tabNum
-      );
-    }
+    this.recordActivity("click", tabNum, "clicked on tab " + tabNum);
   }
 
   render() {
+    this.recordActivity("loading", "render", "Pool has rendered");
     return (
       <div className="pool">
-        {this.state.main_tasks &&
-          this.state.resumeList.length === this.numNames && (
-            <Tabs defaultIndex={0} onSelect={(index) => this.onClick(index)}>
-              <TabList>
-                <Tab>Job Description</Tab>
-                {
-                  // Create the resume tabs
-                  this.state.names.map((val, index) => (
-                    <Tab key={index}>{val}</Tab>
-                  ))
-                }
-              </TabList>
-
-              <TabPanel>
-                {
-                  <JobDescription
-                    job_title={this.state.job_title}
-                    main_tasks={this.state.main_tasks}
-                    req_skills={this.state.req_skills}
-                  />
-                }
-              </TabPanel>
+        {this.state.job_title ? (
+          <Tabs defaultIndex={0} onSelect={(index) => this.onClick(index)}>
+            <TabList>
+              <Tab>Job Description</Tab>
               {
-                // Create the resume content
-                this.state.resumesOrder.map((num, i) => (
-                  <TabPanel key={i}>
-                    <Candidate
-                      key={i}
-                      name={this.state.names[i]}
-                      resume={this.state.resumeList[i]}
-                      recordActivity={this.recordActivity}
-                    />
-                  </TabPanel>
+                // Create the resume tabs
+                this.state.names.map((name, index) => (
+                  <Tab key={index}>{name}</Tab>
                 ))
               }
-            </Tabs>
-          )}
+            </TabList>
+
+            <TabPanel>
+              {
+                <JobDescription
+                  job_title={this.state.job_title}
+                  main_tasks={this.state.main_tasks}
+                  req_skills={this.state.req_skills}
+                />
+              }
+            </TabPanel>
+            {
+              // Create the resume content
+              this.state.names.map((name, index) => (
+                <TabPanel key={index}>
+                  <Candidate
+                    key={index}
+                    name={name}
+                    resume={this.state.resumeList[index]}
+                  />
+                </TabPanel>
+              ))
+            }
+          </Tabs>
+        ) : (
+          <h1>Loading...</h1>
+        )}
       </div>
     );
   }
