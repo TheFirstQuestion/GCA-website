@@ -4,6 +4,9 @@
 # Delete irrelevant entries as appropriate
 ####################################################################
 
+# The Firebase config (contains API key!)
+src/config.js
+
 # Visual Studio?
 .vs/
 # testing

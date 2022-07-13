@@ -18,6 +18,8 @@ https://www.gcaproject.com/#/page/:pageNum/:qualtricsUserId/?name1=a&name2=b&nam
 
 ## Run Project Locally
 
+You'll need to copy-paste the Firebase config from the Project Settings, and create the file `src/config.js` that exports it.
+
 - `npm start`
 - In your browser, visit a valid URL, such as http://localhost:3000/#/page/1/0TESTING/?name1=Stephanie%20Lawrence&name2=Guadalupe%20Hernandez&name3=Tremayne%20Washington&name4=Emily%20Rodriguez&name5=Ashley%20Gneiss&name6=Daniel%20Reid
 
