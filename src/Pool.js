@@ -64,7 +64,7 @@ export default class Pool extends React.Component {
     });
 
     // Scroll tracking
-    setInterval(() => {
+    this.myInterval = setInterval(() => {
       const docRect = document
         .getElementsByClassName("pool")[0]
         .getBoundingClientRect();
@@ -85,6 +85,11 @@ export default class Pool extends React.Component {
         this.prevPercent = scrollPercent;
       }
     }, 1000);
+  }
+
+  componentWillUnmount() {
+    // Stop tracking scroll data when leaving the page
+    clearInterval(this.myInterval);
   }
 
   async recordOrder() {

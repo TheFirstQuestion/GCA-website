@@ -21,7 +21,7 @@ You'll need to copy-paste the Firebase config from the Project Settings, and cre
 - `npm start`
 - In your browser, visit a valid URL, such as http://localhost:3000/#/page/1/0TESTING/?name1=Stephanie%20Lawrence&name2=Guadalupe%20Hernandez&name3=Tremayne%20Washington&name4=Emily%20Rodriguez&name5=Ashley%20Gneiss&name6=Daniel%20Reid
 
-In order to download the data, you will also need to create and export `adminPassword` in `src/config.js`.
+In order to download the data, you will also need to create and export `adminPassword` in `src/config.js`. Visit http://localhost:3000/#/admin, and input the password to download the data.
 
 ## Embed in Qualtrics
 
