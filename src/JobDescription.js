@@ -2,10 +2,6 @@ import React from "react";
 import Card from "react-bootstrap/Card";
 
 export default class JobDescription extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return (
       <Card.Body>
