@@ -6,9 +6,7 @@ Website to collect digital trace data for the Gender Composition of Hiring Pools
 
 The website requires certain parameters to be specified in the URL in order to decide which candidates to show. The format is the following:
 
-```
-https://www.gcaproject.com/#/page/:pageNum/:qualtricsUserId/?name1=a&name2=b&name3=c&name4=d&name5=e&name6=f
-```
+> https://www.gcaproject.com/#/page/:pageNum/:qualtricsUserId/?name1=a&name2=b&name3=c&name4=d&name5=e&name6=f
 
 `:pageNum` and `:qualtricsUserId` should be replaced with the specific values needed. Names should be passed after the `=` and will be displayed in numberical order.
 
