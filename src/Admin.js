@@ -22,16 +22,10 @@ export default class Admin extends React.Component {
     this.users = [];
     this.userData = [];
     this.activityData = [];
-
-    this.rateLimit = new RateLimit(1200, 60000, false);
-
     // Bind methods
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
     this.handlePasswordSubmit = this.handlePasswordSubmit.bind(this);
     this.downloadData = this.downloadData.bind(this);
-    this.getUserData = this.getUserData.bind(this);
-    this.getActivityData = this.getActivityData.bind(this);
-    this.getActivityDataForPage = this.getActivityDataForPage.bind(this);
     this.filenameString = this.filenameString.bind(this);
   }
 
@@ -52,77 +46,41 @@ export default class Admin extends React.Component {
   }
 
   async downloadData() {
-    this.setState({ downloadState: "Downloading..." });
-
-    await this.getUserData();
-    this.setState({ doneGettingUserData: true });
-
-    const promises = this.users.map((user) => this.getActivityData(user));
-    Promise.all(promises).then(() => {
-      this.setState({ doneGettingActivityData: true });
-      this.setState({ downloadState: "Done!" });
-    });
-  }
-
-  async getUserData() {
-    return this.DATABASE.collection("userIDs")
-      .get()
-      .then((doc) => {
-        doc.docs.forEach((item, i) => {
-          if (item.id.includes("TESTING")) {
-            this.users.push(item.id);
-            this.userData.push({
-              userID: item.id,
-              ...item.data(),
+    let tmp = await this.DATABASE.collection("userIDs").get();
+    let users = tmp.docs;
+    for (let i = 0; i < users.length; i++) {
+      let thisUser = users[i];
+      this.setState({
+        downloadState:
+          "Downloading #" + (i + 1) + " of " + users.length + "...",
+      });
+      // Add user data
+      this.users.push(thisUser.id);
+      this.userData.push({
+        userID: thisUser.id,
+        ...thisUser.data(),
+      });
+      // Add page data
+      for (let k = 1; k <= 4; k++) {
+        await this.DATABASE.collection("userIDs")
+          .doc(thisUser.id)
+          .collection("activityData_page" + k)
+          .get()
+          .then((pageData) => {
+            pageData.forEach((item, idx) => {
+              this.activityData.push({
+                userID: thisUser.id,
+                pageNum: k,
+                activityid: item.id,
+                ...item.data(),
+              });
             });
-          }
-        });
-      });
-  }
-
-  async getActivityData(userID) {
-    const fbu = this.DATABASE.collection("userIDs").doc(userID);
-    const p1 = this.rateLimit.schedule(
-      this.getActivityDataForPage,
-      fbu,
-      userID,
-      1
-    );
-    const p2 = this.rateLimit.schedule(
-      this.getActivityDataForPage,
-      fbu,
-      userID,
-      2
-    );
-    const p3 = this.rateLimit.schedule(
-      this.getActivityDataForPage,
-      fbu,
-      userID,
-      3
-    );
-    const p4 = this.rateLimit.schedule(
-      this.getActivityDataForPage,
-      fbu,
-      userID,
-      4
-    );
-    return Promise.all([p1, p2, p3, p4]);
-  }
-
-  async getActivityDataForPage(fbu, userID, pageNum) {
-    return fbu
-      .collection("activityData_page" + pageNum)
-      .get()
-      .then((pageData) => {
-        pageData.docs.forEach((item, i) => {
-          this.activityData.push({
-            userID: userID,
-            pageNum: pageNum,
-            activityid: item.id,
-            ...item.data(),
           });
-        });
-      });
+      }
+    }
+    this.setState({ doneGettingUserData: true });
+    this.setState({ doneGettingActivityData: true });
+    this.setState({ downloadState: "Done!" });
   }
 
   filenameString() {
@@ -193,51 +151,3 @@ export default class Admin extends React.Component {
     );
   }
 }
-
-// Used to call a function at a specified rate; here, to not exceed Firebase's API limit
-// Adapted from https://www.matteoagosti.com/blog/2013/01/22/rate-limiting-function-calls-in-javascript/
-var RateLimit = (function () {
-  var RateLimit = function (maxOps, interval, allowBursts) {
-    this._maxRate = allowBursts ? maxOps : maxOps / interval;
-    this._interval = interval;
-    this._allowBursts = allowBursts;
-
-    this._numOps = 0;
-    this._start = new Date().getTime();
-    this._queue = [];
-  };
-
-  RateLimit.prototype.schedule = function (fn, param1, param2, param3) {
-    var that = this,
-      rate = 0,
-      now = new Date().getTime(),
-      elapsed = now - this._start;
-
-    if (elapsed > this._interval) {
-      this._numOps = 0;
-      this._start = now;
-    }
-
-    rate = this._numOps / (this._allowBursts ? 1 : elapsed);
-
-    if (rate < this._maxRate) {
-      if (this._queue.length === 0) {
-        this._numOps++;
-        return fn(param1, param2, param3);
-      } else {
-        if (fn) this._queue.push(fn);
-
-        this._numOps++;
-        this._queue.shift()();
-      }
-    } else {
-      if (fn) this._queue.push(fn);
-
-      setTimeout(function () {
-        that.schedule();
-      }, 1 / this._maxRate);
-    }
-  };
-
-  return RateLimit;
-})();
