@@ -64,10 +64,11 @@ export default class Pool extends React.Component {
     });
 
     // Scroll tracking
-    setInterval(() => {
+    this.myInterval = setInterval(() => {
       const docRect = document
-        .getElementsByClassName("card-body")[0]
+        .getElementsByClassName("pool")[0]
         .getBoundingClientRect();
+
       const contentHeight = docRect.height;
       const viewHeight = window.innerHeight;
       const maxPosition = contentHeight - viewHeight;
@@ -84,6 +85,11 @@ export default class Pool extends React.Component {
         this.prevPercent = scrollPercent;
       }
     }, 1000);
+  }
+
+  componentWillUnmount() {
+    // Stop tracking scroll data when leaving the page
+    clearInterval(this.myInterval);
   }
 
   async recordOrder() {
@@ -219,7 +225,7 @@ export default class Pool extends React.Component {
   }
 
   render() {
-    this.recordActivity("loading", "render", "Pool has rendered");
+    // this.recordActivity("loading", "render", "Pool has rendered");
     return (
       <div className="pool">
         {this.state.job_title ? (

@@ -1,0 +1,17 @@
+#red {
+  color: red;
+}
+
+.wholePage {
+  text-align: center;
+}
+
+button,
+input {
+  margin-top: 10px;
+  font-size: 0.8em;
+}
+
+.listItem {
+  line-height: 50px;
+}
