@@ -155,29 +155,30 @@ export default class Pool extends React.Component {
 
   async populateValues() {
     // Get resume order from the database
-    let newOrder = [...this.state.resumesOrder];
-    this.DATABASE.collection("userIDs")
+    let newOrder = [];
+    return this.DATABASE.collection("userIDs")
       .doc(this.qualtricsUserId)
       .get()
       .then((doc2) => {
         let kvp = doc2.data();
         for (let i = 0; i < this.numNames; i++) {
           // Save the resume order
-          newOrder[i] = kvp["candidate" + (i + 1) + "_resume"];
+          const ithResume = kvp["candidate" + (i + 1) + "_resume"];
+          newOrder[i] = ithResume;
+          this.setState({
+            resumesOrder: [...newOrder],
+          });
           // Get the resume info from the database
-          this.getCandidateResume(i);
+          this.getCandidateResume(ithResume, i);
         }
-        this.setState({
-          resumesOrder: [...newOrder],
-        });
       });
   }
 
-  // For a given candidate index, get their resume from the database
-  async getCandidateResume(candidateNum) {
+  // Get the details of resume_resumeNumber, which is resumeList[indexInOrder]
+  async getCandidateResume(resumeNumber, indexInOrder) {
     let new_dict = {};
     this.DATABASE.collection("resumes")
-      .doc("resume_" + (this.state.resumesOrder[candidateNum] + 1))
+      .doc("resume_" + resumeNumber)
       .get()
       .then((doc) => {
         new_dict["edu_degree"] = doc.data().edu_degree;
@@ -215,7 +216,7 @@ export default class Pool extends React.Component {
         new_dict["work3_title"] = doc.data().work3_title;
 
         let newOrder = [...this.state.resumeList];
-        newOrder[candidateNum] = new_dict;
+        newOrder[indexInOrder] = new_dict;
         this.setState({ resumeList: [...newOrder] });
       });
   }

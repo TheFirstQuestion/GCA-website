@@ -18,6 +18,18 @@ export default class Admin extends React.Component {
       downloadState: "",
     };
 
+    // !! This is hardcoded!!
+    this.NUM_PAGES = 7;
+    this.userCSVheaders = [
+      "userID",
+      "candidate1_resume",
+      "candidate2_resume",
+      "candidate3_resume",
+      "candidate4_resume",
+      "candidate5_resume",
+      "candidate6_resume",
+    ];
+
     this.DATABASE = firebase.firestore();
     this.users = [];
     this.userData = [];
@@ -46,6 +58,10 @@ export default class Admin extends React.Component {
   }
 
   async downloadData() {
+    this.setState({
+      downloadState: "Downloading...",
+    });
+
     let tmp = await this.DATABASE.collection("userIDs").get();
     let users = tmp.docs;
     for (let i = 0; i < users.length; i++) {
@@ -61,22 +77,26 @@ export default class Admin extends React.Component {
         ...thisUser.data(),
       });
       // Add page data
-      for (let k = 1; k <= 4; k++) {
-        await this.DATABASE.collection("userIDs")
-          .doc(thisUser.id)
-          .collection("activityData_page" + k)
-          .get()
-          .then((pageData) => {
-            pageData.forEach((item, idx) => {
-              this.activityData.push({
-                userID: thisUser.id,
-                pageNum: k,
-                activityid: item.id,
-                ...item.data(),
+      let promises = [];
+      for (let k = 1; k <= this.NUM_PAGES; k++) {
+        promises.push(
+          this.DATABASE.collection("userIDs")
+            .doc(thisUser.id)
+            .collection("activityData_page" + k)
+            .get()
+            .then((pageData) => {
+              pageData.forEach((item, idx) => {
+                this.activityData.push({
+                  userID: thisUser.id,
+                  pageNum: k,
+                  activityid: item.id,
+                  ...item.data(),
+                });
               });
-            });
-          });
+            })
+        );
       }
+      await Promise.all(promises);
     }
     this.setState({ doneGettingUserData: true });
     this.setState({ doneGettingActivityData: true });
@@ -114,6 +134,7 @@ export default class Admin extends React.Component {
               {this.state.doneGettingUserData && (
                 <CSVLink
                   data={this.userData}
+                  headers={this.userCSVheaders}
                   filename={"userData" + this.filenameString() + ".csv"}
                   className="listItem"
                 >
