@@ -1,0 +1,20 @@
+{
+  "files": {
+    "main.css": "/GCA-website/static/css/main.d3a55abb.chunk.css",
+    "main.js": "/GCA-website/static/js/main.3f6d9ffc.chunk.js",
+    "main.js.map": "/GCA-website/static/js/main.3f6d9ffc.chunk.js.map",
+    "runtime-main.js": "/GCA-website/static/js/runtime-main.1be2c82d.js",
+    "runtime-main.js.map": "/GCA-website/static/js/runtime-main.1be2c82d.js.map",
+    "static/js/2.f44ca4cf.chunk.js": "/GCA-website/static/js/2.f44ca4cf.chunk.js",
+    "static/js/2.f44ca4cf.chunk.js.map": "/GCA-website/static/js/2.f44ca4cf.chunk.js.map",
+    "index.html": "/GCA-website/index.html",
+    "static/css/main.d3a55abb.chunk.css.map": "/GCA-website/static/css/main.d3a55abb.chunk.css.map",
+    "static/js/2.f44ca4cf.chunk.js.LICENSE.txt": "/GCA-website/static/js/2.f44ca4cf.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.1be2c82d.js",
+    "static/js/2.f44ca4cf.chunk.js",
+    "static/css/main.d3a55abb.chunk.css",
+    "static/js/main.3f6d9ffc.chunk.js"
+  ]
+}
