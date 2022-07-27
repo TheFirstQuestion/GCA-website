@@ -1,6 +1,6 @@
 {
   "name": "gca-website",
-  "homepage": "http://gcaproject.com",
+  "homepage": "https://thefirstquestion.github.io/GCA-website/",
   "version": "0.2.0",
   "private": true,
   "dependencies": {
@@ -20,6 +20,8 @@
   },
   "scripts": {
     "start": "BROWSER=none react-scripts start",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -44,6 +46,7 @@
     ]
   },
   "devDependencies": {
-    "eslint-config-prettier": "^8.5.0"
+    "eslint-config-prettier": "^8.5.0",
+    "gh-pages": "^4.0.0"
   }
 }
