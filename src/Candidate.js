@@ -38,6 +38,14 @@ export default class Candidate extends React.Component {
               {this.props.resume["work3_description"]}
             </div>
           </div>
+          <div>
+            <h3>{this.props.resume["work4_title"]}</h3>
+            <h4>{this.props.resume["work4_company"]}</h4>
+            <h5>{this.props.resume["work4_duration"]}</h5>
+            <div className="workDescription">
+              {this.props.resume["work4_description"]}
+            </div>
+          </div>
           <hr />
           <h2 className="sectionHeader">Education</h2>
           <div>

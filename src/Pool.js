@@ -24,6 +24,8 @@ export default class Pool extends React.Component {
       job_title: null,
       main_tasks: null,
       req_skills: null,
+      job_loc: null,
+      job_summary: null,
     };
 
     // Get from the URL
@@ -144,6 +146,8 @@ export default class Pool extends React.Component {
           job_title: doc.data().job_title,
           main_tasks: renderBulletList(doc.data().main_tasks),
           req_skills: renderBulletList(doc.data().req_skills),
+          job_loc: doc.data().job_loc,
+          job_summary: doc.data().job_summary,
         });
         this.recordActivity(
           "log",
@@ -215,6 +219,16 @@ export default class Pool extends React.Component {
         new_dict["work3_location"] = doc.data().work3_location;
         new_dict["work3_title"] = doc.data().work3_title;
 
+        new_dict["work4_company"] = doc.data().work4_company;
+        if (doc.data().work4_description != null) {
+          new_dict["work4_description"] = renderBulletList(
+            doc.data().work4_description
+          );
+        }
+        new_dict["work4_duration"] = doc.data().work4_duration;
+        new_dict["work4_location"] = doc.data().work4_location;
+        new_dict["work4_title"] = doc.data().work4_title;
+
         let newOrder = [...this.state.resumeList];
         newOrder[indexInOrder] = new_dict;
         this.setState({ resumeList: [...newOrder] });
@@ -247,6 +261,8 @@ export default class Pool extends React.Component {
                   job_title={this.state.job_title}
                   main_tasks={this.state.main_tasks}
                   req_skills={this.state.req_skills}
+                  job_loc={this.state.job_loc}
+                  job_summary={this.state.job_summary}
                 />
               }
             </TabPanel>

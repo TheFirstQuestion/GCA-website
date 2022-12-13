@@ -7,7 +7,7 @@
 .react-tabs__tab-list {
   min-width: 220px;
   /* center it vertically within the iframe */
-  margin-top: calc((830px - 285px) / 2);
+  /* margin-top: calc((830px - 285px) / 2); */
   background-color: white;
   border: 1px solid #aaa;
   margin-right: 1em;

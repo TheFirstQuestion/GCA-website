@@ -39,22 +39,25 @@
 
 .candidate h2 {
   text-decoration: underline;
-  margin-bottom: 2rem;
+  margin-bottom: 0.7rem;
 }
 
 .candidate h3,
 .jobDescription h2 {
   font-weight: bold;
-  margin-top: 2rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.2rem;
 }
 
 .candidate h4 {
   font-size: inherit;
+  margin: 0.4rem;
 }
 
 .candidate h5 {
   color: #888;
   font-size: 1.1rem;
+  margin: 0.4rem;
 }
 
 .candidate .eduBasics {

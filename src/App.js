@@ -17,6 +17,7 @@ export default class App extends React.Component {
     const loc = document.location.hash;
     this.pageNum = loc.split("/")[2];
     this.qualtricsUserId = loc.split("/")[3];
+
     // Print for debugging purposes within Qualtrics
     console.log("qualtricsUserId: " + this.qualtricsUserId);
     console.log("pageNum: " + this.pageNum);
